@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class HUD : MonoBehaviour
 {
-    public TMP_Text dayText, soupText, cleanText, dirtyText, launderText;
+    public TMP_Text dayText, soupText, cleanText, dirtyText, launderText, messageText;
     public GameObject endPanel;
     public TMP_Text endText;
     public Button restartButton;
@@ -32,5 +32,12 @@ public class HUD : MonoBehaviour
         endPanel.SetActive(gm.DayOver);
         if (gm.DayOver)
             endText.text = $"Day over!\nScore: ${gm.Score}\nHigh score: ${gm.HighScore}";
+
+        if (messageText)
+        {
+            bool show = Time.time < gm.MessageUntil;
+            messageText.gameObject.SetActive(show);
+            if (show) messageText.text = gm.Message;
+        }
     }
 }

@@ -1114,7 +1114,7 @@ MonoBehaviour:
   damage: 1
   hitMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 183
   gunSprite: {fileID: 1519616118}
   recoilDistance: 40
   tracer: {fileID: 1478786589}
@@ -1539,6 +1539,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2056371781}
   - component: {fileID: 2056371780}
+  - component: {fileID: 2056371782}
   m_Layer: 0
   m_Name: ForestGenerator
   m_TagString: Untagged
@@ -1561,13 +1562,15 @@ MonoBehaviour:
   size: 80
   ground: {fileID: 1449445713}
   spawnClearRadius: 8
+  navSurface: {fileID: 2056371782}
   treePrefabs:
   - {fileID: 1841301877755671019, guid: a54ec1b6a1b8349f59c568dd7cd93050, type: 3}
   treeCount: 150
   treeSpacing: 2.5
-  creaturePrefabs:
-  - {fileID: 2639368531340996322, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-  creatureCount: 20
+  creatures:
+  - prefab: {fileID: 2639368531340996322, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
+    weight: 1
+  creatureCount: 30
   creatureSpacing: 4
 --- !u!4 &2056371781
 Transform:
@@ -1584,6 +1587,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2056371782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056371779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 55
+  m_UseGeometry: 1
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 0}
+  m_BuildHeightMesh: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

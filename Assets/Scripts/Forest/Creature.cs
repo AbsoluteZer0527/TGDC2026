@@ -3,10 +3,11 @@ using UnityEngine;
 
 public class Creature : MonoBehaviour
 {
+    public string displayName = "Creature";
     public int maxHealth = 1;
-    public int value = 10;            // dirty $ when killed
-    public Renderer rend;             // visual quad, flashes white when hit
-    [HideInInspector] public int id;  // set by the generator
+    public int value = 10;
+    public Renderer rend;
+    [HideInInspector] public int id;
 
     int hp;
     Color baseColor;
@@ -20,6 +21,7 @@ public class Creature : MonoBehaviour
     public void TakeDamage(int dmg)
     {
         hp -= dmg;
+        if (TryGetComponent(out CreatureAI ai)) ai.OnHurt();
         if (hp <= 0) { Die(); return; }
         if (rend) StartCoroutine(Flash());
     }
@@ -38,6 +40,7 @@ public class Creature : MonoBehaviour
         {
             gm.AddDirtyMoney(value);
             gm.KilledCreatures.Add(id);
+            gm.ShowMessage($"+${value}  {displayName}", 1.2f);
         }
         Destroy(gameObject);
     }

@@ -1,12 +1,22 @@
+using System;
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using UnityEngine;
 
 public class ForestGenerator : MonoBehaviour
 {
+    [Serializable]
+    public class CreatureSpawn
+    {
+        public Creature prefab;
+        [Min(0)] public float weight = 1f;   // higher = more common
+    }
+
     [Header("World")]
-    public float size = 80f;              // square world, centered on (0,0,0)
-    public Transform ground;              // a Plane at the origin
-    public float spawnClearRadius = 8f;   // keep the area around the door empty
+    public float size = 80f;
+    public Transform ground;
+    public float spawnClearRadius = 8f;
+    public NavMeshSurface navSurface;
 
     [Header("Trees")]
     public GameObject[] treePrefabs;
@@ -14,14 +24,13 @@ public class ForestGenerator : MonoBehaviour
     public float treeSpacing = 2.5f;
 
     [Header("Creatures")]
-    public Creature[] creaturePrefabs;
-    public int creatureCount = 20;
+    public CreatureSpawn[] creatures;
+    public int creatureCount = 30;
     public float creatureSpacing = 4f;
 
     readonly List<Vector3> used = new();
     System.Random rng;
 
-    // Start (not Awake) so GameManager is guaranteed to exist first
     void Start()
     {
         var gm = GameManager.I;
@@ -30,6 +39,7 @@ public class ForestGenerator : MonoBehaviour
         if (ground) ground.localScale = new Vector3(size / 10f, 1, size / 10f);
         BuildWalls();
 
+        // 1) Trees
         for (int i = 0; i < treeCount; i++)
         {
             if (!TryGetPoint(treeSpacing, out var p)) continue;
@@ -40,18 +50,33 @@ public class ForestGenerator : MonoBehaviour
             tree.transform.localScale *= scale;
         }
 
+        // 2) Walkable map, now that obstacles exist
+        if (navSurface) navSurface.BuildNavMesh();
+
+        // 3) Creatures (always use up the same random numbers, even for dead ones)
         for (int i = 0; i < creatureCount; i++)
         {
-            // Always use up the same random numbers, even for dead creatures,
-            // so every later position stays identical.
             bool found = TryGetPoint(creatureSpacing, out var p);
-            var prefab = creaturePrefabs[rng.Next(creaturePrefabs.Length)];
-            if (!found) continue;
+            var prefab = PickCreature();
+            if (!found || prefab == null) continue;
             if (gm != null && gm.KilledCreatures.Contains(i)) continue;
 
-            var c = Instantiate(prefab, p, Quaternion.identity, transform);
+            var c = Instantiate(prefab, p, Quaternion.Euler(0, Range(0f, 360f), 0), transform);
             c.id = i;
         }
+    }
+
+    Creature PickCreature()
+    {
+        float total = 0f;
+        foreach (var c in creatures) total += c.weight;
+        float r = Range(0f, total);
+        foreach (var c in creatures)
+        {
+            r -= c.weight;
+            if (r <= 0f) return c.prefab;
+        }
+        return creatures.Length > 0 ? creatures[^1].prefab : null;
     }
 
     bool TryGetPoint(float spacing, out Vector3 point)
