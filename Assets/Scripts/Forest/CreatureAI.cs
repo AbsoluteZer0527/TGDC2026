@@ -1,0 +1,65 @@
+using UnityEngine;
+using UnityEngine.AI;
+
+[RequireComponent(typeof(NavMeshAgent))]
+public abstract class CreatureAI : MonoBehaviour
+{
+    protected NavMeshAgent agent;
+    protected Transform player;
+
+    bool waitingToWander;
+    float nextWanderTime;
+
+    protected virtual void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false; // sprites billboard, so rotation doesn't matter
+    }
+
+        protected virtual void Start()
+    {
+        var pc = FindFirstObjectByType<PlayerController>();
+        if (pc) player = pc.transform;
+    }
+
+    void Update()
+    {
+        if (!player || !agent.isOnNavMesh) return;
+        if (GameManager.I != null && GameManager.I.DayOver) { agent.isStopped = true; return; }
+        Tick();
+    }
+
+    protected abstract void Tick();
+    public virtual void OnHurt() { }
+
+    protected Vector3 ToPlayerFlat()
+    {
+        Vector3 d = player.position - transform.position;
+        d.y = 0;
+        return d;
+    }
+    protected float DistToPlayer => ToPlayerFlat().magnitude;
+
+    // Walk to a random nearby point, pause, repeat.
+    protected void Wander(float radius, float speed)
+    {
+        agent.isStopped = false;
+        agent.speed = speed;
+        if (agent.pathPending) return;
+        if (agent.hasPath && agent.remainingDistance > agent.stoppingDistance + 0.2f) return;
+
+        if (!waitingToWander)
+        {
+            waitingToWander = true;
+            nextWanderTime = Time.time + Random.Range(1f, 3f);
+            return;
+        }
+        if (Time.time < nextWanderTime) return;
+
+        waitingToWander = false;
+        Vector2 r = Random.insideUnitCircle * radius;
+        Vector3 target = transform.position + new Vector3(r.x, 0, r.y);
+        if (NavMesh.SamplePosition(target, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            agent.SetDestination(hit.position);
+    }
+}
