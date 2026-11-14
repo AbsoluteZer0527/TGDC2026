@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum SoupState { Empty, Cooking, Ready }
+public enum SoupState { Empty, Filling, Cooking, Ready }
 
 public class GameManager : MonoBehaviour
 {
@@ -14,20 +14,18 @@ public class GameManager : MonoBehaviour
     public bool DayOver { get; private set; }
 
     [Header("Soup")]
-    public float cookTime = 20f;
+    [Tooltip("Cook time before the timing-meter seconds are added")]
+    public float baseCookTime = 3f;
     public SoupState Soup { get; private set; } = SoupState.Empty;
-    public float CookTimeLeft { get; private set; }
     public List<IngredientData> PotContents { get; } = new();
+    public float PendingCookTime { get; private set; }   // sum from the timing meter
+    public float TotalCookTime => baseCookTime + PendingCookTime;
+    public float CookTimeLeft { get; private set; }
 
-    // Current customer, persist over to shooter
+    [Header("Customer")]
     public List<IngredientData> CurrentOrder { get; } = new();
     public Color CustomerColor { get; set; } = Color.white;
-    
-    [Header("Forest")]
-    [Tooltip("0 = random each day. Set a number to test the same layout every time.")]
-    public int debugSeed = 0;
-    public int ForestSeed { get; private set; }
-    public HashSet<int> KilledCreatures { get; } = new();
+    public Vector3 CustomerPos { get; set; }
 
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]
@@ -39,9 +37,15 @@ public class GameManager : MonoBehaviour
     public int Score => CleanMoney + Laundered;
     public int HighScore => PlayerPrefs.GetInt("HighScore", 0);
 
+    [Header("Forest")]
+    [Tooltip("0 = random each day. Set a number to test the same layout every time.")]
+    public int debugSeed = 0;
+    public int ForestSeed { get; private set; }
+    public HashSet<int> KilledCreatures { get; } = new();
+
     void Awake()
     {
-        if (I != null) { Destroy(gameObject); return; } // duplicate from another scene
+        if (I != null) { Destroy(gameObject); return; }
         I = this;
         DontDestroyOnLoad(gameObject);
         TimeLeft = dayLength;
@@ -51,22 +55,32 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         if (DayOver) return;
-
         TimeLeft -= Time.deltaTime;
         if (Soup == SoupState.Cooking)
         {
             CookTimeLeft -= Time.deltaTime;
-            if (CookTimeLeft <= 0f) Soup = SoupState.Ready; // stays Ready indefinitely
+            if (CookTimeLeft <= 0f) { CookTimeLeft = 0f; Soup = SoupState.Ready; }
         }
         if (TimeLeft <= 0f) EndDay();
     }
 
-    public bool StartCooking(List<IngredientData> ingredients)
+    // ---------- Pot ----------
+    public bool CanAddIngredient(IngredientData ing) =>
+        (Soup == SoupState.Empty || Soup == SoupState.Filling) && !PotContents.Contains(ing);
+
+    public bool AddIngredient(IngredientData ing, float cookSeconds)
     {
-        if (Soup != SoupState.Empty || ingredients.Count == 0) return false;
-        PotContents.Clear();
-        PotContents.AddRange(ingredients);
-        CookTimeLeft = cookTime;
+        if (!CanAddIngredient(ing)) return false;
+        PotContents.Add(ing);
+        PendingCookTime += cookSeconds;
+        Soup = SoupState.Filling;
+        return true;
+    }
+
+    public bool StartCooking()
+    {
+        if (Soup != SoupState.Filling) return false;
+        CookTimeLeft = TotalCookTime;
         Soup = SoupState.Cooking;
         return true;
     }
@@ -75,11 +89,19 @@ public class GameManager : MonoBehaviour
     {
         if (Soup != SoupState.Ready) return null;
         var soup = new List<IngredientData>(PotContents);
-        PotContents.Clear();
-        Soup = SoupState.Empty;
+        DiscardSoup();
         return soup;
     }
 
+    public void DiscardSoup()
+    {
+        PotContents.Clear();
+        PendingCookTime = 0f;
+        CookTimeLeft = 0f;
+        Soup = SoupState.Empty;
+    }
+
+    // ---------- Money ----------
     public void SellSoup(int price)
     {
         CleanMoney += price;
@@ -88,6 +110,7 @@ public class GameManager : MonoBehaviour
 
     public void AddDirtyMoney(int amount) => DirtyMoney += amount;
 
+    // ---------- Day ----------
     void EndDay()
     {
         DayOver = true;
