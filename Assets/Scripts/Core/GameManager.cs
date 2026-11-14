@@ -22,6 +22,12 @@ public class GameManager : MonoBehaviour
     // Current customer, persist over to shooter
     public List<IngredientData> CurrentOrder { get; } = new();
     public Color CustomerColor { get; set; } = Color.white;
+    
+    [Header("Forest")]
+    [Tooltip("0 = random each day. Set a number to test the same layout every time.")]
+    public int debugSeed = 0;
+    public int ForestSeed { get; private set; }
+    public HashSet<int> KilledCreatures { get; } = new();
 
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]
@@ -39,6 +45,7 @@ public class GameManager : MonoBehaviour
         I = this;
         DontDestroyOnLoad(gameObject);
         TimeLeft = dayLength;
+        ForestSeed = debugSeed != 0 ? debugSeed : Random.Range(1, int.MaxValue);
     }
 
     void Update()

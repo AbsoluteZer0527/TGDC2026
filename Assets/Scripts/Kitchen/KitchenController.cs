@@ -13,7 +13,7 @@ public class KitchenController : MonoBehaviour
 
     [Header("UI")]
     public Button ingredientButtonPrefab;
-    public Transform ingredientButtonParent;
+    public Transform ingredientBar;
     public Button cookButton, serveButton;
     public TMP_Text orderText, potText;
 
@@ -30,7 +30,7 @@ public class KitchenController : MonoBehaviour
     {
         foreach (var ing in ingredients)
         {
-            var b = Instantiate(ingredientButtonPrefab, ingredientButtonParent);
+            var b = Instantiate(ingredientButtonPrefab, ingredientBar);
             b.GetComponentInChildren<TMP_Text>().text = ing.displayName;
             buttonImages[ing] = b.image;
             b.onClick.AddListener(() => { if (!selected.Remove(ing)) selected.Add(ing); });

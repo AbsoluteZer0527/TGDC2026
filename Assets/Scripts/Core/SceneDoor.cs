@@ -1,14 +1,20 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class SceneDoor : MonoBehaviour
+public class SceneDoor : MonoBehaviour, IPointerClickHandler
 {
     public string sceneToLoad = "Forest";
+    public Key hotkey = Key.None;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab)) Go();
+        if (hotkey == Key.None || Keyboard.current == null) return;
+        if (Keyboard.current[hotkey].wasPressedThisFrame) Go();
     }
+
+    public void OnPointerClick(PointerEventData e) => Go();
 
     public void Go()
     {
