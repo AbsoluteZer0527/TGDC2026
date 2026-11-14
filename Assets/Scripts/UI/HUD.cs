@@ -18,8 +18,9 @@ public class HUD : MonoBehaviour
 
         int t = Mathf.CeilToInt(gm.TimeLeft);
         dayText.text = $"Day ends in {t / 60}:{t % 60:00}";
-        soupText.text = gm.Soup switch
+                soupText.text = gm.Soup switch
         {
+            SoupState.Filling => $"Soup: {gm.PotContents.Count} in pot",
             SoupState.Cooking => $"Soup: {Mathf.CeilToInt(gm.CookTimeLeft)}s",
             SoupState.Ready   => "Soup: READY",
             _                 => "Soup: pot empty"
