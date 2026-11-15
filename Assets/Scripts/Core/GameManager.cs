@@ -13,8 +13,15 @@ public class GameManager : MonoBehaviour
 
     [Header("Day")]
     public float dayLength = 300f;
+    [Tooltip("Rent charged at the end of each day = this × the day number.")]
+    public int rentPerDay = 200;
+    [Min(0f), Tooltip("Seconds the night screen (with the bill) shows before the next day starts.")]
+    public float nightDuration = 4f;
     public float TimeLeft { get; private set; }
-    public bool DayOver { get; private set; }
+    public bool DayOver { get; private set; }   // true during the night between days
+    public int Day { get; private set; } = 1;
+    public long RentDue => (long)rentPerDay * Day;
+    float nightTimeLeft;
 
     [Header("Soup")]
     [Tooltip("Cook time before the per-ingredient seconds are added")]
@@ -98,11 +105,16 @@ public class GameManager : MonoBehaviour
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]
     public float launderRatio = 3f;
-    public long CleanMoney { get; private set; }
-    public long DirtyMoney { get; private set; }
-    public long LaunderCapacity { get; private set; }
+    // Today's numbers. They are settled into Savings at night, then reset.
+    public long CleanMoney { get; private set; }       // kitchen profit today
+    public long DirtyMoney { get; private set; }       // illegal money today
+    public long LaunderCapacity { get; private set; }  // how much dirty money today's sales can cover
     public long Laundered => System.Math.Min(DirtyMoney, LaunderCapacity);
-    public long Score => CleanMoney + Laundered;
+    public bool OverLaunderLimit => DirtyMoney > LaunderCapacity;
+    // Running total across days. Rent comes out of this; negative = in debt.
+    public long Savings { get; private set; }
+    public long Score => Savings;
+    public NightReport LastNight { get; private set; }
     const string HighScoreKey = "HighScore64";
     public long HighScore => long.TryParse(PlayerPrefs.GetString(HighScoreKey), NumberStyles.Integer,
         CultureInfo.InvariantCulture, out long saved) ? saved : PlayerPrefs.GetInt("HighScore", 0);
@@ -125,7 +137,12 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (DayOver) return;
+        if (DayOver)
+        {
+            nightTimeLeft -= Time.deltaTime;
+            if (nightTimeLeft <= 0f) StartNextDay();
+            return;
+        }
         float elapsed = Mathf.Min(Time.deltaTime, TimeLeft);
         TimeLeft -= elapsed;
         AdvanceSoupTimer(elapsed);
@@ -212,11 +229,79 @@ public class GameManager : MonoBehaviour
     }
 
     // ---------- Day ----------
+    // What happened at the end of a day, for the night screen.
+    public class NightReport
+    {
+        public int day;
+        public long kitchenProfit, illegalMoney, launderCapacity;
+        public bool exposed;     // illegal money > launder capacity
+        public long banked;      // added to Savings
+        public long rent;
+        public long savingsAfter;
+    }
+
+    // Timer hit 0: night falls. Gameplay freezes (everything checks DayOver) and the day is settled.
     void EndDay()
     {
         DayOver = true;
         TimeLeft = 0f;
+        nightTimeLeft = nightDuration;
+
+        // ---------- Night events ----------
+        var report = new NightReport
+        {
+            day = Day, kitchenProfit = CleanMoney, illegalMoney = DirtyMoney,
+            launderCapacity = LaunderCapacity, exposed = OverLaunderLimit, rent = RentDue,
+        };
+
+        if (report.exposed)
+        {
+            //TODO: (illegal money > what the kitchen could launder: something happens, e.g. raid, fine, game over)
+            // Placeholder until that's designed: only the launderable part is kept, the excess is lost.
+            report.banked = CleanMoney + Laundered;
+        }
+        else
+        {
+            // All illegal money was launderable: kitchen profit + illegal money go into savings.
+            report.banked = CleanMoney + DirtyMoney;
+        }
+
+        Savings += report.banked;
+        Savings -= report.rent;   // rent / debt / tax
+        report.savingsAfter = Savings;
+        LastNight = report;
+        //TODO: (game over / consequence when Savings < 0, i.e. in debt?)
+        //TODO: (night sound / music sting)
+
         if (Score > HighScore) PlayerPrefs.SetString(HighScoreKey, Score.ToString(CultureInfo.InvariantCulture));
+    }
+
+    // Advance the day and reset everything that is per-day. Savings carry over.
+    void StartNextDay()
+    {
+        long bill = LastNight != null ? LastNight.rent : 0;
+        Day++;
+        CleanMoney = 0;
+        DirtyMoney = 0;
+        LaunderCapacity = 0;
+
+        DayOver = false;
+        TimeLeft = dayLength;
+        DiscardSoup();
+        explosionEndsAt = 0f;
+
+        // Fresh customer next morning (story progress like CustomersArrived and the pigeon is kept).
+        CurrentOrder.Clear();
+        customerLines.Clear();
+        Phase = CustomerPhase.BetweenCustomers;
+
+        // New forest.
+        ForestSeed = debugSeed != 0 ? debugSeed : Random.Range(1, int.MaxValue);
+        KilledCreatures.Clear();
+        Explored = null;
+
+        ShowMessage($"<color=#FF4D4D>-${bill} rent, debt & taxes</color>\nSavings: ${Savings}\nDay {Day}", 4f);
+        SceneManager.LoadScene("Kitchen");
     }
 
     public void Restart()

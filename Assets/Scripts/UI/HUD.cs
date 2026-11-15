@@ -14,6 +14,8 @@ public class HUD : MonoBehaviour
     [SerializeField] RectTransform dayPointer;
     [Tooltip("Pointer rotation at the sun and moon, in degrees.")]
     [SerializeField] Vector2 pointerAngles = new(-58f, 132f);
+    [Tooltip("Shows \"Day N\" on the clock.")]
+    [SerializeField] TMP_Text dayText;
 
     [Header("Cooking timer")]
     [SerializeField] Image cookingTimer;
@@ -27,6 +29,8 @@ public class HUD : MonoBehaviour
     [SerializeField] Image openMoney;
     [SerializeField] GameObject foldedMoney;
     [FormerlySerializedAs("launderText")] public TMP_Text maxText;
+    [Tooltip("Optional: running total across days (after rent).")]
+    public TMP_Text savingsText;
     public GameObject endPanel;
     public TMP_Text endText;
     public Button restartButton;
@@ -67,9 +71,13 @@ public class HUD : MonoBehaviour
             maxText.text = FormatMoney(gm.LaunderCapacity - gm.Laundered);
         }
 
+        if (dayText) dayText.SetText("Day {0}", gm.Day);
+
+        // Night screen between days: summary, then the bill in red. The next day starts automatically.
         endPanel.SetActive(gm.DayOver);
-        if (gm.DayOver)
-            endText.text = $"Day over!\nScore: ${gm.Score}\nHigh score: ${gm.HighScore}";
+        restartButton.gameObject.SetActive(false); // no restart in the day loop for now
+        if (gm.DayOver && gm.LastNight != null) endText.text = NightText(gm.LastNight, gm.HighScore);
+        if (savingsText) savingsText.text = FormatMoney(gm.Savings);
 
         if (messageText)
         {
@@ -77,6 +85,21 @@ public class HUD : MonoBehaviour
             messageText.gameObject.SetActive(show);
             if (show) messageText.text = gm.Message;
         }
+    }
+
+    const string Red = "#FF4D4D", Green = "#7CD67C";
+
+    static string NightText(GameManager.NightReport r, long highScore)
+    {
+        string check = r.exposed
+            ? $"<color={Red}>Illegal money ${r.illegalMoney} > launderable ${r.launderCapacity}!</color>\n" //TODO: show the consequence here
+            : $"<color={Green}>All ${r.illegalMoney} illegal money laundered</color>\n";
+        return $"Day {r.day} over!\n" +
+               $"Kitchen profit: ${r.kitchenProfit}\n" +
+               check +
+               $"Banked: +${r.banked}\n" +
+               $"<color={Red}>Rent, debt & taxes: -${r.rent}</color>\n" +
+               $"Savings: ${r.savingsAfter}   (best ${highScore})";
     }
 
     void UpdateCookingTimer(GameManager gm)
