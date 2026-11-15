@@ -29,8 +29,7 @@ public class HUD : MonoBehaviour
     [SerializeField] Image openMoney;
     [SerializeField] GameObject foldedMoney;
     [FormerlySerializedAs("launderText")] public TMP_Text maxText;
-    [Tooltip("Optional: running total across days (after rent).")]
-    public TMP_Text savingsText;
+    [Tooltip("Loss screen (jail / evicted): full-screen black panel with End Text and the Restart button.")]
     public GameObject endPanel;
     public TMP_Text endText;
     public Button restartButton;
@@ -59,7 +58,9 @@ public class HUD : MonoBehaviour
         float angle = Mathf.Lerp(pointerAngles.x, pointerAngles.y, progress);
         dayPointer.localRotation = Quaternion.Euler(0f, 0f, angle);
         UpdateCookingTimer(gm);
+        // Today's numbers (reset every morning).
         stewText.text = FormatMoney(gm.CleanMoney);
+        // Hunt + Max only appear (open money icon) once there's hunt money today.
         bool showHunt = gm.DirtyMoney > 0;
         openMoney.enabled = showHunt;
         foldedMoney.SetActive(!showHunt);
@@ -68,16 +69,17 @@ public class HUD : MonoBehaviour
         if (showHunt)
         {
             huntText.text = FormatMoney(gm.DirtyMoney);
-            maxText.text = FormatMoney(gm.LaunderCapacity - gm.Laundered);
+            maxText.text = FormatMoney(gm.MaxToday); // stew + stew × launder ratio
         }
 
         if (dayText) dayText.SetText("Day {0}", gm.Day);
 
-        // Night screen between days: summary, then the bill in red. The next day starts automatically.
-        endPanel.SetActive(gm.DayOver);
-        restartButton.gameObject.SetActive(false); // no restart in the day loop for now
-        if (gm.DayOver && gm.LastNight != null) endText.text = NightText(gm.LastNight, gm.HighScore);
-        if (savingsText) savingsText.text = FormatMoney(gm.Savings);
+        // Loss screen. (The between-days night screen is NightScreen.)
+        bool lost = gm.Night == NightPhase.Lost;
+        endPanel.SetActive(lost);
+        if (lost) endText.text = gm.Loss == LossReason.Jail
+            ? "Put in jail for improper money laundering"
+            : "Evicted from shop, could not pay rent";
 
         if (messageText)
         {
@@ -85,21 +87,6 @@ public class HUD : MonoBehaviour
             messageText.gameObject.SetActive(show);
             if (show) messageText.text = gm.Message;
         }
-    }
-
-    const string Red = "#FF4D4D", Green = "#7CD67C";
-
-    static string NightText(GameManager.NightReport r, long highScore)
-    {
-        string check = r.exposed
-            ? $"<color={Red}>Illegal money ${r.illegalMoney} > launderable ${r.launderCapacity}!</color>\n" //TODO: show the consequence here
-            : $"<color={Green}>All ${r.illegalMoney} illegal money laundered</color>\n";
-        return $"Day {r.day} over!\n" +
-               $"Kitchen profit: ${r.kitchenProfit}\n" +
-               check +
-               $"Banked: +${r.banked}\n" +
-               $"<color={Red}>Rent, debt & taxes: -${r.rent}</color>\n" +
-               $"Savings: ${r.savingsAfter}   (best ${highScore})";
     }
 
     void UpdateCookingTimer(GameManager gm)
@@ -123,7 +110,7 @@ public class HUD : MonoBehaviour
         cookingTimer.rectTransform.localScale = Vector3.one * (1f + 0.15f * Mathf.Sin(pop * Mathf.PI));
     }
 
-    static string FormatMoney(long amount)
+    public static string FormatMoney(long amount)
     {
         if (amount > -10_000 && amount < 10_000)
             return amount.ToString(CultureInfo.InvariantCulture);

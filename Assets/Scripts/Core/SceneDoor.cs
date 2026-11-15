@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class SceneDoor : MonoBehaviour, IPointerClickHandler
 {
@@ -19,6 +18,6 @@ public class SceneDoor : MonoBehaviour, IPointerClickHandler
     public void Go()
     {
         if (GameManager.I != null && GameManager.I.DayOver) return;
-        SceneManager.LoadScene(sceneToLoad);
+        ScreenFader.LoadScene(sceneToLoad);
     }
 }

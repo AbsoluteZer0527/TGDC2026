@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class ForestDoor : MonoBehaviour
 {
@@ -18,6 +17,6 @@ public class ForestDoor : MonoBehaviour
 
         if (prompt) prompt.SetActive(near);
         if (near && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-            SceneManager.LoadScene(sceneToLoad);
+            ScreenFader.LoadScene(sceneToLoad);
     }
 }

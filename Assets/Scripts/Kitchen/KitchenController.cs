@@ -40,6 +40,8 @@ public class KitchenController : MonoBehaviour
     [SerializeField] KeyNpc[] keyNpcs = System.Array.Empty<KeyNpc>();
     [Tooltip("Choose who arrives on a numbered visit. Visit 1 opens the day.")]
     [SerializeField] KeyVisit[] keyVisits = System.Array.Empty<KeyVisit>();
+    [Tooltip("The IRS agent who visits at the end of every day. Add them to Key Npcs first.")]
+    [SerializeField, NpcReference(false)] int auditorNpcId = 99;
 
     [Header("Pot")]
     public GameObject soupVisual, readyVisual;
@@ -51,6 +53,7 @@ public class KitchenController : MonoBehaviour
     Vector3 customerStop;
     Sprite defaultCustomerSprite;
     bool customerEntering;
+    bool auditStarted, auditorTalking;
     KitchenDialogue dialogue;
     PigeonDelivery pigeonDelivery;
     bool CanServe => !customerEntering && GM.Phase == CustomerPhase.AtCounter && GM.CurrentCustomerLine == null && !GM.DayOver;
@@ -79,7 +82,8 @@ public class KitchenController : MonoBehaviour
         serveButton.onClick.AddListener(Serve);
         discardButton.onClick.AddListener(Discard);
 
-        if (GM.CustomersArrived == 0)
+        if (GM.AuditInProgress) customer.gameObject.SetActive(false); // came back from the forest at day end: Update starts the IRS visit
+        else if (GM.CustomersArrived == 0)
         {
             //TODO: (bell ring for first npc of the day)
             NewCustomer();
@@ -130,6 +134,7 @@ public class KitchenController : MonoBehaviour
 
     void Update()
     {
+        if (GM.AuditInProgress && !auditStarted && !ScreenFader.Busy) BeginAudit();
         bool busy = GM.DayOver;
 
         foreach (var kv in buttons)
@@ -177,8 +182,44 @@ public class KitchenController : MonoBehaviour
     static T Pick<T>(T[] choices) where T : class =>
         choices.Length == 0 ? null : choices[Random.Range(0, choices.Length)];
 
+    // End of day: current customer leaves, the IRS walks in and says the pass/fail lines.
+    void BeginAudit()
+    {
+        auditStarted = true;
+        StopAllCoroutines();          // cancel any customer walk in progress
+        customerEntering = false;
+        StartCoroutine(AuditSteps());
+    }
+
+    IEnumerator AuditSteps()
+    {
+        dialogue.Hide();
+        if (customer.gameObject.activeSelf) yield return MoveCustomer(false, resume: false);
+
+        var irs = keyNpcs.FirstOrDefault(k => k != null && k.npcId == auditorNpcId);
+        GM.AuditorArrives(auditorNpcId, irs?.sprite ? irs.sprite : defaultCustomerSprite);
+        dialogue.BeginAudit(GM.AuditPassed);
+
+        customer.gameObject.SetActive(true);
+        if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
+        //TODO: (IRS footsteps / ominous sting)
+        yield return MoveCustomer(true, resume: false);
+        auditorTalking = true;
+        ResumeConversation();
+    }
+
     void ResumeConversation()
     {
+        if (GM.AuditInProgress)
+        {
+            if (!auditorTalking) return;                       // still walking in
+            if (GM.CurrentCustomerLine == null) { dialogue.Hide(); GM.FinishAudit(); return; }
+            if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
+            dialogue.Show(customer);
+            return;
+        }
+        if (GM.DayOver) return;                                 // night screen / loss screen
+
         customer.gameObject.SetActive(GM.Phase != CustomerPhase.BetweenCustomers);
         pigeonDelivery.Refresh();
         if (GM.DeliveryStage == PigeonDeliveryStage.Flying || GM.DeliveryStage == PigeonDeliveryStage.WaitingForLetter ||
@@ -202,7 +243,7 @@ public class KitchenController : MonoBehaviour
         dialogue.Show(customer);
     }
 
-    IEnumerator MoveCustomer(bool arriving)
+    IEnumerator MoveCustomer(bool arriving, bool resume = true)
     {
         customerEntering = true;
         dialogue.Hide();
@@ -226,7 +267,7 @@ public class KitchenController : MonoBehaviour
         customer.position = arriving ? customerStop : start;
         if (!arriving) customer.gameObject.SetActive(false);
         customerEntering = false;
-        ResumeConversation();
+        if (resume) ResumeConversation();
     }
 
     IEnumerator ThrowVisual(Color color)

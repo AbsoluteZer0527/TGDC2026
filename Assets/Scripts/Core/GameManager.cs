@@ -6,6 +6,9 @@ using UnityEngine.SceneManagement;
 public enum SoupState { Empty, Filling, Cooking, Ready, Ruined }
 public enum CustomerPhase { AtCounter, Farewell, BetweenCustomers }
 public enum PigeonDeliveryStage { NotStarted, Flying, WaitingForLetter, Reading, Complete }
+// None = daytime. Audit = IRS visit in the kitchen. Summary = black night screen. Lost = game over screen.
+public enum NightPhase { None, Audit, Summary, Lost }
+public enum LossReason { None, Jail, Evicted }
 
 public class GameManager : MonoBehaviour
 {
@@ -15,13 +18,13 @@ public class GameManager : MonoBehaviour
     public float dayLength = 300f;
     [Tooltip("Rent charged at the end of each day = this × the day number.")]
     public int rentPerDay = 200;
-    [Min(0f), Tooltip("Seconds the night screen (with the bill) shows before the next day starts.")]
-    public float nightDuration = 4f;
     public float TimeLeft { get; private set; }
-    public bool DayOver { get; private set; }   // true during the night between days
+    public NightPhase Night { get; private set; }
+    public LossReason Loss { get; private set; }
+    public bool DayOver => Night != NightPhase.None;          // freezes normal gameplay
+    public bool AuditInProgress => Night == NightPhase.Audit;
     public int Day { get; private set; } = 1;
     public long RentDue => (long)rentPerDay * Day;
-    float nightTimeLeft;
 
     [Header("Soup")]
     [Tooltip("Cook time before the per-ingredient seconds are added")]
@@ -105,13 +108,13 @@ public class GameManager : MonoBehaviour
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]
     public float launderRatio = 3f;
-    // Today's numbers. They are settled into Savings at night, then reset.
-    public long CleanMoney { get; private set; }       // kitchen profit today
-    public long DirtyMoney { get; private set; }       // illegal money today
-    public long LaunderCapacity { get; private set; }  // how much dirty money today's sales can cover
-    public long Laundered => System.Math.Min(DirtyMoney, LaunderCapacity);
-    public bool OverLaunderLimit => DirtyMoney > LaunderCapacity;
-    // Running total across days. Rent comes out of this; negative = in debt.
+    // Today's numbers (reset every morning). HUD shows them as Stew / Hunt / Max.
+    public long CleanMoney { get; private set; }       // Stew: kitchen profit today
+    public long DirtyMoney { get; private set; }       // Hunt: illegal money today
+    public long LaunderCapacity { get; private set; }  // stew × launderRatio
+    public long MaxToday => CleanMoney + LaunderCapacity;          // most you can make today and stay clean
+    public bool AuditPassed => CleanMoney + DirtyMoney <= MaxToday; // i.e. Hunt <= stew × ratio
+    // Piggy bank: running total across days. Rent comes out of this; negative = in the red.
     public long Savings { get; private set; }
     public long Score => Savings;
     public NightReport LastNight { get; private set; }
@@ -139,8 +142,9 @@ public class GameManager : MonoBehaviour
     {
         if (DayOver)
         {
-            nightTimeLeft -= Time.deltaTime;
-            if (nightTimeLeft <= 0f) StartNextDay();
+            // The audit happens in the kitchen: if the day ended in the forest (or mid-door), go back.
+            if (AuditInProgress && SceneManager.GetActiveScene().name != "Kitchen" && !ScreenFader.Busy)
+                ScreenFader.LoadScene("Kitchen");
             return;
         }
         float elapsed = Mathf.Min(Time.deltaTime, TimeLeft);
@@ -228,64 +232,79 @@ public class GameManager : MonoBehaviour
         MessageUntil = Time.time + duration;
     }
 
-    // ---------- Day ----------
-    // What happened at the end of a day, for the night screen.
+    // ---------- Day / night ----------
+    // Settlement of a passed audit, for the night screen.
     public class NightReport
     {
         public int day;
-        public long kitchenProfit, illegalMoney, launderCapacity;
-        public bool exposed;     // illegal money > launder capacity
-        public long banked;      // added to Savings
+        public long stew, hunt;       // today's income (all of it was launderable)
         public long rent;
-        public long savingsAfter;
+        public long savingsBefore, savingsAfter;
+        public long Income => stew + hunt;
+        public long Change => savingsAfter - savingsBefore;   // Income - rent
+        public bool evicted;          // started the day in the red and ended it in the red
     }
 
-    // Timer hit 0: night falls. Gameplay freezes (everything checks DayOver) and the day is settled.
+    // 1) Timer hit 0: gameplay freezes and the IRS visits the kitchen (KitchenController runs the visit).
     void EndDay()
     {
-        DayOver = true;
+        Night = NightPhase.Audit;
         TimeLeft = 0f;
-        nightTimeLeft = nightDuration;
-
-        // ---------- Night events ----------
-        var report = new NightReport
-        {
-            day = Day, kitchenProfit = CleanMoney, illegalMoney = DirtyMoney,
-            launderCapacity = LaunderCapacity, exposed = OverLaunderLimit, rent = RentDue,
-        };
-
-        if (report.exposed)
-        {
-            //TODO: (illegal money > what the kitchen could launder: something happens, e.g. raid, fine, game over)
-            // Placeholder until that's designed: only the launderable part is kept, the excess is lost.
-            report.banked = CleanMoney + Laundered;
-        }
-        else
-        {
-            // All illegal money was launderable: kitchen profit + illegal money go into savings.
-            report.banked = CleanMoney + DirtyMoney;
-        }
-
-        Savings += report.banked;
-        Savings -= report.rent;   // rent / debt / tax
-        report.savingsAfter = Savings;
-        LastNight = report;
-        //TODO: (game over / consequence when Savings < 0, i.e. in debt?)
+        DiscardSoup();
+        explosionEndsAt = 0f;
+        CurrentOrder.Clear();
+        customerLines.Clear();
         //TODO: (night sound / music sting)
-
-        if (Score > HighScore) PlayerPrefs.SetString(HighScoreKey, Score.ToString(CultureInfo.InvariantCulture));
+        if (SceneManager.GetActiveScene().name != "Kitchen") ScreenFader.LoadScene("Kitchen");
     }
 
-    // Advance the day and reset everything that is per-day. Savings carry over.
+    // The IRS visitor uses the normal customer slot, but doesn't count as a story visit.
+    public void AuditorArrives(int npcId, Sprite sprite)
+    {
+        CurrentNpcId = npcId;
+        CurrentNpcSprite = sprite;
+    }
+
+    // 2) Called by KitchenController after the IRS finishes talking.
+    public void FinishAudit()
+    {
+        if (!AuditInProgress) return;
+        if (!AuditPassed) { Lose(LossReason.Jail); return; }
+
+        var r = new NightReport { day = Day, stew = CleanMoney, hunt = DirtyMoney, rent = RentDue, savingsBefore = Savings };
+        bool startedInRed = Savings < 0;
+        Savings += r.Income - r.rent;
+        r.savingsAfter = Savings;
+        r.evicted = startedInRed && Savings < 0;
+        LastNight = r;
+        if (Score > HighScore) PlayerPrefs.SetString(HighScoreKey, Score.ToString(CultureInfo.InvariantCulture));
+        Night = NightPhase.Summary;   // NightScreen plays the black-screen animation
+    }
+
+    // 3) Called by NightScreen when its animation is done.
+    public void FinishNightSummary()
+    {
+        if (Night != NightPhase.Summary) return;
+        if (LastNight != null && LastNight.evicted) Lose(LossReason.Evicted);
+        else StartNextDay();
+    }
+
+    void Lose(LossReason reason)
+    {
+        Loss = reason;
+        Night = NightPhase.Lost;      // HUD shows the loss screen with Restart
+        //TODO: (loss sting: jail door / eviction)
+    }
+
+    // 4) New morning: reset everything per-day. Savings carry over.
     void StartNextDay()
     {
-        long bill = LastNight != null ? LastNight.rent : 0;
         Day++;
         CleanMoney = 0;
         DirtyMoney = 0;
         LaunderCapacity = 0;
 
-        DayOver = false;
+        Night = NightPhase.None;
         TimeLeft = dayLength;
         DiscardSoup();
         explosionEndsAt = 0f;
@@ -300,8 +319,7 @@ public class GameManager : MonoBehaviour
         KilledCreatures.Clear();
         Explored = null;
 
-        ShowMessage($"<color=#FF4D4D>-${bill} rent, debt & taxes</color>\nSavings: ${Savings}\nDay {Day}", 4f);
-        SceneManager.LoadScene("Kitchen");
+        ScreenFader.LoadScene("Kitchen", startBlack: true);  // we're coming from the black night screen
     }
 
     public void Restart()

@@ -77,6 +77,14 @@ public sealed class KitchenDialogue : MonoBehaviour
         GM.BeginCustomerDialogue(CustomerPhase.AtCounter, lines);
     }
 
+    public void BeginAudit(bool passed)
+    {
+        var lines = passed ? dialogueFile.auditPassLines : dialogueFile.auditFailLines;
+        if (lines == null || !lines.Any(l => !string.IsNullOrWhiteSpace(l?.text))) // asset predates the fields
+            lines = new[] { new DialogueLine { text = passed ? "Everything looks good..." : "Something seems wrong here..." } };
+        GM.BeginCustomerDialogue(CustomerPhase.AtCounter, lines);
+    }
+
     public void BeginFarewell() =>
         GM.BeginCustomerDialogue(CustomerPhase.Farewell, PickConversation(dialogueFile.customerEndings));
 
@@ -98,7 +106,7 @@ public sealed class KitchenDialogue : MonoBehaviour
 
     void AdvanceDialogue()
     {
-        if (GM.DayOver || dialogueEffects.FinishTyping() || GM.CurrentCustomerLine == null) return;
+        if ((GM.DayOver && !GM.AuditInProgress) || dialogueEffects.FinishTyping() || GM.CurrentCustomerLine == null) return;
         GM.AdvanceCustomerDialogue();
         onAdvanced();
     }
