@@ -14,8 +14,9 @@ public class KitchenController : MonoBehaviour
     public int minOrderSize = 2, maxOrderSize = 3;
     public int soupPrice = 10;
 
-    [Header("Timing meter")]
-    public float slowSecondsPerIngredient = 6f;
+    [Header("Cooking")]
+    [Tooltip("Cook seconds each ingredient adds to the pot")]
+    public float secondsPerIngredient = 3f;
 
     [Header("UI")]
     public Button ingredientButtonPrefab;
