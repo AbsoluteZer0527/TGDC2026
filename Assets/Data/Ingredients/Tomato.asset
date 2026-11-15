@@ -15,3 +15,6 @@ MonoBehaviour:
   displayName: Tomato
   color: {r: 0.764151, g: 0.12615699, b: 0.14840278, a: 1}
   icon: {fileID: 0}
+  frames:
+  - {fileID: 2682005716653673696, guid: 6d61ed162a7f1c24dadaa6ba03878c9d, type: 3}
+  - {fileID: 3802468843551628245, guid: 7569faaa8f09e8048a1ea84cada36d82, type: 3}

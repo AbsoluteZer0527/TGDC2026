@@ -17,15 +17,18 @@ public class GameManager : MonoBehaviour
     public bool DayOver { get; private set; }
 
     [Header("Soup")]
-    [Tooltip("Cook time before the timing-meter seconds are added")]
+    [Tooltip("Cook time before the per-ingredient seconds are added")]
     public float baseCookTime = 3f;
+    [Tooltip("On: thrown ingredients fall back onto the board and can be added again (duplicates allowed).\n" +
+             "Off: each ingredient goes in once and stays in the soup until Discard.")]
+    public bool ingredientRefresh = true;
     [Min(0f), Tooltip("Seconds to serve a finished soup before it explodes.")]
     public float servingWindowSeconds = 30f;
     [Min(0f), Tooltip("Seconds the exploded timer stays on the HUD.")]
     public float explosionDisplaySeconds = 4f;
     public SoupState Soup { get; private set; } = SoupState.Empty;
     public List<IngredientData> PotContents { get; } = new();
-    public float PendingCookTime { get; private set; }   // sum from the timing meter
+    public float PendingCookTime { get; private set; }   // sum of per-ingredient seconds
     public float TotalCookTime => baseCookTime + PendingCookTime;
     public float SoupTimeLeft { get; private set; }
     public float CookTimeLeft => Soup == SoupState.Cooking ? SoupTimeLeft : 0f;
@@ -152,7 +155,7 @@ public class GameManager : MonoBehaviour
     }
 
     public bool CanAddIngredient(IngredientData ing) =>
-        (Soup == SoupState.Empty || Soup == SoupState.Filling) && !PotContents.Contains(ing);
+        (Soup == SoupState.Empty || Soup == SoupState.Filling) && (ingredientRefresh || !PotContents.Contains(ing));
 
     public bool AddIngredient(IngredientData ing, float cookSeconds)
     {

@@ -15,10 +15,6 @@ public class KitchenController : MonoBehaviour
     public int soupPrice = 10;
 
     [Header("Timing meter")]
-    public TimingMeter meter;
-    [Tooltip("Seconds added for a perfect hit (top)")]
-    public float fastSecondsPerIngredient = 1f;
-    [Tooltip("Seconds added for the worst hit (bottom)")]
     public float slowSecondsPerIngredient = 6f;
 
     [Header("UI")]
@@ -65,11 +61,13 @@ public class KitchenController : MonoBehaviour
         dialogue.Initialize(ResumeConversation);
         pigeonDelivery = GetComponent<PigeonDelivery>();
         pigeonDelivery.Initialize(cam, ResumeConversation);
+        // Old button bar is optional: leave the prefab empty when using IngredientTable runners.
+        if (ingredientButtonPrefab && ingredientButtonParent)
         foreach (var ing in ingredients)
         {
             var b = Instantiate(ingredientButtonPrefab, ingredientButtonParent);
             b.GetComponentInChildren<TMP_Text>().text = ing.displayName;
-            b.onClick.AddListener(() => OnIngredientClicked(ing));
+            b.onClick.AddListener(() => TryAddIngredient(ing));
             buttons[ing] = b;
         }
         //TODO: (optional click when the Cook button is pressed)
@@ -85,27 +83,25 @@ public class KitchenController : MonoBehaviour
         else ResumeConversation();
     }
 
-    void OnIngredientClicked(IngredientData ing)
+    // Fired when an ingredient goes into the pot. IngredientTable animates the runner.
+    public event System.Action<IngredientData> IngredientAdded;
+
+    // Adds the ingredient with a flat cook time. Returns true if it went in.
+    public bool TryAddIngredient(IngredientData ing)
     {
-        Deselect(); // otherwise Space could re-press the selected button
-        if (meter.Running || GM.DayOver || !GM.CanAddIngredient(ing)) return;
+        Deselect();
+        if (GM.DayOver || !GM.AddIngredient(ing, secondsPerIngredient)) return false;
 
         //TODO: (ingredient catch sound on selection, maybe a different "AHHH!" for each ingredient)
-        meter.Begin(t =>
-        {
-            float secs = Mathf.Lerp(slowSecondsPerIngredient, fastSecondsPerIngredient, t);
-            if (GM.AddIngredient(ing, secs))
-            {
-                lastThrow = $"{ing.displayName}: +{secs:0.0}s";
-                StartCoroutine(ThrowVisual(ing.color));
-            }
-        });
+        lastThrow = $"{ing.displayName}: +{secondsPerIngredient:0.#}s";
+        if (IngredientAdded != null) IngredientAdded(ing);
+        else StartCoroutine(ThrowVisual(ing.color)); // fallback sphere when no runners exist
+        return true;
     }
 
     void Discard()
     {
         //TODO: (optional click when the Discard button is pressed)
-        meter.Cancel();
         GM.DiscardSoup();
         lastThrow = "";
         Deselect();
@@ -119,7 +115,8 @@ public class KitchenController : MonoBehaviour
         if (soup == null) return;
 
         //TODO: (optional click when the Serve button serves a bowl)
-        bool correct = soup.Count == GM.CurrentOrder.Count && !soup.Except(GM.CurrentOrder).Any();
+        // Exact match: every ordered ingredient exactly once. Extra copies (ingredient refresh) make it wrong.
+        bool correct = soup.Count == GM.CurrentOrder.Count && GM.CurrentOrder.All(soup.Contains);
         if (correct) GM.SellSoup(soupPrice);
         GM.CurrentOrder.Clear();
         dialogue.BeginFarewell();
@@ -128,7 +125,7 @@ public class KitchenController : MonoBehaviour
 
     void Update()
     {
-        bool busy = meter.Running || GM.DayOver;
+        bool busy = GM.DayOver;
 
         foreach (var kv in buttons)
         {
@@ -137,9 +134,9 @@ public class KitchenController : MonoBehaviour
         }
         cookButton.interactable    = !busy && GM.Soup == SoupState.Filling;
         serveButton.interactable   = CanServe && GM.Soup == SoupState.Ready;
-        discardButton.interactable = !GM.DayOver && (GM.Soup != SoupState.Empty || meter.Running);
+        discardButton.interactable = !GM.DayOver && GM.Soup != SoupState.Empty;
 
-        potText.text = meter.Running ? "Press SPACE!\n(top = faster)" : GM.Soup switch
+        potText.text = GM.Soup switch
         {
             SoupState.Filling => $"{lastThrow}\nAdd more or Cook",
             SoupState.Ruined  => "Soup ruined. Discard it.",

@@ -15,3 +15,6 @@ MonoBehaviour:
   displayName: Carrot
   color: {r: 1, g: 0.62102604, b: 0, a: 1}
   icon: {fileID: 0}
+  frames:
+  - {fileID: 1794904651668894683, guid: c5d82457f85c1c946a6582104cdbec4e, type: 3}
+  - {fileID: -2873415867925102176, guid: f314a579cb5806345aaee96a8c2fbd19, type: 3}

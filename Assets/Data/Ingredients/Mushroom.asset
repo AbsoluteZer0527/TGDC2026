@@ -15,3 +15,6 @@ MonoBehaviour:
   displayName: Mushroom
   color: {r: 0.6792453, g: 0.43314195, b: 0, a: 1}
   icon: {fileID: 0}
+  frames:
+  - {fileID: -3572608674266076607, guid: f2ab787873de75d46b3221010820ced1, type: 3}
+  - {fileID: 8050493735014193191, guid: b227dba6834e0ef479bffe2b01e95857, type: 3}
