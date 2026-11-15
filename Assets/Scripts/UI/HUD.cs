@@ -2,12 +2,15 @@ using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class HUD : MonoBehaviour
 {
     [Header("Day clock")]
+    [SerializeField] Image dayClock;
+    [SerializeField] Sprite forestDayClock;
     [SerializeField] RectTransform dayPointer;
     [Tooltip("Pointer rotation at the sun and moon, in degrees.")]
     [SerializeField] Vector2 pointerAngles = new(-58f, 132f);
@@ -25,6 +28,19 @@ public class HUD : MonoBehaviour
     public GameObject endPanel;
     public TMP_Text endText;
     public Button restartButton;
+
+    void OnEnable()
+    {
+        SceneManager.activeSceneChanged += UpdateDayClock;
+        UpdateDayClock(default, SceneManager.GetActiveScene());
+    }
+
+    void OnDisable() => SceneManager.activeSceneChanged -= UpdateDayClock;
+
+    void UpdateDayClock(Scene previous, Scene current)
+    {
+        dayClock.overrideSprite = current.name == "Forest" ? forestDayClock : null;
+    }
 
     void Start() => restartButton.onClick.AddListener(() => GameManager.I.Restart());
 

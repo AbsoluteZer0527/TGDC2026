@@ -184,6 +184,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   dayLength: 300
   baseCookTime: 3
+  ingredientRefresh: 1
   servingWindowSeconds: 30
   explosionDisplaySeconds: 4
   launderRatio: 3
@@ -445,6 +446,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01e592e2495744e7b8babb1a3f6054da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUD
+  dayClock: {fileID: 4603138215793749089}
+  forestDayClock: {fileID: 2212127230326762900, guid: d6df91ec691e9e845a3933aa86188f29, type: 3}
   dayPointer: {fileID: 7960021402104000011}
   pointerAngles: {x: -58, y: 132}
   cookingTimer: {fileID: 7960021402104000023}
@@ -492,7 +495,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -170}
+  m_AnchoredPosition: {x: 764, y: -291}
   m_SizeDelta: {x: 900, y: 80}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2946564784674573755
@@ -523,7 +526,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Making money
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -704,7 +707,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.52, y: 1}
   m_AnchorMax: {x: 0.52, y: 1}
-  m_AnchoredPosition: {x: -2, y: -83}
+  m_AnchoredPosition: {x: -2, y: -111}
   m_SizeDelta: {x: 140, y: 38}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6198998983505517214
@@ -762,10 +765,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 46.9
+  m_fontSize: 64.05
   m_fontSizeBase: 46.9
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
@@ -801,7 +804,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -14.606247, y: 0, z: -16.858955, w: -43.82256}
+  m_margin: {x: -14.606247, y: -13.337952, z: -16.858955, w: -26.675705}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1035,8 +1038,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7960021402104000011}
   - {fileID: 740661820574888597}
+  - {fileID: 7960021402104000011}
   m_Father: {fileID: 2013751909202086512}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
@@ -1072,7 +1075,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4313450247456624119, guid: f8d333892c2149d4fb1f122948039bbc, type: 3}
+  m_Sprite: {fileID: 3680657328505863384, guid: e72baf489f75bc24385f5a2ca88b8826, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
