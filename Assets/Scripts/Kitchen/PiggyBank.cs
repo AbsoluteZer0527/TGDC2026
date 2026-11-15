@@ -2,11 +2,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// Kitchen UI piggy bank: hover to see the running total (yellow if positive, red if negative).
-// Put this on a UI Image (Raycast Target ON) inside KitchenCanvas.
+// Kitchen piggy bank: hover to see the running total (yellow if positive, red if negative).
+// Works on either:
+//  - a 2D sprite (SpriteRenderer) + BoxCollider2D: hover comes from the camera's Physics 2D Raycaster
+//    (PigeonDelivery adds one to the main camera at startup), or
+//  - a UI Image with Raycast Target on.
 public class PiggyBank : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [Tooltip("Child text shown only while hovering. Turn its Raycast Target off.")]
+    [Tooltip("Child text shown only while hovering: a 3D 'Text - TextMeshPro' for a sprite, or a UI text for an Image.")]
     [SerializeField] TMP_Text amountText;
     [SerializeField] Color positive = new(1f, 0.83f, 0.3f);   // yellow
     [SerializeField] Color negative = new(1f, 0.3f, 0.3f);    // red

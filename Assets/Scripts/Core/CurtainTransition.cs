@@ -14,7 +14,8 @@ public sealed class CurtainTransition : MonoBehaviour
     static CurtainTransition active;
     public static bool IsPlaying => active != null;
 
-    public static void TransitionTo(string sceneName)
+    // startClosed: skip the closing animation and begin fully shut (e.g. coming from the black night screen).
+    public static void TransitionTo(string sceneName, bool startClosed = false)
     {
         if (IsPlaying) return;
         if (!Application.CanStreamedLevelBeLoaded(sceneName))
@@ -23,10 +24,10 @@ public sealed class CurtainTransition : MonoBehaviour
             return;
         }
         var transition = GameManager.I.GetComponent<CurtainTransition>();
-        transition.StartCoroutine(transition.Play(sceneName));
+        transition.StartCoroutine(transition.Play(sceneName, startClosed));
     }
 
-    IEnumerator Play(string sceneName)
+    IEnumerator Play(string sceneName, bool startClosed)
     {
         active = this;
         overlay.gameObject.SetActive(true);
@@ -34,10 +35,17 @@ public sealed class CurtainTransition : MonoBehaviour
         var hold = new WaitForSecondsRealtime(secondsPerFrame);
         try
         {
-            foreach (var frame in frames)
+            if (startClosed)
             {
-                curtain.sprite = frame;
-                yield return hold;
+                if (frames.Length > 0) curtain.sprite = frames[frames.Length - 1];
+            }
+            else
+            {
+                foreach (var frame in frames)
+                {
+                    curtain.sprite = frame;
+                    yield return hold;
+                }
             }
             yield return SceneManager.LoadSceneAsync(sceneName);
             // Keep the cover through the destination's first render.

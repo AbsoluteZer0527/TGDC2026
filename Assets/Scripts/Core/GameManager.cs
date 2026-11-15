@@ -143,8 +143,8 @@ public class GameManager : MonoBehaviour
         if (DayOver)
         {
             // The audit happens in the kitchen: if the day ended in the forest (or mid-door), go back.
-            if (AuditInProgress && SceneManager.GetActiveScene().name != "Kitchen" && !ScreenFader.Busy)
-                ScreenFader.LoadScene("Kitchen");
+            if (AuditInProgress && SceneManager.GetActiveScene().name != "Kitchen" && !CurtainTransition.IsPlaying)
+                CurtainTransition.TransitionTo("Kitchen");
             return;
         }
         float elapsed = Mathf.Min(Time.deltaTime, TimeLeft);
@@ -255,7 +255,9 @@ public class GameManager : MonoBehaviour
         CurrentOrder.Clear();
         customerLines.Clear();
         //TODO: (night sound / music sting)
-        if (SceneManager.GetActiveScene().name != "Kitchen") ScreenFader.LoadScene("Kitchen");
+        // In the forest: same curtain as the door back to the kitchen (Update retries if a door transition is mid-play).
+        if (SceneManager.GetActiveScene().name != "Kitchen" && !CurtainTransition.IsPlaying)
+            CurtainTransition.TransitionTo("Kitchen");
     }
 
     // The IRS visitor uses the normal customer slot, but doesn't count as a story visit.
@@ -319,7 +321,7 @@ public class GameManager : MonoBehaviour
         KilledCreatures.Clear();
         Explored = null;
 
-        ScreenFader.LoadScene("Kitchen", startBlack: true);  // we're coming from the black night screen
+        CurtainTransition.TransitionTo("Kitchen", startClosed: true);  // curtain opens on the new morning
     }
 
     public void Restart()

@@ -134,7 +134,7 @@ public class KitchenController : MonoBehaviour
 
     void Update()
     {
-        if (GM.AuditInProgress && !auditStarted && !ScreenFader.Busy) BeginAudit();
+        if (GM.AuditInProgress && !auditStarted && !CurtainTransition.IsPlaying) BeginAudit();
         bool busy = GM.DayOver;
 
         foreach (var kv in buttons)
