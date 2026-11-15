@@ -32,7 +32,19 @@ public class KitchenController : MonoBehaviour
     public Renderer customerRenderer;    // the Visual quad
     [Min(0.01f)] public float entranceDuration = 0.9f;
     [Min(0f)] public float stepHeight = 0.09f;
-    public Vector3 bubbleOffset = new Vector3(0, 2.3f, 0);
+
+    [Header("Customer dialogue")]
+    [Tooltip("The first customer says each line in order."), TextArea(1, 4)]
+    [SerializeField] string[] openingLines = {
+        "Is that soup I smell?",
+        "I've been on the road all morning. Could you make me a bowl?"
+    };
+    [Tooltip("Later customers pick one greeting before ordering."), TextArea(1, 4)]
+    [SerializeField] string[] greetings = {
+        "Something warm would hit the spot.",
+        "Smells good in here!",
+        "Got room for one more?"
+    };
 
     [Header("Pot")]
     public GameObject soupVisual, readyVisual;
@@ -43,6 +55,8 @@ public class KitchenController : MonoBehaviour
     Camera cam;
     Vector3 customerStop, bubbleScale;
     bool customerEntering;
+    Button dialogueButton;
+    bool CanServe => !customerEntering && GM.CurrentCustomerLine == null && !GM.DayOver;
     GameManager GM => GameManager.I;
 
     void Start()
@@ -50,6 +64,12 @@ public class KitchenController : MonoBehaviour
         cam = Camera.main;
         customerStop = customer.position;
         if (orderBubble) bubbleScale = orderBubble.localScale;
+        var bubbleObject = orderBubble ? orderBubble.gameObject : orderText.gameObject;
+        dialogueButton = bubbleObject.GetComponent<Button>();
+        if (!dialogueButton) dialogueButton = bubbleObject.AddComponent<Button>();
+        dialogueButton.transition = Selectable.Transition.None;
+        dialogueButton.navigation = new Navigation { mode = Navigation.Mode.None };
+        dialogueButton.onClick.AddListener(AdvanceDialogue);
         foreach (var ing in ingredients)
         {
             var b = Instantiate(ingredientButtonPrefab, ingredientButtonParent);
@@ -90,7 +110,7 @@ public class KitchenController : MonoBehaviour
 
     void Serve()
     {
-        if (customerEntering) return;
+        if (!CanServe) return;
         Deselect();
         var soup = GM.TakeSoup();
         if (soup == null) return;
@@ -110,7 +130,7 @@ public class KitchenController : MonoBehaviour
             kv.Value.image.color = GM.PotContents.Contains(kv.Key) ? kv.Key.color : Color.white;
         }
         cookButton.interactable    = !busy && GM.Soup == SoupState.Filling;
-        serveButton.interactable   = !customerEntering && !GM.DayOver && GM.Soup == SoupState.Ready;
+        serveButton.interactable   = CanServe && GM.Soup == SoupState.Ready;
         discardButton.interactable = !GM.DayOver && (GM.Soup != SoupState.Empty || meter.Running);
 
         potText.text = meter.Running ? "Press SPACE!\n(top = faster)" : GM.Soup switch
@@ -123,10 +143,6 @@ public class KitchenController : MonoBehaviour
 
         if (soupVisual)  soupVisual.SetActive(GM.Soup == SoupState.Cooking || GM.Soup == SoupState.Ready);
         if (readyVisual) readyVisual.SetActive(GM.Soup == SoupState.Ready);
-
-        // Speech bubble follows the customer's head
-        if (orderBubble && cam && customer)
-            orderBubble.position = cam.WorldToScreenPoint(customer.position + bubbleOffset);
     }
 
     void NewCustomer()
@@ -135,6 +151,13 @@ public class KitchenController : MonoBehaviour
         GM.CurrentOrder.Clear();
         GM.CurrentOrder.AddRange(ingredients.OrderBy(_ => Random.value).Take(n));
         GM.CustomerColor = Random.ColorHSV(0f, 1f, 0.4f, 0.8f, 0.8f, 1f);
+        if (GM.CustomersArrived == 0)
+            GM.BeginCustomerDialogue(openingLines);
+        else
+        {
+            var choices = greetings.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+            GM.BeginCustomerDialogue(choices.Length == 0 ? choices : new[] { choices[Random.Range(0, choices.Length)] });
+        }
 
         ShowCustomer();
         StartCoroutine(CustomerEntrance());
@@ -142,8 +165,24 @@ public class KitchenController : MonoBehaviour
 
     void ShowCustomer()
     {
-        orderText.text = "One soup with:\n" + string.Join(", ", GM.CurrentOrder.Select(i => i.displayName));
         if (customerRenderer) customerRenderer.material.color = GM.CustomerColor;
+        RefreshBubble();
+    }
+
+    void AdvanceDialogue()
+    {
+        if (customerEntering || GM.DayOver || GM.CurrentCustomerLine == null) return;
+        GM.AdvanceCustomerDialogue();
+        RefreshBubble();
+    }
+
+    void RefreshBubble()
+    {
+        string line = GM.CurrentCustomerLine;
+        dialogueButton.interactable = line != null;
+        orderText.text = line != null
+            ? line + "\n<size=65%>Click to continue</size>"
+            : "One soup with:\n" + string.Join(", ", GM.CurrentOrder.Select(i => i.displayName));
     }
 
     IEnumerator CustomerEntrance()

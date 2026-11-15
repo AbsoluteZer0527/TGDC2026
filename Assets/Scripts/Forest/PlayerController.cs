@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 6f;
     public float mouseSensitivity = 0.1f;
     public float maxPitch = 60f;
+    public float MoveSpeedMultiplier { get; set; } = 1f;
 
     public bool CanAct =>
         Cursor.lockState == CursorLockMode.Locked &&
@@ -39,7 +40,7 @@ public class PlayerController : MonoBehaviour
         // Move relative to facing
         float x = (k.dKey.isPressed ? 1 : 0) - (k.aKey.isPressed ? 1 : 0);
         float z = (k.wKey.isPressed ? 1 : 0) - (k.sKey.isPressed ? 1 : 0);
-        Vector3 move = (transform.right * x + transform.forward * z).normalized * moveSpeed;
+        Vector3 move = (transform.right * x + transform.forward * z).normalized * (moveSpeed * MoveSpeedMultiplier);
         vy = cc.isGrounded ? -2f : vy + Physics.gravity.y * Time.deltaTime;
         move.y = vy;
         cc.Move(move * Time.deltaTime);

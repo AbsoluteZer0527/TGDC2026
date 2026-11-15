@@ -16,10 +16,10 @@ RenderSettings:
   serializedVersion: 10
   m_Fog: 1
   m_FogColor: {r: 0.36862746, g: 0.47843137, b: 0.4, a: 1}
-  m_FogMode: 2
+  m_FogMode: 1
   m_FogDensity: 0.06
-  m_LinearFogStart: 0
-  m_LinearFogEnd: 300
+  m_LinearFogStart: 10
+  m_LinearFogEnd: 45
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
@@ -710,6 +710,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1817625001}
   - {fileID: 1519616118}
   - {fileID: 292174925}
   - {fileID: 132498590}
@@ -1110,8 +1111,8 @@ MonoBehaviour:
   player: {fileID: 1013081934}
   cam: {fileID: 961739752}
   range: 25
-  fireCooldown: 0.25
-  damage: 1
+  fireCooldown: 1
+  damage: 75
   hitMask:
     serializedVersion: 2
     m_Bits: 183
@@ -1123,6 +1124,10 @@ MonoBehaviour:
   - {fileID: -154137159189870803, guid: 2b0dc17836afb084fb6d65ac07f0f9d9, type: 3}
   - {fileID: -1527469924460599894, guid: 09641d1fcb1fc124d9cbae2babaa237f, type: 3}
   - {fileID: -1529929445183288691, guid: db31e33fe5e9056448e6beb4da3b61b9, type: 3}
+  muzzleFlash: {fileID: 1817625002}
+  flashDuration: 0.07
+  aimFovMultiplier: 0.7
+  aimMoveMultiplier: 0.5
   recoilDistance: 40
   tracer: {fileID: 1478786589}
   muzzle: {fileID: 713987189}
@@ -1218,6 +1223,7 @@ GameObject:
   - component: {fileID: 1449445712}
   - component: {fileID: 1449445711}
   - component: {fileID: 1449445710}
+  - component: {fileID: 1449445714}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -1272,7 +1278,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7e538a59dbf824932bd854253df57b60, type: 2}
+  - {fileID: 2100000, guid: f1c5c7db8833c554bb496d48b60849de, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1319,6 +1325,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1449445714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449445709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52e3aa67b7f843caa3a1dae6eda04538, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ForestGrass
+  density: 15.6
+  bladeHeight: 0.413
+  windStrength: 0.24
+  drawDistance: 24
 --- !u!1 &1478786587
 GameObject:
   m_ObjectHideFlags: 0
@@ -1536,6 +1558,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1519616117}
   m_CullTransparentMesh: 1
+--- !u!1 &1817625000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1817625001}
+  - component: {fileID: 1817625003}
+  - component: {fileID: 1817625002}
+  m_Layer: 5
+  m_Name: MuzzleFlash
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1817625001
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817625000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 485884494}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &1817625002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817625000}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 1098286324429101383, guid: 7e29a68b015ebe74aaf90a37ab239d2a, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1817625003
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817625000}
+  m_CullTransparentMesh: 1
 --- !u!1 &2056371779
 GameObject:
   m_ObjectHideFlags: 0
@@ -1570,10 +1667,12 @@ MonoBehaviour:
   ground: {fileID: 1449445713}
   spawnClearRadius: 8
   navSurface: {fileID: 2056371782}
-  treePrefabs:
-  - {fileID: 1841301877755671019, guid: a54ec1b6a1b8349f59c568dd7cd93050, type: 3}
+  treePrefab: {fileID: 786641106452370584, guid: a54ec1b6a1b8349f59c568dd7cd93050, type: 3}
   treeCount: 150
   treeSpacing: 2.5
+  bushPrefab: {fileID: 786641106452370584, guid: c81ffde27e54430d91124815f0b9f24d, type: 3}
+  bushCount: 70
+  bushSpacing: 1.5
   creatures:
   - prefab: {fileID: 2639368531340996322, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
     weight: 1

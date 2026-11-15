@@ -1,6 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(SpriteRenderer))]
 [DisallowMultipleComponent]
 public class SpriteLoop : MonoBehaviour
 {
@@ -8,21 +8,32 @@ public class SpriteLoop : MonoBehaviour
     [SerializeField, Min(0f)] float framesPerSecond = 8f;
 
     SpriteRenderer spriteRenderer;
+    Image image;
     float framePosition;
 
-    void Awake() => spriteRenderer = GetComponent<SpriteRenderer>();
+    void Awake()
+    {
+        if (!TryGetComponent(out spriteRenderer) && !TryGetComponent(out image))
+            enabled = false;
+    }
+
+    void ShowFrame(Sprite frame)
+    {
+        if (spriteRenderer) spriteRenderer.sprite = frame;
+        else image.sprite = frame;
+    }
 
     void OnEnable()
     {
         framePosition = 0f;
         if (frames != null && frames.Length > 0)
-            spriteRenderer.sprite = frames[0];
+            ShowFrame(frames[0]);
     }
 
     void Update()
     {
         if (frames == null || frames.Length == 0) return;
         framePosition = (framePosition + Time.deltaTime * framesPerSecond) % frames.Length;
-        spriteRenderer.sprite = frames[(int)framePosition];
+        ShowFrame(frames[(int)framePosition]);
     }
 }

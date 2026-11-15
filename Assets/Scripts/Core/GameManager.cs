@@ -25,6 +25,22 @@ public class GameManager : MonoBehaviour
     [Header("Customer")]
     public List<IngredientData> CurrentOrder { get; } = new();
     public Color CustomerColor { get; set; } = Color.white;
+    public int CustomersArrived { get; private set; }
+    readonly Queue<string> customerLines = new();
+    public string CurrentCustomerLine => customerLines.Count > 0 ? customerLines.Peek() : null;
+
+    public void BeginCustomerDialogue(IEnumerable<string> lines)
+    {
+        CustomersArrived++;
+        customerLines.Clear();
+        foreach (string line in lines)
+            if (!string.IsNullOrWhiteSpace(line)) customerLines.Enqueue(line);
+    }
+
+    public void AdvanceCustomerDialogue()
+    {
+        if (customerLines.Count > 0) customerLines.Dequeue();
+    }
 
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]

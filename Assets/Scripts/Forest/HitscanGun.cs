@@ -16,6 +16,11 @@ public class HitscanGun : MonoBehaviour
     public RectTransform gunSprite;       // UI image at bottom of screen
     public Sprite idleSprite, aimSprite;
     public Sprite[] reloadFrames;
+    public Image muzzleFlash;
+    [Min(0.01f)] public float flashDuration = 0.07f;
+    [Header("Aim")]
+    [Range(0.2f, 1f)] public float aimFovMultiplier = 0.7f;
+    [Range(0f, 1f)] public float aimMoveMultiplier = 0.5f;
     public float recoilDistance = 40f;
     public LineRenderer tracer;
     public Transform muzzle;
@@ -24,16 +29,33 @@ public class HitscanGun : MonoBehaviour
     Vector2 gunRestPos;
     Image gunImage;
     float reloadStarted;
-    bool reloading;
+    bool aiming;
+    float normalFov;
     float nextFire;
 
-    void Start()
+    void Awake()
     {
+        normalFov = cam.fieldOfView;
         if (gunSprite)
         {
             gunRestPos = gunSprite.anchoredPosition;
             gunImage = gunSprite.GetComponent<Image>();
         }
+    }
+
+    void OnDisable()
+    {
+        aiming = false;
+        nextFire = 0f;
+        if (player) player.MoveSpeedMultiplier = 1f;
+        if (cam) cam.fieldOfView = normalFov;
+        if (muzzleFlash) muzzleFlash.enabled = false;
+        if (tracer) tracer.enabled = false;
+    }
+
+    void OnApplicationFocus(bool focused)
+    {
+        if (!focused) aiming = false;
     }
 
     void Update()
@@ -42,12 +64,32 @@ public class HitscanGun : MonoBehaviour
             gunSprite.anchoredPosition = Vector2.Lerp(gunSprite.anchoredPosition, gunRestPos, 15f * Time.deltaTime);
 
         var m = Mouse.current;
-        bool canAct = player.CanAct;
-        if (canAct && m != null && m.leftButton.isPressed && Time.time >= nextFire) Fire();
+        bool canAct = player.CanAct && m != null && Application.isFocused;
+        if (!canAct || Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+            aiming = false;
+        else
+        {
+            if (Time.time >= nextFire && m.leftButton.wasPressedThisFrame) aiming = true;
+            if (aiming && m.leftButton.wasReleasedThisFrame)
+            {
+                aiming = false;
+                Fire();
+            }
+        }
 
-        if (Time.time >= nextFire) reloading = false;
-        Sprite pose = canAct && m != null && m.rightButton.isPressed && aimSprite ? aimSprite : idleSprite;
-        if (reloading && reloadFrames != null && reloadFrames.Length > 0)
+        player.MoveSpeedMultiplier = aiming ? aimMoveMultiplier : 1f;
+        float targetFov = aiming ? normalFov * aimFovMultiplier : normalFov;
+        cam.fieldOfView = Mathf.MoveTowards(cam.fieldOfView, targetFov, 180f * Time.deltaTime);
+
+        bool cycling = Time.time < nextFire;
+        bool flashing = cycling && Time.time < reloadStarted;
+        if (muzzleFlash)
+        {
+            muzzleFlash.enabled = flashing;
+            if (flashing && gunSprite) muzzleFlash.rectTransform.anchoredPosition = gunSprite.anchoredPosition;
+        }
+        Sprite pose = (aiming || flashing) && aimSprite ? aimSprite : idleSprite;
+        if (cycling && !flashing && reloadFrames != null && reloadFrames.Length > 0)
         {
             float progress = (Time.time - reloadStarted) / (nextFire - reloadStarted);
             int frame = Mathf.Clamp((int)(progress * reloadFrames.Length), 0, reloadFrames.Length - 1);
@@ -58,9 +100,8 @@ public class HitscanGun : MonoBehaviour
 
     void Fire()
     {
-        nextFire = Time.time + fireCooldown;
-        reloadStarted = Time.time;
-        reloading = true;
+        reloadStarted = Time.time + flashDuration;
+        nextFire = reloadStarted + fireCooldown;
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         Vector3 end = ray.GetPoint(range);
 

@@ -19,9 +19,14 @@ public class ForestGenerator : MonoBehaviour
     public NavMeshSurface navSurface;
 
     [Header("Trees")]
-    public GameObject[] treePrefabs;
-    public int treeCount = 150;
-    public float treeSpacing = 2.5f;
+    public Vegetation treePrefab;
+    [Min(0)] public int treeCount = 150;
+    [Min(0f)] public float treeSpacing = 2.5f;
+
+    [Header("Bushes")]
+    public Vegetation bushPrefab;
+    [Min(0)] public int bushCount = 70;
+    [Min(0f)] public float bushSpacing = 1.5f;
 
     [Header("Creatures")]
     public CreatureSpawn[] creatures;
@@ -39,16 +44,8 @@ public class ForestGenerator : MonoBehaviour
         if (ground) ground.localScale = new Vector3(size / 10f, 1, size / 10f);
         BuildWalls();
 
-        // 1) Trees
-        for (int i = 0; i < treeCount; i++)
-        {
-            if (!TryGetPoint(treeSpacing, out var p)) continue;
-            var prefab = treePrefabs[rng.Next(treePrefabs.Length)];
-            float yaw = Range(0f, 360f);
-            float scale = Range(0.8f, 1.3f);
-            var tree = Instantiate(prefab, p, Quaternion.Euler(0, yaw, 0), transform);
-            tree.transform.localScale *= scale;
-        }
+        SpawnVegetation(treePrefab, treeCount, treeSpacing);
+        SpawnVegetation(bushPrefab, bushCount, bushSpacing);
 
         // 2) Walkable map, now that obstacles exist
         if (navSurface) navSurface.BuildNavMesh();
@@ -63,6 +60,17 @@ public class ForestGenerator : MonoBehaviour
 
             var c = Instantiate(prefab, p, Quaternion.Euler(0, Range(0f, 360f), 0), transform);
             c.id = i;
+        }
+    }
+
+    void SpawnVegetation(Vegetation prefab, int count, float spacing)
+    {
+        if (!prefab) return;
+        for (int i = 0; i < count; i++)
+        {
+            if (!TryGetPoint(spacing, out var point)) continue;
+            var plant = Instantiate(prefab, point, Quaternion.identity, transform);
+            plant.PickSprite(rng);
         }
     }
 
