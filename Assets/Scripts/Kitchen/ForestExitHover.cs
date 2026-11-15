@@ -20,6 +20,7 @@ public sealed class ForestExitHover : MonoBehaviour, IPointerEnterHandler, IPoin
     }
 
     void OnEnable() => SetHovered(false);
+    //TODO: (curtain lifting when the pointer enters the hunting button)
     public void OnPointerEnter(PointerEventData eventData) => SetHovered(true);
     public void OnPointerExit(PointerEventData eventData) => SetHovered(false);
 

@@ -20,6 +20,7 @@ public class Creature : MonoBehaviour
 
     public void TakeDamage(int dmg)
     {
+        //TODO: (optional hurt sound specific to each mob when hit)
         hp -= dmg;
         if (TryGetComponent(out CreatureAI ai)) ai.OnHurt();
         if (hp <= 0) { Die(); return; }

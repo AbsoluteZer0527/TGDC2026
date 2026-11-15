@@ -72,11 +72,17 @@ public class KitchenController : MonoBehaviour
             b.onClick.AddListener(() => OnIngredientClicked(ing));
             buttons[ing] = b;
         }
+        //TODO: (optional click when the Cook button is pressed)
         cookButton.onClick.AddListener(() => { GM.StartCooking(); lastThrow = ""; Deselect(); });
         serveButton.onClick.AddListener(Serve);
         discardButton.onClick.AddListener(Discard);
 
-        if (GM.CustomersArrived == 0) NewCustomer(); else ResumeConversation();
+        if (GM.CustomersArrived == 0)
+        {
+            //TODO: (bell ring for first npc of the day)
+            NewCustomer();
+        }
+        else ResumeConversation();
     }
 
     void OnIngredientClicked(IngredientData ing)
@@ -84,6 +90,7 @@ public class KitchenController : MonoBehaviour
         Deselect(); // otherwise Space could re-press the selected button
         if (meter.Running || GM.DayOver || !GM.CanAddIngredient(ing)) return;
 
+        //TODO: (ingredient catch sound on selection, maybe a different "AHHH!" for each ingredient)
         meter.Begin(t =>
         {
             float secs = Mathf.Lerp(slowSecondsPerIngredient, fastSecondsPerIngredient, t);
@@ -97,6 +104,7 @@ public class KitchenController : MonoBehaviour
 
     void Discard()
     {
+        //TODO: (optional click when the Discard button is pressed)
         meter.Cancel();
         GM.DiscardSoup();
         lastThrow = "";
@@ -110,6 +118,7 @@ public class KitchenController : MonoBehaviour
         var soup = GM.TakeSoup();
         if (soup == null) return;
 
+        //TODO: (optional click when the Serve button serves a bowl)
         bool correct = soup.Count == GM.CurrentOrder.Count && !soup.Except(GM.CurrentOrder).Any();
         if (correct) GM.SellSoup(soupPrice);
         GM.CurrentOrder.Clear();
@@ -154,6 +163,7 @@ public class KitchenController : MonoBehaviour
 
         customer.gameObject.SetActive(true);
         if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
+        //TODO: (NPC footsteps while walking up to the counter)
         StartCoroutine(MoveCustomer(true));
     }
 
@@ -215,6 +225,7 @@ public class KitchenController : MonoBehaviour
     IEnumerator ThrowVisual(Color color)
     {
         if (!throwFrom || !potTarget) yield break;
+        //TODO: (whoosh as the ingredient is thrown)
         var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         Destroy(ball.GetComponent<Collider>());
         ball.transform.localScale = Vector3.one * 0.3f;
@@ -226,6 +237,7 @@ public class KitchenController : MonoBehaviour
             ball.transform.position = Vector3.Lerp(a, b, t) + Vector3.up * Mathf.Sin(t * Mathf.PI) * 1.5f;
             yield return null;
         }
+        //TODO: (water pop as the ingredient lands in the pot)
         Destroy(ball);
     }
 

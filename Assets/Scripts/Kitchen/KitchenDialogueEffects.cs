@@ -62,6 +62,7 @@ public sealed class KitchenDialogueEffects
         if (text.maxVisibleCharacters == int.MaxValue) return;
 
         int count = Mathf.FloorToInt(Mathf.Max(0f, elapsed - takeoff) * charactersPerSecond);
+        //TODO: (optional dialogue blip when a new character appears)
         if (count >= bodyCharacters) FinishTyping();
         else text.maxVisibleCharacters = count;
     }

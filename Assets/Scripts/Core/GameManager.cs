@@ -139,11 +139,13 @@ public class GameManager : MonoBehaviour
         if (Soup == SoupState.Cooking && SoupTimeLeft <= 0f)
         {
             Soup = SoupState.Ready;
+            //TODO: (loop the tomato clock alarm while the soup is ready and the day is active)
             SoupTimeLeft += servingWindowSeconds;
         }
         if (Soup == SoupState.Ready && SoupTimeLeft <= 0f)
         {
             Soup = SoupState.Ruined;
+            //TODO: (tomato splat when the 30-second serving window expires)
             explosionEndsAt = Time.time + explosionDisplaySeconds + SoupTimeLeft;
         }
         SoupTimeLeft = Mathf.Max(0f, SoupTimeLeft);
@@ -166,6 +168,7 @@ public class GameManager : MonoBehaviour
         if (Soup != SoupState.Filling) return false;
         explosionEndsAt = 0f;
         SoupTimeLeft = TotalCookTime;
+        //TODO: (loop pot bubbling while the soup is cooking and the day is active)
         Soup = SoupState.Cooking;
         return true;
     }
@@ -189,10 +192,12 @@ public class GameManager : MonoBehaviour
     // ---------- Money ----------
     public void SellSoup(int price)
     {
+        //TODO: (coins clinking when the customer pays for soup)
         CleanMoney += price;
         LaunderCapacity += (long)System.Math.Round(price * (double)launderRatio);
     }
 
+    //TODO: (coins clinking when a hunt pays out)
     public void AddDirtyMoney(int amount) => DirtyMoney += amount;
 
     public string Message { get; private set; } = "";

@@ -82,6 +82,7 @@ public class HitscanGun : MonoBehaviour
         cam.fieldOfView = Mathf.MoveTowards(cam.fieldOfView, targetFov, 180f * Time.deltaTime);
 
         bool cycling = Time.time < nextFire;
+        //TODO: (gun closing once when the reload cycle finishes)
         bool flashing = cycling && Time.time < reloadStarted;
         if (muzzleFlash)
         {
@@ -100,6 +101,7 @@ public class HitscanGun : MonoBehaviour
 
     void Fire()
     {
+        //TODO: (gunshot and arrow launch together on each shot)
         reloadStarted = Time.time + flashDuration;
         nextFire = reloadStarted + fireCooldown;
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);

@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour
         vy = cc.isGrounded ? -2f : vy + Physics.gravity.y * Time.deltaTime;
         move.y = vy;
         cc.Move(move * Time.deltaTime);
+        //TODO: (forest footsteps with each stride while moving along the ground)
     }
 
     static void SetCursorLocked(bool locked)
