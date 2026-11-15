@@ -15,3 +15,6 @@ MonoBehaviour:
   displayName: Leek
   color: {r: 0.5334479, g: 0.9528302, b: 0.28315237, a: 1}
   icon: {fileID: 0}
+  frames:
+  - {fileID: 7403973001408536334, guid: ea29b71c6c68b5a44a157e0e67d5ee87, type: 3}
+  - {fileID: -7806171034786999469, guid: bab126e184ef14345909f2c4b6e1f4d8, type: 3}
