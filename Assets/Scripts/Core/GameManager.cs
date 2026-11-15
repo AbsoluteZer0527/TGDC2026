@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour
     public int debugSeed = 0;
     public int ForestSeed { get; private set; }
     public HashSet<int> KilledCreatures { get; } = new();
+    public bool[] Explored { get; set; }   // minimap fog, one entry per tile, resets each day
 
     void Awake()
     {
