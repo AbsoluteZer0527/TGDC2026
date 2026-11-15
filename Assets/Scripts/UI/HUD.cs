@@ -23,7 +23,9 @@ public class HUD : MonoBehaviour
     [Header("Status")]
     public TMP_Text messageText;
     [FormerlySerializedAs("cleanText")] public TMP_Text stewText;
-    [FormerlySerializedAs("dirtyText")] public TMP_Text totalText;
+    [FormerlySerializedAs("dirtyText"), FormerlySerializedAs("totalText")] public TMP_Text huntText;
+    [SerializeField] Image openMoney;
+    [SerializeField] GameObject foldedMoney;
     [FormerlySerializedAs("launderText")] public TMP_Text maxText;
     public GameObject endPanel;
     public TMP_Text endText;
@@ -54,8 +56,16 @@ public class HUD : MonoBehaviour
         dayPointer.localRotation = Quaternion.Euler(0f, 0f, angle);
         UpdateCookingTimer(gm);
         stewText.text = FormatMoney(gm.CleanMoney);
-        totalText.text = FormatMoney(gm.CleanMoney + gm.DirtyMoney);
-        maxText.text = FormatMoney(gm.LaunderCapacity - gm.Laundered);
+        bool showHunt = gm.DirtyMoney > 0;
+        openMoney.enabled = showHunt;
+        foldedMoney.SetActive(!showHunt);
+        huntText.gameObject.SetActive(showHunt);
+        maxText.gameObject.SetActive(showHunt);
+        if (showHunt)
+        {
+            huntText.text = FormatMoney(gm.DirtyMoney);
+            maxText.text = FormatMoney(gm.LaunderCapacity - gm.Laundered);
+        }
 
         endPanel.SetActive(gm.DayOver);
         if (gm.DayOver)
@@ -78,7 +88,13 @@ public class HUD : MonoBehaviour
 
         cookingTimer.sprite = exploded ? explodedSprite : cookingSprite;
         soupText.gameObject.SetActive(counting);
-        if (counting) soupText.SetText("{0}s", Mathf.CeilToInt(gm.SoupTimeLeft));
+        if (counting)
+        {
+            bool flash = gm.Soup == SoupState.Ready && !gm.DayOver;
+            float yellow = flash ? Mathf.PingPong(Time.time * 4f, 1f) : 0f;
+            soupText.color = Color.Lerp(Color.white, Color.yellow, yellow);
+            soupText.SetText("{0}s", Mathf.CeilToInt(gm.SoupTimeLeft));
+        }
 
         float pop = exploded ? Mathf.Clamp01((gm.explosionDisplaySeconds - gm.ExplosionTimeLeft) / 0.25f) : 0f;
         cookingTimer.rectTransform.localScale = Vector3.one * (1f + 0.15f * Mathf.Sin(pop * Mathf.PI));
