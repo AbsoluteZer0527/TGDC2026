@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(KitchenDialogue))]
 public class KitchenController : MonoBehaviour
 {
     [Header("Data")]
@@ -24,22 +25,21 @@ public class KitchenController : MonoBehaviour
     public Button ingredientButtonPrefab;
     public Transform ingredientButtonParent;
     public Button cookButton, serveButton, discardButton;
-    public TMP_Text orderText, potText;
-    public RectTransform orderBubble;
+    public TMP_Text potText;
 
     [Header("Customer")]
     public Transform customer;           // root object, feet on the floor
-    public Renderer customerRenderer;    // the Visual quad
+    [SerializeField] SpriteRenderer customerRenderer;
     [Min(0.01f)] public float entranceDuration = 0.9f;
     [Min(0f)] public float stepHeight = 0.09f;
 
-    [Header("Customer dialogue")]
-    [Tooltip("The first conversation plays these lines in order.")]
-    [SerializeField] DialogueLine[] openingLines = System.Array.Empty<DialogueLine>();
-    [Tooltip("Later customers pick one greeting before ordering.")]
-    [SerializeField] DialogueLine[] greetings = System.Array.Empty<DialogueLine>();
-    [SerializeField] RectTransform playerBubble;
-    [SerializeField] TMP_Text playerText;
+    [Header("Customer roster")]
+    [Tooltip("Unscheduled visits use NPC 0 and pick one of these sprites.")]
+    [SerializeField] Sprite[] randomNpcSprites = System.Array.Empty<Sprite>();
+    [Tooltip("Give each key character a unique positive ID, a name, and a sprite.")]
+    [SerializeField] KeyNpc[] keyNpcs = System.Array.Empty<KeyNpc>();
+    [Tooltip("Choose who arrives on a numbered visit. Visit 1 opens the day.")]
+    [SerializeField] KeyVisit[] keyVisits = System.Array.Empty<KeyVisit>();
 
     [Header("Pot")]
     public GameObject soupVisual, readyVisual;
@@ -49,17 +49,19 @@ public class KitchenController : MonoBehaviour
     string lastThrow = "";
     Camera cam;
     Vector3 customerStop;
+    Sprite defaultCustomerSprite;
     bool customerEntering;
-    Button npcDialogueButton, playerDialogueButton;
-    bool CanServe => !customerEntering && GM.CurrentCustomerLine == null && !GM.DayOver;
+    KitchenDialogue dialogue;
+    bool CanServe => !customerEntering && GM.Phase == CustomerPhase.AtCounter && GM.CurrentCustomerLine == null && !GM.DayOver;
     GameManager GM => GameManager.I;
 
     void Start()
     {
         cam = Camera.main;
         customerStop = customer.position;
-        npcDialogueButton = BindDialogueButton(orderBubble ? orderBubble.gameObject : orderText.gameObject);
-        if (playerBubble && playerText) playerDialogueButton = BindDialogueButton(playerBubble.gameObject);
+        if (customerRenderer) defaultCustomerSprite = customerRenderer.sprite;
+        dialogue = GetComponent<KitchenDialogue>();
+        dialogue.Initialize(ResumeConversation);
         foreach (var ing in ingredients)
         {
             var b = Instantiate(ingredientButtonPrefab, ingredientButtonParent);
@@ -71,16 +73,7 @@ public class KitchenController : MonoBehaviour
         serveButton.onClick.AddListener(Serve);
         discardButton.onClick.AddListener(Discard);
 
-        if (GM.CurrentOrder.Count == 0) NewCustomer(); else ShowCustomer();
-    }
-
-    Button BindDialogueButton(GameObject bubble)
-    {
-        if (!bubble.TryGetComponent<Button>(out var button)) button = bubble.AddComponent<Button>();
-        button.transition = Selectable.Transition.None;
-        button.navigation = new Navigation { mode = Navigation.Mode.None };
-        button.onClick.AddListener(AdvanceDialogue);
-        return button;
+        if (GM.CustomersArrived == 0) NewCustomer(); else ResumeConversation();
     }
 
     void OnIngredientClicked(IngredientData ing)
@@ -116,7 +109,9 @@ public class KitchenController : MonoBehaviour
 
         bool correct = soup.Count == GM.CurrentOrder.Count && !soup.Except(GM.CurrentOrder).Any();
         if (correct) GM.SellSoup(soupPrice);
-        NewCustomer();
+        GM.CurrentOrder.Clear();
+        dialogue.BeginFarewell();
+        ResumeConversation();
     }
 
     void Update()
@@ -146,56 +141,46 @@ public class KitchenController : MonoBehaviour
 
     void NewCustomer()
     {
+        var visit = keyVisits.FirstOrDefault(v => v?.visitNumber == GM.CustomersArrived + 1);
+        var npc = keyNpcs.FirstOrDefault(k => k != null && k.npcId > 0 && k.npcId == visit?.npcId);
+        var sprite = npc == null ? Pick(randomNpcSprites.Where(s => s).ToArray()) : npc.sprite;
+        GM.CustomerArrives(npc?.npcId ?? 0, sprite ? sprite : defaultCustomerSprite);
         int n = Random.Range(minOrderSize, maxOrderSize + 1);
         GM.CurrentOrder.Clear();
         GM.CurrentOrder.AddRange(ingredients.OrderBy(_ => Random.value).Take(n));
-        GM.CustomerColor = Random.ColorHSV(0f, 1f, 0.4f, 0.8f, 0.8f, 1f);
-        if (GM.CustomersArrived == 0)
-            GM.BeginCustomerDialogue(openingLines);
-        else
+        dialogue.BeginGreeting();
+
+        customer.gameObject.SetActive(true);
+        if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
+        StartCoroutine(MoveCustomer(true));
+    }
+
+    static T Pick<T>(T[] choices) where T : class =>
+        choices.Length == 0 ? null : choices[Random.Range(0, choices.Length)];
+
+    void ResumeConversation()
+    {
+        if (GM.CurrentCustomerLine == null && GM.Phase == CustomerPhase.Farewell)
         {
-            var choices = greetings.Where(line => !string.IsNullOrWhiteSpace(line?.text)).ToArray();
-            GM.BeginCustomerDialogue(choices.Length == 0 ? choices : new[] { choices[Random.Range(0, choices.Length)] });
+            dialogue.BeginPersonalDialogue();
+            StartCoroutine(MoveCustomer(false));
+            return;
         }
-
-        ShowCustomer();
-        StartCoroutine(CustomerEntrance());
+        if (GM.Phase == CustomerPhase.BetweenCustomers && GM.CurrentCustomerLine == null)
+        {
+            NewCustomer();
+            return;
+        }
+        customer.gameObject.SetActive(GM.Phase != CustomerPhase.BetweenCustomers);
+        if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
+        dialogue.Show(customer);
     }
 
-    void ShowCustomer()
-    {
-        if (customerRenderer) customerRenderer.material.color = GM.CustomerColor;
-        RefreshBubble();
-    }
-
-    void AdvanceDialogue()
-    {
-        if (customerEntering || GM.DayOver || GM.CurrentCustomerLine == null) return;
-        GM.AdvanceCustomerDialogue();
-        RefreshBubble();
-    }
-
-    void RefreshBubble()
-    {
-        DialogueLine line = GM.CurrentCustomerLine;
-        bool playerSpeaks = playerDialogueButton && line?.playerSpeaks == true;
-        npcDialogueButton.gameObject.SetActive(!playerSpeaks);
-        if (playerDialogueButton) playerDialogueButton.gameObject.SetActive(playerSpeaks);
-        var button = playerSpeaks ? playerDialogueButton : npcDialogueButton;
-        var text = playerSpeaks ? playerText : orderText;
-        button.interactable = line != null;
-        text.text = line != null
-            ? line.text
-            : "May I have a stew with:\n" + string.Join(", ", GM.CurrentOrder.Select(i => i.displayName));
-        if (line != null && !GM.HasAdvancedDialogue)
-            text.text += "\n\n<size=65%>Click to continue</size>";
-    }
-
-    IEnumerator CustomerEntrance()
+    IEnumerator MoveCustomer(bool arriving)
     {
         customerEntering = true;
-        var bubble = playerDialogueButton && playerBubble.gameObject.activeSelf ? playerBubble : orderBubble;
-        if (bubble) bubble.gameObject.SetActive(false);
+        dialogue.Hide();
+
         Vector3 start = customerStop + Vector3.right * 8f;
         if (cam)
         {
@@ -207,28 +192,15 @@ public class KitchenController : MonoBehaviour
         for (float elapsed = 0f; elapsed < entranceDuration; elapsed += Time.deltaTime)
         {
             float t = elapsed / entranceDuration;
-            float slide = Mathf.SmoothStep(0f, 1f, t);
+            float slide = Mathf.SmoothStep(0f, 1f, arriving ? t : 1f - t);
             float bob = Mathf.Abs(Mathf.Sin(slide * Mathf.PI * 4f)) * stepHeight;
             customer.position = Vector3.Lerp(start, customerStop, slide) + Vector3.up * bob;
             yield return null;
         }
-        customer.position = customerStop;
-        if (bubble)
-        {
-            Vector3 bubbleScale = bubble.localScale;
-            bubble.localScale = Vector3.zero;
-            bubble.gameObject.SetActive(true);
-            const float popDuration = 0.2f;
-            for (float elapsed = 0f; elapsed < popDuration; elapsed += Time.deltaTime)
-            {
-                float t = elapsed / popDuration - 1f;
-                float scale = 1f + t * t * (2.7f * t + 1.7f);
-                bubble.localScale = bubbleScale * scale;
-                yield return null;
-            }
-            bubble.localScale = bubbleScale;
-        }
+        customer.position = arriving ? customerStop : start;
+        if (!arriving) customer.gameObject.SetActive(false);
         customerEntering = false;
+        ResumeConversation();
     }
 
     IEnumerator ThrowVisual(Color color)

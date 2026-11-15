@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public enum SoupState { Empty, Filling, Cooking, Ready }
+public enum CustomerPhase { AtCounter, Farewell, BetweenCustomers }
 
 public class GameManager : MonoBehaviour
 {
@@ -24,15 +26,24 @@ public class GameManager : MonoBehaviour
 
     [Header("Customer")]
     public List<IngredientData> CurrentOrder { get; } = new();
-    public Color CustomerColor { get; set; } = Color.white;
+    public int CurrentNpcId { get; private set; }
+    public Sprite CurrentNpcSprite { get; private set; }
     public int CustomersArrived { get; private set; }
+    public CustomerPhase Phase { get; private set; }
     public bool HasAdvancedDialogue { get; private set; }
     readonly Queue<DialogueLine> customerLines = new();
     public DialogueLine CurrentCustomerLine => customerLines.Count > 0 ? customerLines.Peek() : null;
 
-    public void BeginCustomerDialogue(IEnumerable<DialogueLine> lines)
+    public void CustomerArrives(int npcId, Sprite sprite)
     {
         CustomersArrived++;
+        CurrentNpcId = npcId;
+        CurrentNpcSprite = sprite;
+    }
+
+    public void BeginCustomerDialogue(CustomerPhase phase, IEnumerable<DialogueLine> lines)
+    {
+        Phase = phase;
         customerLines.Clear();
         foreach (var line in lines)
             if (!string.IsNullOrWhiteSpace(line?.text)) customerLines.Enqueue(line);
@@ -48,12 +59,14 @@ public class GameManager : MonoBehaviour
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]
     public float launderRatio = 3f;
-    public int CleanMoney { get; private set; }
-    public int DirtyMoney { get; private set; }
-    public int LaunderCapacity { get; private set; }
-    public int Laundered => Mathf.Min(DirtyMoney, LaunderCapacity);
-    public int Score => CleanMoney + Laundered;
-    public int HighScore => PlayerPrefs.GetInt("HighScore", 0);
+    public long CleanMoney { get; private set; }
+    public long DirtyMoney { get; private set; }
+    public long LaunderCapacity { get; private set; }
+    public long Laundered => System.Math.Min(DirtyMoney, LaunderCapacity);
+    public long Score => CleanMoney + Laundered;
+    const string HighScoreKey = "HighScore64";
+    public long HighScore => long.TryParse(PlayerPrefs.GetString(HighScoreKey), NumberStyles.Integer,
+        CultureInfo.InvariantCulture, out long saved) ? saved : PlayerPrefs.GetInt("HighScore", 0);
 
     [Header("Forest")]
     [Tooltip("0 = random each day. Set a number to test the same layout every time.")]
@@ -124,7 +137,7 @@ public class GameManager : MonoBehaviour
     public void SellSoup(int price)
     {
         CleanMoney += price;
-        LaunderCapacity += Mathf.RoundToInt(price * launderRatio);
+        LaunderCapacity += (long)System.Math.Round(price * (double)launderRatio);
     }
 
     public void AddDirtyMoney(int amount) => DirtyMoney += amount;
@@ -142,7 +155,7 @@ public class GameManager : MonoBehaviour
     {
         DayOver = true;
         TimeLeft = 0f;
-        if (Score > HighScore) PlayerPrefs.SetInt("HighScore", Score);
+        if (Score > HighScore) PlayerPrefs.SetString(HighScoreKey, Score.ToString(CultureInfo.InvariantCulture));
     }
 
     public void Restart()

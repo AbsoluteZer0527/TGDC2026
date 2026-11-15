@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72409ee4f2104cb1b76954fd22dd686c, type: 3}
+  m_Name: KitchenDialogue
+  m_EditorClassIdentifier: Assembly-CSharp::KitchenDialogueData
+  randomGreetings:
+  - Veggie stew is my new favorite now besides matcha.
+  - Ah, smells so good in here!
+  - Please, I've been in line for the whole day!
+  - I need want something that's warms me up for the day...
+  - Animal hunting is devastating...we need more places like this!
+  keyGreetings:
+  - npcId: 1
+    lines:
+    - text: 'Hello!!! '
+      playerSpeaks: 0
+    - text: Welcome in!
+      playerSpeaks: 1
+    - text: Is this the new stew stand that is opening in the forest?!
+      playerSpeaks: 0
+    - text: I saw it on Estergram the other day!
+      playerSpeaks: 0
+    - text: Yes! It is our grand opening today!
+      playerSpeaks: 1
+    - text: 'We make stew with varies vegeterian options! '
+      playerSpeaks: 1
+    - text: OMG! I'm such a big fan of veggie stew!
+      playerSpeaks: 0
+    - text: I'm so excited!!
+      playerSpeaks: 0
+  customerEndings:
+  - npcId: 1
+    lines:
+    - text: ...This is delicious! I will definitely be back!!!
+      playerSpeaks: 0
+    - text: See you later!
+      playerSpeaks: 1
+  - npcId: 0
+    lines:
+    - text: This tastes way better than meat soup...
+      playerSpeaks: 0
+    - text: I don't get it..why would people hunt animals just in order to get their meat when we have cuisines like this?
+      playerSpeaks: 0
+    - text: Right! We were always oppose to animal hunting!
+      playerSpeaks: 1
+    - text: Like isn't killing vegetables like this more satisfying?
+      playerSpeaks: 0
+    - text: Well...sure.
+      playerSpeaks: 1
+  - npcId: 1
+    lines:
+    - text: Thanks for the stew!
+      playerSpeaks: 0
+  betweenCustomers:
+  - afterCustomer: 1
+    playerLines:
+    - ...
+    - Looking at the line, this indeed got popular.
+    - But like...this is not making THAT much profit.
+    - Ugh...there is no work life balance.
+  - afterCustomer: 2
+    playerLines:
+    - ...
+    - I can't believe I have to do this all day.
+    - ...
+    - Oh well, I guess that's another letter from my manager
