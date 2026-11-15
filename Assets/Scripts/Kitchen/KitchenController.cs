@@ -11,7 +11,10 @@ public class KitchenController : MonoBehaviour
 {
     [Header("Data")]
     public IngredientData[] ingredients;
+    [Tooltip("How many DIFFERENT ingredients an order asks for")]
     public int minOrderSize = 2, maxOrderSize = 3;
+    [Tooltip("Max copies of one ingredient in an order. Only used when GameManager's Ingredient Refresh is on.")]
+    [Min(1)] public int maxCopiesPerIngredient = 2;
     public int soupPrice = 10;
 
     [Header("Cooking")]
@@ -116,8 +119,9 @@ public class KitchenController : MonoBehaviour
         if (soup == null) return;
 
         //TODO: (optional click when the Serve button serves a bowl)
-        // Exact match: every ordered ingredient exactly once. Extra copies (ingredient refresh) make it wrong.
-        bool correct = soup.Count == GM.CurrentOrder.Count && GM.CurrentOrder.All(soup.Contains);
+        // Exact match: same ingredients, same number of each. Extra or missing copies make it wrong.
+        bool correct = soup.Count == GM.CurrentOrder.Count &&
+                       GM.CurrentOrder.GroupBy(i => i).All(g => soup.Count(s => s == g.Key) == g.Count());
         if (correct) GM.SellSoup(soupPrice);
         GM.CurrentOrder.Clear();
         dialogue.BeginFarewell();
@@ -156,7 +160,12 @@ public class KitchenController : MonoBehaviour
         GM.CustomerArrives(npc?.npcId ?? 0, sprite ? sprite : defaultCustomerSprite);
         int n = Random.Range(minOrderSize, maxOrderSize + 1);
         GM.CurrentOrder.Clear();
-        GM.CurrentOrder.AddRange(ingredients.OrderBy(_ => Random.value).Take(n));
+        foreach (var ing in ingredients.OrderBy(_ => Random.value).Take(n))
+        {
+            // Duplicates only make sense when thrown veggies come back (ingredient refresh).
+            int copies = GM.ingredientRefresh ? Random.Range(1, maxCopiesPerIngredient + 1) : 1;
+            for (int c = 0; c < copies; c++) GM.CurrentOrder.Add(ing);
+        }
         dialogue.BeginGreeting();
 
         customer.gameObject.SetActive(true);

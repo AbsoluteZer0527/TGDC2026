@@ -8,4 +8,6 @@ public class IngredientData : ScriptableObject
     public Sprite icon; // for later
     [Tooltip("Walk cycle on the counter, e.g. Carrot1_0, Carrot2_0. Frame 0 is also the standing pose.")]
     public Sprite[] frames;
+    [Tooltip("Extra space (ems) between \"2x\" and this icon in the order bubble, added to KitchenDialogue's gap. For wide art.")]
+    public float orderIconExtraGap = 0f;
 }

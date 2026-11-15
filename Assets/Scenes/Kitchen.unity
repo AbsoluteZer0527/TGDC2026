@@ -1044,7 +1044,7 @@ MonoBehaviour:
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
+  m_spriteAsset: {fileID: 11400000, guid: 3b9ac18a3af12417cbabafa72ca33cc2, type: 2}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901
@@ -3355,6 +3355,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 61395af370065462892e6e6d21335ad5, type: 2}
   minOrderSize: 2
   maxOrderSize: 3
+  maxCopiesPerIngredient: 2
   soupPrice: 10
   secondsPerIngredient: 3
   ingredientButtonPrefab: {fileID: 2355970609247980472, guid: 7ae55c278ab4f40c3820c20360066be7, type: 3}
@@ -5133,6 +5134,12 @@ MonoBehaviour:
   dialogueEffects:
     charactersPerSecond: 20
     hopHeight: 0.06
+  orderIconSizePercent: 250
+  orderIconRaise: 0.3
+  orderIconGap: 0.65
+  orderColumns: 3
+  orderColumnWidthPercent: 28
+  orderRowHeight: 2.2
 --- !u!114 &1738042900
 MonoBehaviour:
   m_ObjectHideFlags: 0
