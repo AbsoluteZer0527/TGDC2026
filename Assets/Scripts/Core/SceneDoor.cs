@@ -18,6 +18,6 @@ public class SceneDoor : MonoBehaviour, IPointerClickHandler
     public void Go()
     {
         if (GameManager.I != null && GameManager.I.DayOver) return;
-        ScreenFader.LoadScene(sceneToLoad);
+        CurtainTransition.TransitionTo(sceneToLoad);
     }
 }

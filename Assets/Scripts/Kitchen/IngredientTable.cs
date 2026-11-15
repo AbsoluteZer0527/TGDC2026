@@ -67,7 +67,7 @@ public class IngredientTable : MonoBehaviour
             if (r.IsHidden && !GM.PotContents.Contains(r.Data)) r.Drop();
 
         var mouse = Mouse.current;
-        if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
+        if (CurtainTransition.IsPlaying || mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
         if (EventSystem.current && EventSystem.current.IsPointerOverGameObject()) return; // clicked on UI
 
         var ray = cam.ScreenPointToRay(mouse.position.ReadValue());

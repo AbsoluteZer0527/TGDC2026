@@ -17,6 +17,6 @@ public class ForestDoor : MonoBehaviour
 
         if (prompt) prompt.SetActive(near);
         if (near && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-            ScreenFader.LoadScene(sceneToLoad);
+            CurtainTransition.TransitionTo(sceneToLoad);
     }
 }

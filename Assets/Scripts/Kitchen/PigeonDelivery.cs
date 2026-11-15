@@ -101,7 +101,7 @@ public sealed class PigeonDelivery : MonoBehaviour
             GM.AdvancePigeonFlight(Time.deltaTime / Mathf.Max(0.1f, flightSeconds));
             Refresh();
         }
-        if (Keyboard.current == null || !Keyboard.current.qKey.wasPressedThisFrame) return;
+        if (CurtainTransition.IsPlaying || Keyboard.current == null || !Keyboard.current.qKey.wasPressedThisFrame) return;
         if (GM.FinishReadingLetter())
         {
             openLetterView.gameObject.SetActive(false);
