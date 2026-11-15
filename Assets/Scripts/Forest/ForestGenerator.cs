@@ -26,6 +26,7 @@ public class ForestGenerator : MonoBehaviour
 
     [Header("World")]
     public GameObject wallPrefab;
+    [SerializeField] ForestWallArt wallArt;
     public Transform ground;
     public NavMeshSurface navSurface;
     public float spawnClearRadius = 8f;            // no trees/creatures near the door
@@ -170,8 +171,10 @@ public class ForestGenerator : MonoBehaviour
             var w = Instantiate(wallPrefab, TileToWorld(x, y) + Vector3.up * (wallHeight / 2f),
                                 Quaternion.identity, root);
             w.transform.localScale = new Vector3(tileSize, wallHeight, tileSize);
+            if (wallArt) w.GetComponent<MeshRenderer>().enabled = false;
         }
-        StaticBatchingUtility.Combine(root.gameObject);   // fewer draw calls
+        if (wallArt) wallArt.Build(this);
+        else StaticBatchingUtility.Combine(root.gameObject);
     }
 
     bool TouchesFloor(int x, int y)
