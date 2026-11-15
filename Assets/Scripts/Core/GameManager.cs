@@ -25,7 +25,6 @@ public class GameManager : MonoBehaviour
     [Header("Customer")]
     public List<IngredientData> CurrentOrder { get; } = new();
     public Color CustomerColor { get; set; } = Color.white;
-    public Vector3 CustomerPos { get; set; }
 
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]

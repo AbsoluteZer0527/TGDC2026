@@ -1116,6 +1116,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 183
   gunSprite: {fileID: 1519616118}
+  idleSprite: {fileID: -9071900848137332959, guid: 54c26bff246b8a048b9046c0ab51fcce, type: 3}
+  aimSprite: {fileID: -3964384520903810293, guid: 30b71c0473e743a45b0e7367abd909e6, type: 3}
+  reloadFrames:
+  - {fileID: 900538997235499746, guid: bafae048f845825419eb52b90650cacb, type: 3}
+  - {fileID: -154137159189870803, guid: 2b0dc17836afb084fb6d65ac07f0f9d9, type: 3}
+  - {fileID: -1527469924460599894, guid: 09641d1fcb1fc124d9cbae2babaa237f, type: 3}
+  - {fileID: -1529929445183288691, guid: db31e33fe5e9056448e6beb4da3b61b9, type: 3}
   recoilDistance: 40
   tracer: {fileID: 1478786589}
   muzzle: {fileID: 713987189}
@@ -1486,10 +1493,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 485884494}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 200, y: -30}
-  m_SizeDelta: {x: 350, y: 350}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1519616119
 MonoBehaviour:
@@ -1504,16 +1511,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.745283, g: 0.745283, b: 0.745283, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -9071900848137332959, guid: 54c26bff246b8a048b9046c0ab51fcce, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1

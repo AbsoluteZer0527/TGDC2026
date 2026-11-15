@@ -30,8 +30,8 @@ public class KitchenController : MonoBehaviour
     [Header("Customer")]
     public Transform customer;           // root object, feet on the floor
     public Renderer customerRenderer;    // the Visual quad
-    public Transform customerArea;       // invisible box customers can stand in
-    public float minMoveDistance = 1.5f;
+    [Min(0.01f)] public float entranceDuration = 0.9f;
+    [Min(0f)] public float stepHeight = 0.09f;
     public Vector3 bubbleOffset = new Vector3(0, 2.3f, 0);
 
     [Header("Pot")]
@@ -41,11 +41,15 @@ public class KitchenController : MonoBehaviour
     readonly Dictionary<IngredientData, Button> buttons = new();
     string lastThrow = "";
     Camera cam;
+    Vector3 customerStop, bubbleScale;
+    bool customerEntering;
     GameManager GM => GameManager.I;
 
     void Start()
     {
         cam = Camera.main;
+        customerStop = customer.position;
+        if (orderBubble) bubbleScale = orderBubble.localScale;
         foreach (var ing in ingredients)
         {
             var b = Instantiate(ingredientButtonPrefab, ingredientButtonParent);
@@ -86,6 +90,7 @@ public class KitchenController : MonoBehaviour
 
     void Serve()
     {
+        if (customerEntering) return;
         Deselect();
         var soup = GM.TakeSoup();
         if (soup == null) return;
@@ -105,7 +110,7 @@ public class KitchenController : MonoBehaviour
             kv.Value.image.color = GM.PotContents.Contains(kv.Key) ? kv.Key.color : Color.white;
         }
         cookButton.interactable    = !busy && GM.Soup == SoupState.Filling;
-        serveButton.interactable   = !GM.DayOver && GM.Soup == SoupState.Ready;
+        serveButton.interactable   = !customerEntering && !GM.DayOver && GM.Soup == SoupState.Ready;
         discardButton.interactable = !GM.DayOver && (GM.Soup != SoupState.Empty || meter.Running);
 
         potText.text = meter.Running ? "Press SPACE!\n(top = faster)" : GM.Soup switch
@@ -116,7 +121,7 @@ public class KitchenController : MonoBehaviour
             _                 => "Click an ingredient\nto throw it in"
         };
 
-        if (soupVisual)  soupVisual.SetActive(GM.Soup != SoupState.Empty);
+        if (soupVisual)  soupVisual.SetActive(GM.Soup == SoupState.Cooking || GM.Soup == SoupState.Ready);
         if (readyVisual) readyVisual.SetActive(GM.Soup == SoupState.Ready);
 
         // Speech bubble follows the customer's head
@@ -131,21 +136,52 @@ public class KitchenController : MonoBehaviour
         GM.CurrentOrder.AddRange(ingredients.OrderBy(_ => Random.value).Take(n));
         GM.CustomerColor = Random.ColorHSV(0f, 1f, 0.4f, 0.8f, 0.8f, 1f);
 
-        Vector3 prev = GM.CustomerPos, p = prev;
-        for (int i = 0; i < 10; i++)
-        {
-            p = customerArea.TransformPoint(new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f)));
-            if (Vector3.Distance(p, prev) >= minMoveDistance) break;
-        }
-        GM.CustomerPos = p;
         ShowCustomer();
+        StartCoroutine(CustomerEntrance());
     }
 
     void ShowCustomer()
     {
         orderText.text = "One soup with:\n" + string.Join(", ", GM.CurrentOrder.Select(i => i.displayName));
-        customer.position = GM.CustomerPos;
         if (customerRenderer) customerRenderer.material.color = GM.CustomerColor;
+    }
+
+    IEnumerator CustomerEntrance()
+    {
+        customerEntering = true;
+        if (orderBubble) orderBubble.gameObject.SetActive(false);
+        Vector3 start = customerStop + Vector3.right * 8f;
+        if (cam)
+        {
+            Vector3 viewport = cam.WorldToViewportPoint(customerStop);
+            viewport.x = 1.2f;
+            start = cam.ViewportToWorldPoint(viewport);
+        }
+
+        for (float elapsed = 0f; elapsed < entranceDuration; elapsed += Time.deltaTime)
+        {
+            float t = elapsed / entranceDuration;
+            float slide = Mathf.SmoothStep(0f, 1f, t);
+            float bob = Mathf.Abs(Mathf.Sin(slide * Mathf.PI * 4f)) * stepHeight;
+            customer.position = Vector3.Lerp(start, customerStop, slide) + Vector3.up * bob;
+            yield return null;
+        }
+        customer.position = customerStop;
+        if (orderBubble)
+        {
+            orderBubble.localScale = Vector3.zero;
+            orderBubble.gameObject.SetActive(true);
+            const float popDuration = 0.2f;
+            for (float elapsed = 0f; elapsed < popDuration; elapsed += Time.deltaTime)
+            {
+                float t = elapsed / popDuration - 1f;
+                float scale = 1f + t * t * (2.7f * t + 1.7f);
+                orderBubble.localScale = bubbleScale * scale;
+                yield return null;
+            }
+            orderBubble.localScale = bubbleScale;
+        }
+        customerEntering = false;
     }
 
     IEnumerator ThrowVisual(Color color)
