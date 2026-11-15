@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public float MoveSpeedMultiplier { get; set; } = 1f;
 
     public bool CanAct =>
-        Cursor.lockState == CursorLockMode.Locked &&
+        !CurtainTransition.IsPlaying && Cursor.lockState == CursorLockMode.Locked &&
         !(GameManager.I != null && GameManager.I.DayOver);
 
     CharacterController cc;

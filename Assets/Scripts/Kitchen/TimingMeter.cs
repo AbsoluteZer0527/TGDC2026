@@ -45,7 +45,7 @@ public class TimingMeter : MonoBehaviour
         else if (t <= 0f) { t = 0f; dir = 1; }
         Place(t);
 
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (!CurtainTransition.IsPlaying && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             Running = false;
             var cb = onDone; onDone = null;
