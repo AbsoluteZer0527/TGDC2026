@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: faecace130ee46b08a70119e4e081dd5, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1071,7 +1071,7 @@ Camera:
   m_GameObject: {fileID: 961739749}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.36862746, g: 0.47843137, b: 0.4, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -1904,6 +1904,7 @@ GameObject:
   - component: {fileID: 2056371781}
   - component: {fileID: 2056371780}
   - component: {fileID: 2056371782}
+  - component: {fileID: 2056371783}
   m_Layer: 0
   m_Name: ForestGenerator
   m_TagString: Untagged
@@ -1933,6 +1934,7 @@ MonoBehaviour:
   maxRoomSize: 7
   startRoomSize: 5
   wallPrefab: {fileID: 4621821051254192852, guid: e63323cf8a6e248b19863c34a4a38333, type: 3}
+  wallArt: {fileID: 2056371783}
   ground: {fileID: 1449445713}
   navSurface: {fileID: 2056371782}
   spawnClearRadius: 8
@@ -1949,6 +1951,25 @@ MonoBehaviour:
     weight: 1
   creatureCount: 40
   creatureSpacing: 4
+--- !u!114 &2056371783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056371779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c683c5f85c3a43b7b399eb05272ef844, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ForestWallArt
+  windMaterial: {fileID: 2100000, guid: 449a1e792bd849329db672192efe3075, type: 2}
+  forestWall: {fileID: -3796609998169276261, guid: 59762915b8debe1498e68a4051b935f2, type: 3}
+  cornerTrees:
+  - {fileID: -4040733395770150372, guid: 529162fb82d45f14eb1785ea479e86fd, type: 3}
+  - {fileID: -1731063430, guid: 529162fb82d45f14eb1785ea479e86fd, type: 3}
+  - {fileID: 1889791867, guid: 529162fb82d45f14eb1785ea479e86fd, type: 3}
+  - {fileID: 1415107336, guid: 529162fb82d45f14eb1785ea479e86fd, type: 3}
 --- !u!4 &2056371781
 Transform:
   m_ObjectHideFlags: 0
