@@ -34,17 +34,12 @@ public class KitchenController : MonoBehaviour
     [Min(0f)] public float stepHeight = 0.09f;
 
     [Header("Customer dialogue")]
-    [Tooltip("The first customer says each line in order."), TextArea(1, 4)]
-    [SerializeField] string[] openingLines = {
-        "Is that soup I smell?",
-        "I've been on the road all morning. Could you make me a bowl?"
-    };
-    [Tooltip("Later customers pick one greeting before ordering."), TextArea(1, 4)]
-    [SerializeField] string[] greetings = {
-        "Something warm would hit the spot.",
-        "Smells good in here!",
-        "Got room for one more?"
-    };
+    [Tooltip("The first conversation plays these lines in order.")]
+    [SerializeField] DialogueLine[] openingLines = System.Array.Empty<DialogueLine>();
+    [Tooltip("Later customers pick one greeting before ordering.")]
+    [SerializeField] DialogueLine[] greetings = System.Array.Empty<DialogueLine>();
+    [SerializeField] RectTransform playerBubble;
+    [SerializeField] TMP_Text playerText;
 
     [Header("Pot")]
     public GameObject soupVisual, readyVisual;
@@ -53,9 +48,9 @@ public class KitchenController : MonoBehaviour
     readonly Dictionary<IngredientData, Button> buttons = new();
     string lastThrow = "";
     Camera cam;
-    Vector3 customerStop, bubbleScale;
+    Vector3 customerStop;
     bool customerEntering;
-    Button dialogueButton;
+    Button npcDialogueButton, playerDialogueButton;
     bool CanServe => !customerEntering && GM.CurrentCustomerLine == null && !GM.DayOver;
     GameManager GM => GameManager.I;
 
@@ -63,13 +58,8 @@ public class KitchenController : MonoBehaviour
     {
         cam = Camera.main;
         customerStop = customer.position;
-        if (orderBubble) bubbleScale = orderBubble.localScale;
-        var bubbleObject = orderBubble ? orderBubble.gameObject : orderText.gameObject;
-        dialogueButton = bubbleObject.GetComponent<Button>();
-        if (!dialogueButton) dialogueButton = bubbleObject.AddComponent<Button>();
-        dialogueButton.transition = Selectable.Transition.None;
-        dialogueButton.navigation = new Navigation { mode = Navigation.Mode.None };
-        dialogueButton.onClick.AddListener(AdvanceDialogue);
+        npcDialogueButton = BindDialogueButton(orderBubble ? orderBubble.gameObject : orderText.gameObject);
+        if (playerBubble && playerText) playerDialogueButton = BindDialogueButton(playerBubble.gameObject);
         foreach (var ing in ingredients)
         {
             var b = Instantiate(ingredientButtonPrefab, ingredientButtonParent);
@@ -82,6 +72,15 @@ public class KitchenController : MonoBehaviour
         discardButton.onClick.AddListener(Discard);
 
         if (GM.CurrentOrder.Count == 0) NewCustomer(); else ShowCustomer();
+    }
+
+    Button BindDialogueButton(GameObject bubble)
+    {
+        if (!bubble.TryGetComponent<Button>(out var button)) button = bubble.AddComponent<Button>();
+        button.transition = Selectable.Transition.None;
+        button.navigation = new Navigation { mode = Navigation.Mode.None };
+        button.onClick.AddListener(AdvanceDialogue);
+        return button;
     }
 
     void OnIngredientClicked(IngredientData ing)
@@ -155,7 +154,7 @@ public class KitchenController : MonoBehaviour
             GM.BeginCustomerDialogue(openingLines);
         else
         {
-            var choices = greetings.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+            var choices = greetings.Where(line => !string.IsNullOrWhiteSpace(line?.text)).ToArray();
             GM.BeginCustomerDialogue(choices.Length == 0 ? choices : new[] { choices[Random.Range(0, choices.Length)] });
         }
 
@@ -178,17 +177,25 @@ public class KitchenController : MonoBehaviour
 
     void RefreshBubble()
     {
-        string line = GM.CurrentCustomerLine;
-        dialogueButton.interactable = line != null;
-        orderText.text = line != null
-            ? line + "\n<size=65%>Click to continue</size>"
-            : "One soup with:\n" + string.Join(", ", GM.CurrentOrder.Select(i => i.displayName));
+        DialogueLine line = GM.CurrentCustomerLine;
+        bool playerSpeaks = playerDialogueButton && line?.playerSpeaks == true;
+        npcDialogueButton.gameObject.SetActive(!playerSpeaks);
+        if (playerDialogueButton) playerDialogueButton.gameObject.SetActive(playerSpeaks);
+        var button = playerSpeaks ? playerDialogueButton : npcDialogueButton;
+        var text = playerSpeaks ? playerText : orderText;
+        button.interactable = line != null;
+        text.text = line != null
+            ? line.text
+            : "May I have a stew with:\n" + string.Join(", ", GM.CurrentOrder.Select(i => i.displayName));
+        if (line != null && !GM.HasAdvancedDialogue)
+            text.text += "\n\n<size=65%>Click to continue</size>";
     }
 
     IEnumerator CustomerEntrance()
     {
         customerEntering = true;
-        if (orderBubble) orderBubble.gameObject.SetActive(false);
+        var bubble = playerDialogueButton && playerBubble.gameObject.activeSelf ? playerBubble : orderBubble;
+        if (bubble) bubble.gameObject.SetActive(false);
         Vector3 start = customerStop + Vector3.right * 8f;
         if (cam)
         {
@@ -206,19 +213,20 @@ public class KitchenController : MonoBehaviour
             yield return null;
         }
         customer.position = customerStop;
-        if (orderBubble)
+        if (bubble)
         {
-            orderBubble.localScale = Vector3.zero;
-            orderBubble.gameObject.SetActive(true);
+            Vector3 bubbleScale = bubble.localScale;
+            bubble.localScale = Vector3.zero;
+            bubble.gameObject.SetActive(true);
             const float popDuration = 0.2f;
             for (float elapsed = 0f; elapsed < popDuration; elapsed += Time.deltaTime)
             {
                 float t = elapsed / popDuration - 1f;
                 float scale = 1f + t * t * (2.7f * t + 1.7f);
-                orderBubble.localScale = bubbleScale * scale;
+                bubble.localScale = bubbleScale * scale;
                 yield return null;
             }
-            orderBubble.localScale = bubbleScale;
+            bubble.localScale = bubbleScale;
         }
         customerEntering = false;
     }

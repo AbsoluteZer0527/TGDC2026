@@ -26,20 +26,23 @@ public class GameManager : MonoBehaviour
     public List<IngredientData> CurrentOrder { get; } = new();
     public Color CustomerColor { get; set; } = Color.white;
     public int CustomersArrived { get; private set; }
-    readonly Queue<string> customerLines = new();
-    public string CurrentCustomerLine => customerLines.Count > 0 ? customerLines.Peek() : null;
+    public bool HasAdvancedDialogue { get; private set; }
+    readonly Queue<DialogueLine> customerLines = new();
+    public DialogueLine CurrentCustomerLine => customerLines.Count > 0 ? customerLines.Peek() : null;
 
-    public void BeginCustomerDialogue(IEnumerable<string> lines)
+    public void BeginCustomerDialogue(IEnumerable<DialogueLine> lines)
     {
         CustomersArrived++;
         customerLines.Clear();
-        foreach (string line in lines)
-            if (!string.IsNullOrWhiteSpace(line)) customerLines.Enqueue(line);
+        foreach (var line in lines)
+            if (!string.IsNullOrWhiteSpace(line?.text)) customerLines.Enqueue(line);
     }
 
     public void AdvanceCustomerDialogue()
     {
-        if (customerLines.Count > 0) customerLines.Dequeue();
+        if (customerLines.Count == 0) return;
+        customerLines.Dequeue();
+        HasAdvancedDialogue = true;
     }
 
     [Header("Money")]
