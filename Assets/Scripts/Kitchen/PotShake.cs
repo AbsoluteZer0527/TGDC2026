@@ -3,6 +3,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PotShake : MonoBehaviour
 {
+    [SerializeField] SoupState shakeDuring = SoupState.Cooking;
     [SerializeField, Min(0f)] float tiltDegrees = 3f;
     [SerializeField, Min(0f), Tooltip("Full rocking cycles per second.")] float frequency = 1.5f;
 
@@ -13,7 +14,7 @@ public class PotShake : MonoBehaviour
     void Update()
     {
         var game = GameManager.I;
-        if (!game || game.DayOver || game.Soup != SoupState.Cooking)
+        if (!game || game.DayOver || game.Soup != shakeDuring)
         {
             StopShaking();
             return;

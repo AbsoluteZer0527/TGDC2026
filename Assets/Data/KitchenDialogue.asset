@@ -23,63 +23,87 @@ MonoBehaviour:
     lines:
     - text: 'Hello!!! '
       playerSpeaks: 0
+      afterLine: 0
     - text: Welcome in!
       playerSpeaks: 1
+      afterLine: 0
     - text: Is this the new stew stand that is opening in the forest?!
       playerSpeaks: 0
+      afterLine: 0
     - text: I saw it on Estergram the other day!
       playerSpeaks: 0
+      afterLine: 0
     - text: Yes! It is our grand opening today!
       playerSpeaks: 1
+      afterLine: 0
     - text: 'We make stew with varies vegeterian options! '
       playerSpeaks: 1
+      afterLine: 0
     - text: OMG! I'm such a big fan of veggie stew!
       playerSpeaks: 0
+      afterLine: 0
     - text: I'm so excited!!
       playerSpeaks: 0
+      afterLine: 0
   customerEndings:
   - npcId: 1
     lines:
     - text: ...This is delicious! I will definitely be back!!!
       playerSpeaks: 0
+      afterLine: 0
     - text: See you later!
       playerSpeaks: 1
+      afterLine: 0
   - npcId: 0
     lines:
     - text: This tastes way better than meat soup...
       playerSpeaks: 0
+      afterLine: 0
     - text: I don't get it..why would people hunt animals just in order to get their meat when we have cuisines like this?
       playerSpeaks: 0
+      afterLine: 0
     - text: Right! We were always oppose to animal hunting!
       playerSpeaks: 1
+      afterLine: 0
     - text: Like isn't killing vegetables like this more satisfying?
       playerSpeaks: 0
+      afterLine: 0
     - text: Well...sure.
       playerSpeaks: 1
+      afterLine: 0
   - npcId: 1
     lines:
     - text: Thanks for the stew!
       playerSpeaks: 0
+      afterLine: 0
   betweenCustomers:
   - afterCustomer: 1
     playerLines:
-    - text: '...'
+    - text: ...
       afterLine: 0
-    - text: Looking at the line, this indeed got popular.
+    - text: Looking at this line, this veggie soup thing is indeed is getting popular.
       afterLine: 0
     - text: But like...this is not making THAT much profit.
       afterLine: 0
-    - text: Ugh...there is no work life balance.
+    - text: Ugh... and there is no work life balance either.
+      afterLine: 0
+    - text: How can I actually get a big bag of money...
       afterLine: 0
   - afterCustomer: 2
     playerLines:
-    - text: '...'
+    - text: ...
       afterLine: 0
     - text: I can't believe I have to do this all day.
       afterLine: 0
-    - text: '...'
-      afterLine: 1
-    - text: Oh well, I guess that's another letter from my manager
+    - text: ...
       afterLine: 0
-    - text: I can press Q to open or close the letter.
+    - text: 'Oh well, I guess that''s another letter from my manager.  '
+      afterLine: 1
+    - text: Wait...
+      afterLine: 0
+    - text: This must've been the wrong letter!
+      afterLine: 0
+    - text: (Q to open or close the letter.)
+      afterLine: 0
+    - text: (Q to open or close the letter.)
       afterLine: 0

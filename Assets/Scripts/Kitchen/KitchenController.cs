@@ -132,9 +132,8 @@ public class KitchenController : MonoBehaviour
 
         potText.text = meter.Running ? "Press SPACE!\n(top = faster)" : GM.Soup switch
         {
-            SoupState.Filling => $"{lastThrow}\nCook time: {GM.TotalCookTime:0.0}s\nAdd more or Cook",
-            SoupState.Cooking => $"Cooking... {Mathf.CeilToInt(GM.CookTimeLeft)}s",
-            SoupState.Ready   => "Soup's ready! Serve it.",
+            SoupState.Filling => $"{lastThrow}\nAdd more or Cook",
+            SoupState.Ruined  => "Soup ruined. Discard it.",
             _                 => string.Empty
         };
 

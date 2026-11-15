@@ -118,12 +118,12 @@ TextureImporter:
       name: PointerUI_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1920
-        height: 1080
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 838
+        y: 815
+        width: 181
+        height: 224
+      alignment: 9
+      pivot: {x: 0.807, y: 0.835}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

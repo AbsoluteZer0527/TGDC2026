@@ -3,7 +3,7 @@ using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum SoupState { Empty, Filling, Cooking, Ready }
+public enum SoupState { Empty, Filling, Cooking, Ready, Ruined }
 public enum CustomerPhase { AtCounter, Farewell, BetweenCustomers }
 public enum PigeonDeliveryStage { NotStarted, Flying, WaitingForLetter, Reading, Complete }
 
@@ -19,11 +19,18 @@ public class GameManager : MonoBehaviour
     [Header("Soup")]
     [Tooltip("Cook time before the timing-meter seconds are added")]
     public float baseCookTime = 3f;
+    [Min(0f), Tooltip("Seconds to serve a finished soup before it explodes.")]
+    public float servingWindowSeconds = 30f;
+    [Min(0f), Tooltip("Seconds the exploded timer stays on the HUD.")]
+    public float explosionDisplaySeconds = 4f;
     public SoupState Soup { get; private set; } = SoupState.Empty;
     public List<IngredientData> PotContents { get; } = new();
     public float PendingCookTime { get; private set; }   // sum from the timing meter
     public float TotalCookTime => baseCookTime + PendingCookTime;
-    public float CookTimeLeft { get; private set; }
+    public float SoupTimeLeft { get; private set; }
+    public float CookTimeLeft => Soup == SoupState.Cooking ? SoupTimeLeft : 0f;
+    float explosionEndsAt;
+    public float ExplosionTimeLeft => Mathf.Max(0f, explosionEndsAt - Time.time);
 
     [Header("Customer")]
     public List<IngredientData> CurrentOrder { get; } = new();
@@ -116,16 +123,32 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         if (DayOver) return;
-        TimeLeft -= Time.deltaTime;
-        if (Soup == SoupState.Cooking)
-        {
-            CookTimeLeft -= Time.deltaTime;
-            if (CookTimeLeft <= 0f) { CookTimeLeft = 0f; Soup = SoupState.Ready; }
-        }
+        float elapsed = Mathf.Min(Time.deltaTime, TimeLeft);
+        TimeLeft -= elapsed;
+        AdvanceSoupTimer(elapsed);
         if (TimeLeft <= 0f) EndDay();
     }
 
     // ---------- Pot ----------
+    void AdvanceSoupTimer(float elapsed)
+    {
+        if (Soup != SoupState.Cooking && Soup != SoupState.Ready) return;
+
+        SoupTimeLeft -= elapsed;
+        // Carry the remainder of the frame into the next stage.
+        if (Soup == SoupState.Cooking && SoupTimeLeft <= 0f)
+        {
+            Soup = SoupState.Ready;
+            SoupTimeLeft += servingWindowSeconds;
+        }
+        if (Soup == SoupState.Ready && SoupTimeLeft <= 0f)
+        {
+            Soup = SoupState.Ruined;
+            explosionEndsAt = Time.time + explosionDisplaySeconds + SoupTimeLeft;
+        }
+        SoupTimeLeft = Mathf.Max(0f, SoupTimeLeft);
+    }
+
     public bool CanAddIngredient(IngredientData ing) =>
         (Soup == SoupState.Empty || Soup == SoupState.Filling) && !PotContents.Contains(ing);
 
@@ -141,7 +164,8 @@ public class GameManager : MonoBehaviour
     public bool StartCooking()
     {
         if (Soup != SoupState.Filling) return false;
-        CookTimeLeft = TotalCookTime;
+        explosionEndsAt = 0f;
+        SoupTimeLeft = TotalCookTime;
         Soup = SoupState.Cooking;
         return true;
     }
@@ -158,7 +182,7 @@ public class GameManager : MonoBehaviour
     {
         PotContents.Clear();
         PendingCookTime = 0f;
-        CookTimeLeft = 0f;
+        SoupTimeLeft = 0f;
         Soup = SoupState.Empty;
     }
 

@@ -7,7 +7,18 @@ using UnityEngine.UI;
 
 public class HUD : MonoBehaviour
 {
-    public TMP_Text dayText, soupText, messageText;
+    [Header("Day clock")]
+    [SerializeField] RectTransform dayPointer;
+    [Tooltip("Pointer rotation at the sun and moon, in degrees.")]
+    [SerializeField] Vector2 pointerAngles = new(-58f, 132f);
+
+    [Header("Cooking timer")]
+    [SerializeField] Image cookingTimer;
+    [SerializeField] Sprite cookingSprite, explodedSprite;
+    [SerializeField] TMP_Text soupText;
+
+    [Header("Status")]
+    public TMP_Text messageText;
     [FormerlySerializedAs("cleanText")] public TMP_Text stewText;
     [FormerlySerializedAs("dirtyText")] public TMP_Text totalText;
     [FormerlySerializedAs("launderText")] public TMP_Text maxText;
@@ -17,20 +28,15 @@ public class HUD : MonoBehaviour
 
     void Start() => restartButton.onClick.AddListener(() => GameManager.I.Restart());
 
-    void Update()
+    void LateUpdate()
     {
         var gm = GameManager.I;
         if (gm == null) return;
 
-        int t = Mathf.CeilToInt(gm.TimeLeft);
-        dayText.text = $"Day ends in {t / 60}:{t % 60:00}";
-                soupText.text = gm.Soup switch
-        {
-            SoupState.Filling => $"Soup: {gm.PotContents.Count} in pot",
-            SoupState.Cooking => $"Soup: {Mathf.CeilToInt(gm.CookTimeLeft)}s",
-            SoupState.Ready   => "Soup: READY",
-            _                 => "Soup: pot empty"
-        };
+        float progress = 1f - Mathf.InverseLerp(0f, gm.dayLength, gm.TimeLeft);
+        float angle = Mathf.Lerp(pointerAngles.x, pointerAngles.y, progress);
+        dayPointer.localRotation = Quaternion.Euler(0f, 0f, angle);
+        UpdateCookingTimer(gm);
         stewText.text = FormatMoney(gm.CleanMoney);
         totalText.text = FormatMoney(gm.CleanMoney + gm.DirtyMoney);
         maxText.text = FormatMoney(gm.LaunderCapacity - gm.Laundered);
@@ -45,6 +51,21 @@ public class HUD : MonoBehaviour
             messageText.gameObject.SetActive(show);
             if (show) messageText.text = gm.Message;
         }
+    }
+
+    void UpdateCookingTimer(GameManager gm)
+    {
+        bool counting = gm.Soup == SoupState.Cooking || gm.Soup == SoupState.Ready;
+        bool exploded = gm.ExplosionTimeLeft > 0f;
+        cookingTimer.gameObject.SetActive(counting || exploded);
+        if (!counting && !exploded) return;
+
+        cookingTimer.sprite = exploded ? explodedSprite : cookingSprite;
+        soupText.gameObject.SetActive(counting);
+        if (counting) soupText.SetText("{0}s", Mathf.CeilToInt(gm.SoupTimeLeft));
+
+        float pop = exploded ? Mathf.Clamp01((gm.explosionDisplaySeconds - gm.ExplosionTimeLeft) / 0.25f) : 0f;
+        cookingTimer.rectTransform.localScale = Vector3.one * (1f + 0.15f * Mathf.Sin(pop * Mathf.PI));
     }
 
     static string FormatMoney(long amount)
