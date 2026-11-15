@@ -1,11 +1,15 @@
 using UnityEngine;
 
+public enum AfterDialogueLine { None, PigeonDelivery }
+
 [System.Serializable]
 public class DialogueLine
 {
     [TextArea(1, 4)] public string text;
     [Tooltip("Check for the player's bubble. Leave unchecked for the customer's bubble.")]
     public bool playerSpeaks;
+    [Tooltip("Runs when the player advances past this line.")]
+    public AfterDialogueLine afterLine;
 }
 
 [System.Serializable]
@@ -40,5 +44,12 @@ public class CustomerConversation
 public class BetweenCustomerDialogue
 {
     [Min(1)] public int afterCustomer = 1;
-    [TextArea(1, 4)] public string[] playerLines;
+    public PersonalDialogueLine[] playerLines;
+}
+
+[System.Serializable]
+public class PersonalDialogueLine
+{
+    [TextArea(1, 4)] public string text;
+    public AfterDialogueLine afterLine;
 }

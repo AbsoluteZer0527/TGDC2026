@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(KitchenDialogue))]
+[RequireComponent(typeof(KitchenDialogue), typeof(PigeonDelivery))]
 public class KitchenController : MonoBehaviour
 {
     [Header("Data")]
@@ -52,6 +52,7 @@ public class KitchenController : MonoBehaviour
     Sprite defaultCustomerSprite;
     bool customerEntering;
     KitchenDialogue dialogue;
+    PigeonDelivery pigeonDelivery;
     bool CanServe => !customerEntering && GM.Phase == CustomerPhase.AtCounter && GM.CurrentCustomerLine == null && !GM.DayOver;
     GameManager GM => GameManager.I;
 
@@ -62,6 +63,8 @@ public class KitchenController : MonoBehaviour
         if (customerRenderer) defaultCustomerSprite = customerRenderer.sprite;
         dialogue = GetComponent<KitchenDialogue>();
         dialogue.Initialize(ResumeConversation);
+        pigeonDelivery = GetComponent<PigeonDelivery>();
+        pigeonDelivery.Initialize(cam, ResumeConversation);
         foreach (var ing in ingredients)
         {
             var b = Instantiate(ingredientButtonPrefab, ingredientButtonParent);
@@ -132,7 +135,7 @@ public class KitchenController : MonoBehaviour
             SoupState.Filling => $"{lastThrow}\nCook time: {GM.TotalCookTime:0.0}s\nAdd more or Cook",
             SoupState.Cooking => $"Cooking... {Mathf.CeilToInt(GM.CookTimeLeft)}s",
             SoupState.Ready   => "Soup's ready! Serve it.",
-            _                 => "Click an ingredient\nto throw it in"
+            _                 => string.Empty
         };
 
         if (soupVisual)  soupVisual.SetActive(GM.Soup == SoupState.Cooking || GM.Soup == SoupState.Ready);
@@ -160,6 +163,14 @@ public class KitchenController : MonoBehaviour
 
     void ResumeConversation()
     {
+        customer.gameObject.SetActive(GM.Phase != CustomerPhase.BetweenCustomers);
+        pigeonDelivery.Refresh();
+        if (GM.DeliveryStage == PigeonDeliveryStage.Flying || GM.DeliveryStage == PigeonDeliveryStage.WaitingForLetter ||
+            (GM.DeliveryStage == PigeonDeliveryStage.Reading && GM.CurrentCustomerLine == null))
+        {
+            dialogue.Hide();
+            return;
+        }
         if (GM.CurrentCustomerLine == null && GM.Phase == CustomerPhase.Farewell)
         {
             dialogue.BeginPersonalDialogue();
@@ -171,7 +182,6 @@ public class KitchenController : MonoBehaviour
             NewCustomer();
             return;
         }
-        customer.gameObject.SetActive(GM.Phase != CustomerPhase.BetweenCustomers);
         if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
         dialogue.Show(customer);
     }

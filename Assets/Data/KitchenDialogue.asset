@@ -63,13 +63,23 @@ MonoBehaviour:
   betweenCustomers:
   - afterCustomer: 1
     playerLines:
-    - ...
-    - Looking at the line, this indeed got popular.
-    - But like...this is not making THAT much profit.
-    - Ugh...there is no work life balance.
+    - text: '...'
+      afterLine: 0
+    - text: Looking at the line, this indeed got popular.
+      afterLine: 0
+    - text: But like...this is not making THAT much profit.
+      afterLine: 0
+    - text: Ugh...there is no work life balance.
+      afterLine: 0
   - afterCustomer: 2
     playerLines:
-    - ...
-    - I can't believe I have to do this all day.
-    - ...
-    - Oh well, I guess that's another letter from my manager
+    - text: '...'
+      afterLine: 0
+    - text: I can't believe I have to do this all day.
+      afterLine: 0
+    - text: '...'
+      afterLine: 1
+    - text: Oh well, I guess that's another letter from my manager
+      afterLine: 0
+    - text: I can press Q to open or close the letter.
+      afterLine: 0

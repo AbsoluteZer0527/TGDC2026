@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public enum SoupState { Empty, Filling, Cooking, Ready }
 public enum CustomerPhase { AtCounter, Farewell, BetweenCustomers }
+public enum PigeonDeliveryStage { NotStarted, Flying, WaitingForLetter, Reading, Complete }
 
 public class GameManager : MonoBehaviour
 {
@@ -31,6 +32,9 @@ public class GameManager : MonoBehaviour
     public int CustomersArrived { get; private set; }
     public CustomerPhase Phase { get; private set; }
     public bool HasAdvancedDialogue { get; private set; }
+    public PigeonDeliveryStage DeliveryStage { get; private set; }
+    public float PigeonFlightProgress { get; private set; }
+    int lastDialogueAdvanceFrame;
     readonly Queue<DialogueLine> customerLines = new();
     public DialogueLine CurrentCustomerLine => customerLines.Count > 0 ? customerLines.Peek() : null;
 
@@ -52,8 +56,33 @@ public class GameManager : MonoBehaviour
     public void AdvanceCustomerDialogue()
     {
         if (customerLines.Count == 0) return;
-        customerLines.Dequeue();
+        var line = customerLines.Dequeue();
+        if (line.afterLine == AfterDialogueLine.PigeonDelivery && DeliveryStage == PigeonDeliveryStage.NotStarted)
+            DeliveryStage = PigeonDeliveryStage.Flying;
+        lastDialogueAdvanceFrame = Time.frameCount;
         HasAdvancedDialogue = true;
+    }
+
+    public void AdvancePigeonFlight(float progress)
+    {
+        if (DeliveryStage != PigeonDeliveryStage.Flying) return;
+        PigeonFlightProgress = Mathf.Clamp01(PigeonFlightProgress + progress);
+        if (PigeonFlightProgress >= 1f) DeliveryStage = PigeonDeliveryStage.WaitingForLetter;
+    }
+
+    public bool OpenDeliveredLetter()
+    {
+        if (DayOver || DeliveryStage != PigeonDeliveryStage.WaitingForLetter) return false;
+        DeliveryStage = PigeonDeliveryStage.Reading;
+        return true;
+    }
+
+    public bool FinishReadingLetter()
+    {
+        if (DayOver || DeliveryStage != PigeonDeliveryStage.Reading || CurrentCustomerLine != null ||
+            Time.frameCount == lastDialogueAdvanceFrame) return false;
+        DeliveryStage = PigeonDeliveryStage.Complete;
+        return true;
     }
 
     [Header("Money")]

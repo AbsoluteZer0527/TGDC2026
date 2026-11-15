@@ -58,7 +58,8 @@ public sealed class KitchenDialogue : MonoBehaviour
     {
         var personalLines = dialogueFile.betweenCustomers.Where(entry => entry?.afterCustomer == GM.CustomersArrived && entry.playerLines != null)
             .SelectMany(entry => entry.playerLines)
-            .Select(text => new DialogueLine { text = text, playerSpeaks = true });
+            .Where(line => line != null)
+            .Select(line => new DialogueLine { text = line.text, playerSpeaks = true, afterLine = line.afterLine });
         GM.BeginCustomerDialogue(CustomerPhase.BetweenCustomers, personalLines);
     }
 
