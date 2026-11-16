@@ -73,6 +73,7 @@ public sealed class Creature : MonoBehaviour
         if (visual.TryGetComponent<Billboard>(out var billboard)) billboard.enabled = false;
         if (flash != null) StopCoroutine(flash);
         visual.color = Color.white;
+        visual.enabled = true;   // a disguised mimic shows itself as it falls
         var gm = GameManager.I;
         if (gm != null)
         {

@@ -1,6 +1,7 @@
 using UnityEngine;
 
-// Also the movement base for DeerAI (same fleeing/dodging, plus shooting).
+// Used as-is by the Unicorn and the Deer (different speeds on their prefabs).
+// Also the movement base for HedgehogAI (same fleeing/dodging, plus shooting).
 public class UnicornAI : CreatureAI
 {
     [Header("Fleeing and dodging")]

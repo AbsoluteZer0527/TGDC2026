@@ -9,7 +9,11 @@ public sealed class ForestRoster : ScriptableObject
     public struct Entry
     {
         public CreatureData creature;
-        [Min(0)] public float weight;
+        [Min(0), Tooltip("How common this species is in the forest compared to the others that day. " +
+                         "Also how likely it is to be picked as one of the day's extra species.")]
+        public float weight;
+        [Tooltip("Appears every day (Daily Selection only picks the extras).")]
+        public bool everyDay;
         public bool IsEligible => creature != null && creature.behaviorPrefab != null && weight > 0;
     }
 
@@ -18,24 +22,38 @@ public sealed class ForestRoster : ScriptableObject
     public IReadOnlyList<Entry> Entries => entries;
 
     [Header("Daily selection")]
-    [Tooltip("On: each day only some species appear (in the forest and on the letter).\n" +
-             "Rolls floor(species × Daily Pick Fraction) times by weight; repeats are allowed, so the day " +
-             "can end up with fewer species than rolls. Always at least one.")]
+    [Tooltip("On: each day has Min–Max species (50/50 for 4 or 5 by default): every 'Every Day' species, " +
+             "plus extras picked by weight from the rest, no repeats. Off: every species appears every day.")]
     [SerializeField] bool dailySelection = true;
-    [SerializeField, Range(0f, 1f)] float dailyPickFraction = 0.8f;
+    [SerializeField, Min(1)] int minSpeciesPerDay = 4, maxSpeciesPerDay = 5;
 
     // Species allowed today. Same result for the whole day (it's seeded by the forest seed).
     public HashSet<CreatureData> Today(int forestSeed)
     {
-        var all = new HashSet<CreatureData>();
+        var today = new HashSet<CreatureData>();
+        var extras = new List<Entry>();
         foreach (var entry in entries)
-            if (entry.IsEligible) all.Add(entry.creature);
-        if (!dailySelection || all.Count == 0) return all;
+        {
+            if (!entry.IsEligible) continue;
+            if (!dailySelection || entry.everyDay) today.Add(entry.creature);
+            else extras.Add(entry);
+        }
+        if (!dailySelection) return today;
 
         var rng = new System.Random(forestSeed ^ 0x5bd1e995);   // separate stream from the layout rolls
-        int rolls = Mathf.Max(1, Mathf.FloorToInt(all.Count * dailyPickFraction));
-        var today = new HashSet<CreatureData>();
-        for (int i = 0; i < rolls; i++) today.Add(Pick(rng));
+        int target = rng.Next(minSpeciesPerDay, Mathf.Max(minSpeciesPerDay, maxSpeciesPerDay) + 1);
+        while (today.Count < target && extras.Count > 0)
+        {
+            // Weighted pick without replacement.
+            double total = 0;
+            foreach (var e in extras) total += e.weight;
+            double roll = rng.NextDouble() * total;
+            int i = 0;
+            while (i < extras.Count - 1 && roll >= extras[i].weight) roll -= extras[i++].weight;
+            var picked = extras[i].creature;
+            today.Add(picked);
+            extras.RemoveAll(e => e.creature == picked);
+        }
         return today;
     }
 

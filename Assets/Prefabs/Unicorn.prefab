@@ -47,11 +47,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnicornAI
   wanderRadius: 4
   wanderSpeed: 4
-  fleeRadius: 15
+  fleeRadius: 20
   strafeRadius: 4
-  fleeSpeed: 2.5
+  fleeSpeed: 6
   strafeSpeed: 4.5
-  acceleration: 12
+  acceleration: 15
   minJukeTime: 0.5
   maxJukeTime: 1.2
   panicMultiplier: 1.6
