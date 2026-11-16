@@ -17,7 +17,7 @@ MonoBehaviour:
   attackSprite: {fileID: 0}
   minSpawnDistance: 15
   worldScale: 2.5
-  itemIcon: {fileID: -1147149048, guid: 4018823408dc1a54297ac8c934f43077, type: 3}
+  itemIcon: {fileID: 1458194088, guid: cd30efd7c0cda2341beb9e9dc8274e49, type: 3}
   maxHealth: 1
   bountyPrice: 75
   behaviorPrefab: {fileID: 7490134186739136208, guid: 26e2c339d112a48c2924360417926271, type: 3}
