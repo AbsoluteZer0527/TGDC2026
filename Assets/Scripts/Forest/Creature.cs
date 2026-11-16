@@ -9,12 +9,14 @@ public sealed class Creature : MonoBehaviour
     [SerializeField, Range(0.5f, 1f), Tooltip("Hitbox size relative to the sprite. A bit under 1 feels fair " +
                                                "(transparent corners of the art don't count as hits).")]
     float hitboxScale = 0.9f;
-    BoxCollider hitbox;
 
     public CreatureData Data { get; private set; }
-    internal SpriteRenderer Visual => visual;
     public int SpawnId { get; private set; }
+    internal SpriteRenderer Visual => visual;
+    public Vector3 VisualCenter => visual.bounds.center;
+
     CreatureAI ai;
+    BoxCollider hitbox;
     int hp;
     Coroutine flash;
     Vector3 visualRestPosition, previousPosition;
@@ -27,8 +29,7 @@ public sealed class Creature : MonoBehaviour
         hp = data.maxHealth;
         transform.localScale = Vector3.one * data.worldScale;
         visualRestPosition = visual.transform.localPosition;
-        // Hitbox lives on the billboarded sprite, so it always faces the camera and matches the art.
-        // The prefab's capsule is one tall shape for every species, so it's switched off.
+        // The prefab's capsule is one tall shape for every species; the hitbox follows the sprite instead.
         if (TryGetComponent<CapsuleCollider>(out var capsule)) capsule.enabled = false;
         if (!visual.TryGetComponent(out hitbox)) hitbox = visual.gameObject.AddComponent<BoxCollider>();
         SetSprite(data.worldSprite);
@@ -36,17 +37,16 @@ public sealed class Creature : MonoBehaviour
         ai = GetComponent<CreatureAI>();
     }
 
-    // Puts the bottom edge of the sprite on the ground, whatever its pivot, so every species stands on the floor.
-    // Slices are trimmed to the art, so the bottom edge is the feet. Ground Offset on the data nudges it.
+    // Stands the sprite's bottom edge (its feet: slices are trimmed to the art) on the ground,
+    // and fits the hitbox to it. The hitbox sits on the billboarded Visual, so it always faces the camera.
     void SetSprite(Sprite sprite)
     {
         visual.sprite = sprite;
         if (!sprite) return;
-        float sink = Data.groundOffset / Mathf.Max(0.01f, Data.worldScale);   // world units -> root space
-        visualRestPosition.y = -sprite.bounds.min.y * visual.transform.localScale.y + sink;
+        float nudge = Data.groundOffset / Mathf.Max(0.01f, Data.worldScale);   // world units -> root space
+        visualRestPosition.y = -sprite.bounds.min.y * visual.transform.localScale.y + nudge;
         visual.transform.localPosition = visualRestPosition;
 
-        // Box = the sprite's rectangle (in the sprite's own units, so the Visual's scale applies automatically).
         Bounds art = sprite.bounds;
         Vector3 size = art.size * hitboxScale;
         size.z = Mathf.Min(art.size.x, art.size.y) * 0.5f;   // some depth so grazing shots still count
@@ -54,6 +54,7 @@ public sealed class Creature : MonoBehaviour
         hitbox.size = size;
     }
 
+    // Walk bounce driven by actual movement, so wandering, dodging and charging share the same gait.
     void LateUpdate()
     {
         if (hp <= 0 || Time.deltaTime <= 0f) return;
@@ -61,7 +62,6 @@ public sealed class Creature : MonoBehaviour
         previousPosition = transform.position;
         movement.y = 0f;
         float speed = movement.magnitude / Time.deltaTime;
-        // Use actual movement so wandering, dodging and charging share the same gait.
         float stepsPerSecond = Mathf.Min(speed * 2f, 4f);
         stepPhase = Mathf.Repeat(stepPhase + stepsPerSecond * Time.deltaTime, 1f);
         bounceWeight = Mathf.MoveTowards(bounceWeight, Mathf.Clamp01(speed), 8f * Time.deltaTime);
@@ -69,10 +69,6 @@ public sealed class Creature : MonoBehaviour
         visual.transform.localPosition = visualRestPosition + Vector3.up * (walkBounceHeight * bounceWeight * hop);
     }
 
-    // Middle of the visible sprite (not the hit capsule, which is the same tall shape for every species).
-    public Vector3 VisualCenter => visual.bounds.center;
-
-    // Swap to the species' attack sprite (if it has one) while winding up / attacking.
     public void ShowAttackPose(bool on)
     {
         var sprite = on && Data.attackSprite ? Data.attackSprite : Data.worldSprite;
@@ -105,7 +101,9 @@ public sealed class Creature : MonoBehaviour
         foreach (var collider in GetComponentsInChildren<Collider>()) collider.enabled = false;
         if (visual.TryGetComponent<Billboard>(out var billboard)) billboard.enabled = false;
         if (flash != null) StopCoroutine(flash);
-        visual.color = Color.white;        var gm = GameManager.I;
+        visual.color = Color.white;
+        visual.enabled = true;   // a mimic killed while disguised still shows itself falling
+        var gm = GameManager.I;
         if (gm != null)
         {
             gm.KilledCreatures.Add(SpawnId);
@@ -115,6 +113,7 @@ public sealed class Creature : MonoBehaviour
         StartCoroutine(FallOver());
     }
 
+    // Tips the sprite backwards, hinged at its feet, then removes the creature.
     IEnumerator FallOver()
     {
         Transform card = visual.transform;

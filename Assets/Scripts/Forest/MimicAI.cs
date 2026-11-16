@@ -1,31 +1,40 @@
 using UnityEngine;
 
-// Looks like a bush (World Sprite = "Sus Bush") and doesn't move. Get too close (or shoot it) and it reveals
-// itself (Attack Sprite = "Sus bush attack"), then chases and attacks exactly like the goose.
-// If you escape far enough it settles back down and looks like a bush again.
+// Disguised as a bush and stays still. Get too close (or shoot it) and it reveals itself (Attack Sprite),
+// then chases and attacks like the goose. Escape far enough and it settles back into a bush.
+// Disguise: a copy of Bush Prefab if set (identical to the real bushes), otherwise its own World Sprite.
 public sealed class MimicAI : GooseAI
 {
     [Header("Disguise")]
+    [SerializeField, Tooltip("Optional. The forest's Bush prefab, so the disguise matches the real bushes exactly.")]
+    Vegetation bushPrefab;
     [SerializeField, Min(0), Tooltip("Reveals itself when you come this close (no line of sight needed).")]
     float revealRadius = 3.5f;
 
     bool revealed;
+    Vegetation disguise;
+
+    protected override void Start()
+    {
+        base.Start();
+        Disguise();
+    }
 
     protected override void Tick()
     {
         base.Tick();
-        creature.ShowAttackPose(revealed);   // face shows for the whole chase, not just during the bite
+        creature.ShowAttackPose(revealed);   // keeps its face for the whole chase, not just the bite
     }
 
     protected override bool Notices(float distance) => distance < revealRadius;
 
-    protected override void Idle() => agent.isStopped = true;   // bushes don't walk
+    protected override void Idle() => agent.isStopped = true;
 
     protected override void OnStartChase()
     {
         //TODO: (bush rustle / mimic snarl on reveal)
+        revealed = true;
         if (disguise) Destroy(disguise.gameObject);
-        disguise = null;
         creature.Visual.enabled = true;
     }
 
@@ -33,11 +42,10 @@ public sealed class MimicAI : GooseAI
 
     void Disguise()
     {
-        creature.ShowAttackPose(false);
-        if (!bushPrefab) return;   // no bush assigned: just stays visible as itself
-        creature.Visual.enabled = false;
-        if (!disguise)
-            disguise = Instantiate(bushPrefab, transform.position, Quaternion.identity, transform.parent);
+        revealed = false;
+        if (!bushPrefab) return;
+        creature.Visual.enabled = false;   // its hitbox stays, so it can still be shot while hidden
+        if (!disguise) disguise = Instantiate(bushPrefab, transform.position, Quaternion.identity, transform.parent);
         disguise.transform.position = transform.position;
         disguise.PickSprite(new System.Random(creature.SpawnId));
     }

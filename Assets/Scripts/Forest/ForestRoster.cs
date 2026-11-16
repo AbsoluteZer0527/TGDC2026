@@ -42,9 +42,8 @@ public sealed class ForestRoster : ScriptableObject
 
         var rng = new System.Random(forestSeed ^ 0x5bd1e995);   // separate stream from the layout rolls
         int target = rng.Next(minSpeciesPerDay, Mathf.Max(minSpeciesPerDay, maxSpeciesPerDay) + 1);
-        while (today.Count < target && extras.Count > 0)
+        while (today.Count < target && extras.Count > 0)   // weighted, no repeats
         {
-            // Weighted pick without replacement.
             double total = 0;
             foreach (var e in extras) total += e.weight;
             double roll = rng.NextDouble() * total;

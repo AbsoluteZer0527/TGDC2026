@@ -63,5 +63,10 @@ public sealed class RabbitAI : CreatureAI
         return best;
     }
 
-    public override void OnHurt() => moveAt = giveUpAt = 0f;   // dart off straight away
+    // Dart off straight away.
+    public override void OnHurt()
+    {
+        waiting = true;
+        moveAt = giveUpAt = 0f;
+    }
 }

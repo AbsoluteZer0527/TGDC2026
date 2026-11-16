@@ -4,7 +4,6 @@ using UnityEngine.Serialization;
 // Melee enemy. Wander -> spots you -> closes in slowly with a light weave -> winds up and pecks ->
 // circles you at a short distance while the attack cools down -> closes in and pecks again.
 // Once it has spotted you it keeps chasing (trees blocking its view don't stop it) until you get far away.
-// MimicAI reuses this chase/attack logic and only changes how it idles and notices you.
 public class GooseAI : CreatureAI
 {
     enum State { Wander, Chase, WindUp, Circle }
@@ -78,7 +77,7 @@ public class GooseAI : CreatureAI
         }
     }
 
-    // Hooks for variants (MimicAI).
+    // Overridden by MimicAI: how it idles and what makes it notice you.
     protected virtual bool Notices(float distance) => CanSeePlayer(detectRadius);
     protected virtual void Idle()
     {

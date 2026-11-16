@@ -12,7 +12,7 @@ public sealed class EnemyProjectile : MonoBehaviour
     float dieAt;
     static int hitMask;
 
-    // prefab may be null: a placeholder orange ball is used until real art is assigned.
+    // With no prefab, fires a placeholder orange ball.
     public static void Spawn(EnemyProjectile prefab, Vector3 position, Vector3 direction, float speed, int damage)
     {
         var rotation = Quaternion.LookRotation(direction);

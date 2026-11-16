@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// Ranged enemy (hedgehog): moves exactly like the unicorn (wander, flee, dodge) but shoots at you when it can see you.
+// Moves exactly like the unicorn (wander, flee, dodge), and shoots at you when it can see you.
 public sealed class HedgehogAI : UnicornAI
 {
     [Header("Shooting")]
@@ -18,7 +18,7 @@ public sealed class HedgehogAI : UnicornAI
 
     protected override void Tick()
     {
-        base.Tick();   // unicorn movement
+        base.Tick();
         bool alerted = Alerted(detectRadius, memorySeconds);
         if (aiming)
         {

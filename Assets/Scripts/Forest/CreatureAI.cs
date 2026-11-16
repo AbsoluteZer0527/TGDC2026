@@ -14,7 +14,6 @@ public abstract class CreatureAI : MonoBehaviour
 
     bool waitingToWander;
     float nextWanderTime, alertUntil;
-    Collider body;
     static int sightMask;
 
     protected virtual void Awake()
@@ -22,7 +21,6 @@ public abstract class CreatureAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false; // sprites billboard, so rotation doesn't matter
         creature = GetComponent<Creature>();
-        body = GetComponent<Collider>();
     }
 
     protected virtual void Start()
@@ -34,10 +32,10 @@ public abstract class CreatureAI : MonoBehaviour
         playerHealth = pc.GetComponent<PlayerHealth>();
     }
 
-    // Middle of this creature's sprite: where it looks and shoots from (so short creatures shoot from low down).
-    protected Vector3 Eyes => creature ? creature.VisualCenter : body ? body.bounds.center : transform.position + Vector3.up;
+    // Where it looks and shoots from: the middle of its sprite, so short creatures see and shoot from low down.
+    protected Vector3 Eyes => creature.VisualCenter;
 
-    // In range and nothing (wall, tree) between us.
+    // In range, and no wall or tree in between.
     protected bool CanSeePlayer(float radius)
     {
         Vector3 from = Eyes, to = playerEyes.position;
