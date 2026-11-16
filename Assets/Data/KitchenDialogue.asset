@@ -56,7 +56,7 @@ MonoBehaviour:
     - text: ...This is delicious! I will definitely be back!!!
       playerSpeaks: 0
       afterLine: 0
-    - text: See you later!
+    - text: Glad to hear! See you later!!
       playerSpeaks: 1
       afterLine: 0
   - npcId: 2
@@ -112,11 +112,29 @@ MonoBehaviour:
       afterLine: 2
     - text: (Q to open or close the letter.)
       afterLine: 0
+  forestUnlockLines:
+  - text: I have nothing to do except waiting...
+    playerSpeaks: 1
+    afterLine: 0
+  - text: what about...
+    playerSpeaks: 1
+    afterLine: 3
+  auditorNpcId: 99
+  auditArrivalSprite: {fileID: 3116990685938380839, guid: f512b2ecb653c9c42bee682be787ab02, type: 3}
   auditPassLines:
-  - text: Everything looks good...
+  - text: ...
     playerSpeaks: 0
     afterLine: 0
+  auditFailSprite: {fileID: -8202339034397663981, guid: b60f29e74e7a60743b96ea6ff6cc507b, type: 3}
   auditFailLines:
-  - text: Something seems wrong here...
+  - text: We've noticed some ireegularities in your reported income.
+    playerSpeaks: 0
+    afterLine: 0
+  - text: You'll need to explain and come with us.
+    playerSpeaks: 0
+    afterLine: 0
+  evictionSprite: {fileID: -8202339034397663981, guid: b60f29e74e7a60743b96ea6ff6cc507b, type: 3}
+  evictionLines:
+  - text: Your rent is overdue. I have to close the stand.
     playerSpeaks: 0
     afterLine: 0

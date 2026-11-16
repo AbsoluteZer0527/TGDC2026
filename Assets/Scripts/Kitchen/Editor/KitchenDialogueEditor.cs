@@ -25,6 +25,8 @@ public sealed class KitchenDialogueEditor : Editor
             }
             dialogue.Update();
             DrawPropertiesExcluding(dialogue, "m_Script");
+            EditorGUILayout.HelpBox("Auditor NPC ID selects the end-of-day visitor from the kitchen roster. " +
+                "99 is the IRS agent. The visit happens when the timer expires and does not advance the numbered customer schedule.", MessageType.Info);
             dialogue.ApplyModifiedProperties();
         }
         else

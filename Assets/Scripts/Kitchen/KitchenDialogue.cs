@@ -77,12 +77,23 @@ public sealed class KitchenDialogue : MonoBehaviour
         GM.BeginCustomerDialogue(CustomerPhase.AtCounter, lines);
     }
 
-    public void BeginAudit(bool passed)
+    public int AuditorNpcId => dialogueFile.auditorNpcId;
+    public void BeginForestUnlockDialogue() =>
+        GM.BeginCustomerDialogue(CustomerPhase.AtCounter, dialogueFile.forestUnlockLines);
+    public Sprite AuditArrivalSprite => dialogueFile.auditArrivalSprite;
+
+    public Sprite BeginAudit(LossReason outcome)
     {
-        var lines = passed ? dialogueFile.auditPassLines : dialogueFile.auditFailLines;
-        if (lines == null || !lines.Any(l => !string.IsNullOrWhiteSpace(l?.text))) // asset predates the fields
-            lines = new[] { new DialogueLine { text = passed ? "Everything looks good..." : "Something seems wrong here..." } };
+        var (lines, sprite, fallback) = outcome switch
+        {
+            LossReason.Jail => (dialogueFile.auditFailLines, dialogueFile.auditFailSprite, "Something seems wrong here..."),
+            LossReason.Evicted => (dialogueFile.evictionLines, dialogueFile.evictionSprite, "Your rent is still overdue. I have to close the stand."),
+            _ => (dialogueFile.auditPassLines, AuditArrivalSprite, "...")
+        };
+        if (lines == null || !lines.Any(l => !string.IsNullOrWhiteSpace(l?.text)))
+            lines = new[] { new DialogueLine { text = fallback } };
         GM.BeginCustomerDialogue(CustomerPhase.AtCounter, lines);
+        return sprite;
     }
 
     public void BeginFarewell() =>

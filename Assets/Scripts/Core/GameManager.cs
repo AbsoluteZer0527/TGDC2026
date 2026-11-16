@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public NightPhase Night { get; private set; }
     public LossReason Loss { get; private set; }
     public bool DayOver => Night != NightPhase.None;          // freezes normal gameplay
+    public LossReason AuditOutcome { get; private set; }
     public bool AuditInProgress => Night == NightPhase.Audit;
     public int Day { get; private set; } = 1;
     public long RentDue => (long)rentPerDay * Day;
@@ -56,6 +57,8 @@ public class GameManager : MonoBehaviour
     public float PigeonFlightProgress { get; private set; }
     public bool LetterBackRevealed { get; private set; }
     int lastDialogueAdvanceFrame;
+    public bool ForestUnlocked { get; private set; }
+    public bool ForestDialoguePending { get; private set; }
     readonly Queue<DialogueLine> customerLines = new();
     public DialogueLine CurrentCustomerLine => customerLines.Count > 0 ? customerLines.Peek() : null;
 
@@ -83,6 +86,7 @@ public class GameManager : MonoBehaviour
         if (line.afterLine == AfterDialogueLine.RevealLetterBack && DeliveryStage == PigeonDeliveryStage.Reading)
             LetterBackRevealed = true;
         lastDialogueAdvanceFrame = Time.frameCount;
+        if (line.afterLine == AfterDialogueLine.UnlockForest) ForestUnlocked = true;
         HasAdvancedDialogue = true;
     }
 
@@ -199,6 +203,8 @@ public class GameManager : MonoBehaviour
         SoupTimeLeft = TotalCookTime;
         //TODO: (loop pot bubbling while the soup is cooking and the day is active)
         Soup = SoupState.Cooking;
+        if (CustomersArrived >= 3 && Phase == CustomerPhase.AtCounter && !ForestUnlocked)
+            ForestDialoguePending = true;
         return true;
     }
 
@@ -247,12 +253,14 @@ public class GameManager : MonoBehaviour
         public long savingsBefore, savingsAfter;
         public long Income => stew + hunt;
         public long Change => savingsAfter - savingsBefore;   // Income - rent
-        public bool evicted;          // started the day in the red and ended it in the red
     }
 
     // 1) Timer hit 0: gameplay freezes and the IRS visits the kitchen (KitchenController runs the visit).
-    void EndDay()
+    public void EndDay()
     {
+        if (DayOver) return;
+        AuditOutcome = !AuditPassed ? LossReason.Jail :
+            Savings < 0 && Savings + CleanMoney + DirtyMoney - RentDue < 0 ? LossReason.Evicted : LossReason.None;
         Night = NightPhase.Audit;
         TimeLeft = 0f;
         DiscardSoup();
@@ -276,15 +284,14 @@ public class GameManager : MonoBehaviour
     public void FinishAudit()
     {
         if (!AuditInProgress) return;
-        if (!AuditPassed) { Lose(LossReason.Jail); return; }
+        if (AuditOutcome == LossReason.Jail) { Lose(LossReason.Jail); return; }
 
         var r = new NightReport { day = Day, stew = CleanMoney, hunt = DirtyMoney, rent = RentDue, savingsBefore = Savings };
-        bool startedInRed = Savings < 0;
         Savings += r.Income - r.rent;
         r.savingsAfter = Savings;
-        r.evicted = startedInRed && Savings < 0;
         LastNight = r;
         if (Score > HighScore) PlayerPrefs.SetString(HighScoreKey, Score.ToString(CultureInfo.InvariantCulture));
+        if (AuditOutcome == LossReason.Evicted) { Lose(LossReason.Evicted); return; }
         Night = NightPhase.Summary;   // NightScreen plays the black-screen animation
     }
 
@@ -292,8 +299,7 @@ public class GameManager : MonoBehaviour
     public void FinishNightSummary()
     {
         if (Night != NightPhase.Summary) return;
-        if (LastNight != null && LastNight.evicted) Lose(LossReason.Evicted);
-        else StartNextDay();
+        StartNextDay();
     }
 
     void Lose(LossReason reason)

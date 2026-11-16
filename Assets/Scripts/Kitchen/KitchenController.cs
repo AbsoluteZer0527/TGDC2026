@@ -39,8 +39,6 @@ public class KitchenController : MonoBehaviour
     [SerializeField] KeyNpc[] keyNpcs = System.Array.Empty<KeyNpc>();
     [Tooltip("Choose who arrives on a numbered visit. Visit 1 opens the day.")]
     [SerializeField] KeyVisit[] keyVisits = System.Array.Empty<KeyVisit>();
-    [Tooltip("The IRS agent who visits at the end of every day. Add them to Key Npcs first.")]
-    [SerializeField, NpcReference(false)] int auditorNpcId = 99;
 
     [Header("Pot")]
     public GameObject soupVisual, readyVisual;
@@ -134,6 +132,12 @@ public class KitchenController : MonoBehaviour
     {
         if (GM.AuditInProgress && !auditStarted && !CurtainTransition.IsPlaying) BeginAudit();
         bool busy = GM.DayOver;
+        if (CanServe && !GM.ForestUnlocked && (GM.ForestDialoguePending ||
+            (GM.CustomersArrived >= 3 && GM.Soup == SoupState.Cooking)))
+        {
+            dialogue.BeginForestUnlockDialogue();
+            ResumeConversation();
+        }
 
         foreach (var kv in buttons)
         {
@@ -146,6 +150,13 @@ public class KitchenController : MonoBehaviour
 
         if (soupVisual)  soupVisual.SetActive(GM.Soup == SoupState.Cooking || GM.Soup == SoupState.Ready);
         if (readyVisual) readyVisual.SetActive(GM.Soup == SoupState.Ready);
+    }
+
+    void OnGUI()
+    {
+        if (!GM || GM.DayOver || CurtainTransition.IsPlaying) return;
+        if (GUI.Button(new Rect(Screen.width - 174f, 8f, 166f, 30f), "End day (playtest)"))
+            GM.EndDay();
     }
 
     void NewCustomer()
@@ -187,14 +198,16 @@ public class KitchenController : MonoBehaviour
         dialogue.Hide();
         if (customer.gameObject.activeSelf) yield return MoveCustomer(false, resume: false);
 
+        int auditorNpcId = dialogue.AuditorNpcId;
         var irs = keyNpcs.FirstOrDefault(k => k != null && k.npcId == auditorNpcId);
-        GM.AuditorArrives(auditorNpcId, irs?.sprite ? irs.sprite : defaultCustomerSprite);
-        dialogue.BeginAudit(GM.AuditPassed);
+        GM.AuditorArrives(auditorNpcId, dialogue.AuditArrivalSprite ? dialogue.AuditArrivalSprite : irs?.sprite);
 
         customer.gameObject.SetActive(true);
         if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
         //TODO: (IRS footsteps / ominous sting)
         yield return MoveCustomer(true, resume: false);
+        var portrait = dialogue.BeginAudit(GM.AuditOutcome);
+        if (customerRenderer && portrait) customerRenderer.sprite = portrait;
         auditorTalking = true;
         ResumeConversation();
     }
@@ -204,8 +217,13 @@ public class KitchenController : MonoBehaviour
         if (GM.AuditInProgress)
         {
             if (!auditorTalking) return;                       // still walking in
-            if (GM.CurrentCustomerLine == null) { dialogue.Hide(); GM.FinishAudit(); return; }
-            if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
+            if (GM.CurrentCustomerLine == null)
+            {
+                auditorTalking = false;
+                dialogue.Hide();
+                StartCoroutine(FinishAuditVisit());
+                return;
+            }
             dialogue.Show(customer);
             return;
         }
@@ -232,6 +250,12 @@ public class KitchenController : MonoBehaviour
         }
         if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
         dialogue.Show(customer);
+    }
+
+    IEnumerator FinishAuditVisit()
+    {
+        if (GM.AuditOutcome == LossReason.None) yield return MoveCustomer(false, resume: false);
+        GM.FinishAudit();
     }
 
     IEnumerator MoveCustomer(bool arriving, bool resume = true)

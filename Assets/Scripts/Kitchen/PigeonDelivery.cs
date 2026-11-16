@@ -27,6 +27,7 @@ public sealed class PigeonDelivery : MonoBehaviour
     bool letterRaised;
     float raiseProgress;
     const float RaiseSeconds = 0.32f;
+    bool showingBack;
 
     Vector3 flightStart;
     Camera kitchenCamera;
@@ -39,6 +40,7 @@ public sealed class PigeonDelivery : MonoBehaviour
     public void Initialize(Camera camera, Action resume)
     {
         letterBack = openLetterView.sprite;
+        ShowLetterFace(GM.LetterBackRevealed);
         raisedPosition = openLetterView.rectTransform.anchoredPosition;
         raisedRotation = openLetterView.rectTransform.localRotation;
         resumeDialogue = resume;
@@ -84,24 +86,33 @@ public sealed class PigeonDelivery : MonoBehaviour
             stage == PigeonDeliveryStage.Reading || stage == PigeonDeliveryStage.Complete);
         letter.gameObject.SetActive(stage == PigeonDeliveryStage.WaitingForLetter);
         if (stage == PigeonDeliveryStage.Reading)
-        {
-            bool back = GM.LetterBackRevealed;
-            openLetterView.sprite = back ? letterBack : letterFront;
-            bountyHeading.SetActive(back);
-            bountyScroll.SetActive(back);
             letterRaised = true;
-        }
         if (stage == PigeonDeliveryStage.Flying) PoseFlight(GM.PigeonFlightProgress);
+    }
+
+    void ShowLetterFace(bool back)
+    {
+        showingBack = back;
+        openLetterView.sprite = back ? letterBack : letterFront;
+        bountyHeading.SetActive(back);
+        bountyScroll.SetActive(back);
     }
 
     void AnimateLetter()
     {
+        bool changingFace = GM.LetterBackRevealed && !showingBack;
+        if (changingFace && raiseProgress == 0f)
+        {
+            ShowLetterFace(true);
+            changingFace = false;
+        }
         if (!letterRaised && raiseProgress == 0f) return;
         RectTransform rect = openLetterView.rectTransform;
         var parent = (RectTransform)rect.parent;
         float anchorY = Mathf.Lerp(parent.rect.yMin, parent.rect.yMax, rect.anchorMin.y);
         float hiddenY = parent.rect.yMin - anchorY - rect.rect.yMax - 8f;
-        raiseProgress = Mathf.MoveTowards(raiseProgress, letterRaised ? 1f : 0f, Time.unscaledDeltaTime / RaiseSeconds);
+        bool raising = letterRaised && !changingFace;
+        raiseProgress = Mathf.MoveTowards(raiseProgress, raising ? 1f : 0f, Time.unscaledDeltaTime / RaiseSeconds);
         float t = Mathf.SmoothStep(0f, 1f, raiseProgress);
         rect.anchoredPosition = new Vector2(raisedPosition.x, Mathf.Lerp(hiddenY, raisedPosition.y, t));
         rect.localRotation = raisedRotation * Quaternion.Euler(-30f * (1f - t), 0f, 0f);

@@ -19,7 +19,19 @@ public sealed class ForestExitHover : MonoBehaviour, IPointerEnterHandler, IPoin
         curtain.sprite.GetPhysicsShape(0, curtainOutline);
     }
 
-    void OnEnable() => SetHovered(false);
+    bool ForestUnlocked => GameManager.I && GameManager.I.ForestUnlocked;
+
+    void OnEnable()
+    {
+        forestIcon.enabled = ForestUnlocked;
+        SetHovered(false);
+    }
+
+    void LateUpdate()
+    {
+        if (forestIcon.enabled != ForestUnlocked) forestIcon.enabled = ForestUnlocked;
+    }
+
     //TODO: (curtain lifting when the pointer enters the hunting button)
     public void OnPointerEnter(PointerEventData eventData) => SetHovered(true);
     public void OnPointerExit(PointerEventData eventData) => SetHovered(false);
@@ -41,6 +53,7 @@ public sealed class ForestExitHover : MonoBehaviour, IPointerEnterHandler, IPoin
 
     public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
     {
+        if (!ForestUnlocked) return false;
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(frame, screenPoint, eventCamera, out var local))
             return false;
 
