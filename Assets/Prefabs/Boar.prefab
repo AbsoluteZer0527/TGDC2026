@@ -87,3 +87,15 @@ MonoBehaviour:
   damage: 1
   stunSeconds: 3
   restSeconds: 1.2
+  stunnedSprite: {fileID: -614135007, guid: 294ae502c0eb55f49958913a91ab8703, type: 3}
+  dizzyFrames:
+  - {fileID: 3558255275726140298, guid: 4e4efd0933bedc64e8f833c60b6c1b96, type: 3}
+  - {fileID: -1445592925, guid: 4e4efd0933bedc64e8f833c60b6c1b96, type: 3}
+  dizzyFramesPerSecond: 6
+  dizzyOffset: {x: -1.2, y: -2}
+  dizzyScale: 1
+  dirtColor: {r: 0.42, g: 0.27, b: 0.13, a: 1}
+  dirtCount: 10
+  dirtSize: 0.3
+  dirtLifetime: 0.3
+  dirtKick: 0.6

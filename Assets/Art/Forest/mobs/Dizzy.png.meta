@@ -118,19 +118,19 @@ TextureImporter:
       name: Dizzy_0
       rect:
         serializedVersion: 2
-        x: 698
-        y: 685
-        width: 269
-        height: 140
+        x: 687
+        y: 680
+        width: 281
+        height: 148
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a83f0d12256716130800000000000000
+      spriteID: 5baec952f4fa74c238d0546d82f8844d
       internalID: 3558255275726140298
       vertices: []
       indices: 
@@ -140,9 +140,9 @@ TextureImporter:
       name: Dizzy_1
       rect:
         serializedVersion: 2
-        x: 694
+        x: 692
         y: 483
-        width: 285
+        width: 288
         height: 121
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -152,7 +152,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c422c96d082360144bc3582bb942d3cd
+      spriteID: 05aa06126fd514a8fa8249069d0cbf60
       internalID: -1445592925
       vertices: []
       indices: 

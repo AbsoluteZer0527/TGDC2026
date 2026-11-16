@@ -69,9 +69,12 @@ public sealed class Creature : MonoBehaviour
         visual.transform.localPosition = visualRestPosition + Vector3.up * (walkBounceHeight * bounceWeight * hop);
     }
 
-    public void ShowAttackPose(bool on)
+    public void ShowAttackPose(bool on) => ShowPose(on ? Data.attackSprite : null);
+
+    // Any extra pose an AI has art for (e.g. the boar's stunned sprite). Null goes back to the normal sprite.
+    public void ShowPose(Sprite pose)
     {
-        var sprite = on && Data.attackSprite ? Data.attackSprite : Data.worldSprite;
+        var sprite = pose ? pose : Data.worldSprite;
         if (visual.sprite != sprite) SetSprite(sprite);
     }
 

@@ -118,10 +118,10 @@ TextureImporter:
       name: Pigeon Fly1_0
       rect:
         serializedVersion: 2
-        x: 1047
-        y: 706
-        width: 382
-        height: 353
+        x: 1048
+        y: 680
+        width: 381
+        height: 400
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,7 +130,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dd602fc2589e9ef459f1f37114e84156
+      spriteID: 4731c4c719ab6417e961be806c6ef9db
       internalID: -536259853212343384
       vertices: []
       indices: 

@@ -118,10 +118,10 @@ TextureImporter:
       name: ForestUI2_0
       rect:
         serializedVersion: 2
-        x: 38
-        y: 12
-        width: 163
-        height: 166
+        x: 11
+        y: 3
+        width: 220
+        height: 205
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,7 +130,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6a2b807bf566d594da89aec403267433
+      spriteID: 5045cdb69f38840ad8ad87e9866db4c4
       internalID: 4742146558489746772
       vertices: []
       indices: 

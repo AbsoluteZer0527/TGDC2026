@@ -118,10 +118,10 @@ TextureImporter:
       name: Pot_0
       rect:
         serializedVersion: 2
-        x: 1159
-        y: 56
-        width: 600
-        height: 337
+        x: 1129
+        y: 26
+        width: 630
+        height: 390
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,7 +130,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 168e9f1fcff6ff44d91690097e758df3
+      spriteID: b0944f56123b04e2383821dde8783be1
       internalID: -5649470061204452833
       vertices: []
       indices: 
