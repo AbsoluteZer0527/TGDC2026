@@ -75,6 +75,7 @@ public class NightScreen : MonoBehaviour
         Vector2 home = oldDayText.rectTransform.anchoredPosition;
         oldDayText.rectTransform.anchoredPosition = home;
         newDayText.rectTransform.anchoredPosition = home + Vector2.up * h;
+        while (CurtainTransition.IsPlaying) yield return null;
         yield return new WaitForSeconds(startDelay);
         //TODO: (slot machine tick)
         for (float t = 0f; t < rollSeconds; t += Time.deltaTime)

@@ -268,7 +268,7 @@ public class GameManager : MonoBehaviour
         CurrentOrder.Clear();
         customerLines.Clear();
         //TODO: (night sound / music sting)
-        // In the forest: same curtain as the door back to the kitchen (Update retries if a door transition is mid-play).
+        // Return from the forest for the audit. In the kitchen the inspector enters directly.
         if (SceneManager.GetActiveScene().name != "Kitchen" && !CurtainTransition.IsPlaying)
             CurtainTransition.TransitionTo("Kitchen");
     }

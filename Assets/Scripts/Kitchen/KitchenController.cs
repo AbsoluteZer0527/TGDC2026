@@ -255,7 +255,7 @@ public class KitchenController : MonoBehaviour
     IEnumerator FinishAuditVisit()
     {
         if (GM.AuditOutcome == LossReason.None) yield return MoveCustomer(false, resume: false);
-        GM.FinishAudit();
+        GM.GetComponent<CurtainTransition>().Close(GM.FinishAudit);
     }
 
     IEnumerator MoveCustomer(bool arriving, bool resume = true)

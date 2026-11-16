@@ -27,7 +27,12 @@ public sealed class CurtainTransition : MonoBehaviour
         transition.StartCoroutine(transition.Play(sceneName, startClosed));
     }
 
-    IEnumerator Play(string sceneName, bool startClosed)
+    public void Close(System.Action whenClosed)
+    {
+        StartCoroutine(Play(null, false, whenClosed));
+    }
+
+    IEnumerator Play(string sceneName, bool startClosed, System.Action whenClosed = null)
     {
         active = this;
         overlay.gameObject.SetActive(true);
@@ -47,9 +52,11 @@ public sealed class CurtainTransition : MonoBehaviour
                     yield return hold;
                 }
             }
-            yield return SceneManager.LoadSceneAsync(sceneName);
+            if (sceneName != null) yield return SceneManager.LoadSceneAsync(sceneName);
+            whenClosed?.Invoke();
             // Keep the cover through the destination's first render.
             yield return null;
+            if (sceneName == null) yield break;
             for (int i = frames.Length - 2; i >= 0; i--)
             {
                 curtain.sprite = frames[i];
