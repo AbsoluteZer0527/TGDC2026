@@ -53,6 +53,7 @@ public class KitchenController : MonoBehaviour
     Vector3 customerStop;
     Sprite defaultCustomerSprite;
     bool customerEntering;
+    Coroutine customerWalk;
     bool auditStarted, auditorTalking;
     KitchenDialogue dialogue;
     PigeonDelivery pigeonDelivery;
@@ -162,6 +163,14 @@ public class KitchenController : MonoBehaviour
         if (!GM || GM.DayOver || CurtainTransition.IsPlaying) return;
         if (GUI.Button(new Rect(Screen.width - 174f, 8f, 166f, 30f), "End day (playtest)"))
             GM.EndDay();
+        if (!GM.DayOver && GUI.Button(new Rect(Screen.width - 174f, 42f, 166f, 30f), "Skip NPC (playtest)"))
+        {
+            if (customerWalk != null) StopCoroutine(customerWalk);
+            dialogue.Hide();
+            GM.SkipCustomerForPlaytest();
+            pigeonDelivery.CloseLetterForPlaytest();
+            NewCustomer();
+        }
     }
 
     void NewCustomer()
@@ -176,7 +185,7 @@ public class KitchenController : MonoBehaviour
         customer.gameObject.SetActive(true);
         if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
         //TODO: (NPC footsteps while walking up to the counter)
-        StartCoroutine(MoveCustomer(true));
+        customerWalk = StartCoroutine(MoveCustomer(true));
     }
 
     void PickOrder()
@@ -263,7 +272,7 @@ public class KitchenController : MonoBehaviour
         if (GM.CurrentCustomerLine == null && GM.Phase == CustomerPhase.Farewell)
         {
             dialogue.BeginPersonalDialogue();
-            StartCoroutine(MoveCustomer(false));
+            customerWalk = StartCoroutine(MoveCustomer(false));
             return;
         }
         if (GM.Phase == CustomerPhase.BetweenCustomers && GM.CurrentCustomerLine == null)
@@ -307,6 +316,7 @@ public class KitchenController : MonoBehaviour
         customer.position = end;
         if (!arriving) customer.gameObject.SetActive(false);
         customerEntering = false;
+        customerWalk = null;
         if (resume) ResumeConversation();
     }
 

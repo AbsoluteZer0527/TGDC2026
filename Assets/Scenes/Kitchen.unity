@@ -812,7 +812,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: 9ef1f91c8c0649728e41f3d35c129e97, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3840,11 +3840,23 @@ MonoBehaviour:
   - displayName: IRS
     npcId: 99
     sprite: {fileID: 3116990685938380839, guid: f512b2ecb653c9c42bee682be787ab02, type: 3}
+  - displayName: Bird
+    npcId: 3
+    sprite: {fileID: 4188155214726293333, guid: 5e95bbce067e0cc42a58777af7de8c9d, type: 3}
+  - displayName: Magician
+    npcId: 4
+    sprite: {fileID: 3636313203798180303, guid: af715682ca9767845a5c5591757ca24e, type: 3}
   keyVisits:
   - visitNumber: 1
     npcId: 1
   - visitNumber: 2
     npcId: 2
+  - visitNumber: 5
+    npcId: 3
+  - visitNumber: 10
+    npcId: 4
+  - visitNumber: 8
+    npcId: 1
   soupVisual: {fileID: 1148524950}
   readyVisual: {fileID: 274990933}
   overcookedVisual: {fileID: 1529051265}

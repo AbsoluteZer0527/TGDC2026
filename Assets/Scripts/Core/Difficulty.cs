@@ -17,6 +17,6 @@ public static class Difficulty
     public static float MaxPause => 2f - 0.2f * EvenSteps;                   // x2   -> x1 (day 10)
     public static float Hop => Mathf.Min(1f, 0.2f + 0.2f * OddSteps);        // x0.2 -> x1 (day 9), hop height and hops/sec
 
-    // Time a ready soup waits before exploding: 100% on day 1 down to 50% on day 10.
-    public static float ServingWindow => Mathf.Lerp(1f, 0.5f, (Level - 1) / (float)(MaxLevel - 1));
+    // Fraction of the day-one serving window, reaching one third at maximum difficulty.
+    public static float ServingWindow => Mathf.Lerp(1f, 1f / 3f, (Level - 1) / (float)(MaxLevel - 1));
 }

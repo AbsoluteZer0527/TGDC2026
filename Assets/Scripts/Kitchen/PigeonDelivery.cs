@@ -90,6 +90,12 @@ public sealed class PigeonDelivery : MonoBehaviour
         if (stage == PigeonDeliveryStage.Flying) PoseFlight(GM.PigeonFlightProgress);
     }
 
+    public void CloseLetterForPlaytest()
+    {
+        letterRaised = false;
+        Refresh();
+    }
+
     void ShowLetterFace(bool back)
     {
         showingBack = back;

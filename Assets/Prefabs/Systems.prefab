@@ -688,7 +688,7 @@ MonoBehaviour:
   - 60
   cookSecondsPerIngredient: 7.5
   ingredientRefresh: 1
-  servingWindowSeconds: 30
+  servingWindowSeconds: 15
   explosionDisplaySeconds: 4
   launderRatio: 3
   debugSeed: 0

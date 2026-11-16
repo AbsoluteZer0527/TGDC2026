@@ -1402,7 +1402,7 @@ MonoBehaviour:
   aimMoveMultiplier: 0.5
   recoilDistance: 40
   arrowShot: {fileID: 8617966479395503066, guid: 1f14dd6ec9c91ff4a89c1bc0d6d74d4b, type: 3}
-  arrowFlightTime: 0.22
+  arrowFlightTime: 0.5
 --- !u!1 &1188805645
 GameObject:
   m_ObjectHideFlags: 0

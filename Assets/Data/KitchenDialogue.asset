@@ -16,8 +16,8 @@ MonoBehaviour:
   - Veggie stew is my new favorite now besides matcha.
   - Ah, smells so good in here!
   - Please, I've been in line for the whole day!
-  - I need want something that's warms me up for the day...
-  - Animal hunting is devastating...we need more places like this!
+  - I want something that warms me up for the day...
+  - Animal hunting is devastating... We need more places like this!
   keyGreetings:
   - npcId: 1
     lines:
@@ -36,7 +36,7 @@ MonoBehaviour:
     - text: Yes! It is our grand opening today!
       playerSpeaks: 1
       afterLine: 0
-    - text: 'We make stew with varies vegeterian options! '
+    - text: We make stew with various vegetarian options!
       playerSpeaks: 1
       afterLine: 0
     - text: OMG! I'm such a big fan of veggie stew!
@@ -50,13 +50,55 @@ MonoBehaviour:
     - text: I want to try the veggie stew.
       playerSpeaks: 0
       afterLine: 0
+  - npcId: 1
+    lines:
+    - text: I'm back again!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: Oh, it's so great to see you again!!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: I was telling all my friends about this stew place!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: The food tastes amazing! And you are such a nice person!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: Thank you for being so supportive...
+      playerSpeaks: 1
+      afterLine: 0
+    - text: Tell me what you want this time!
+      playerSpeaks: 1
+      afterLine: 0
+  - npcId: 3
+    lines:
+    - text: I need some veggie stew... after walking on the ground for so long.
+      playerSpeaks: 0
+      afterLine: 0
+  - npcId: 4
+    lines:
+    - text: Howdy, pardner?!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: ...Are you a magician?
+      playerSpeaks: 1
+      afterLine: 0
+    - text: You bet your boots! Indeed, that's my lifelong passion and profession.
+      playerSpeaks: 0
+      afterLine: 0
+    - text: It's just that I have to travel a lot.
+      playerSpeaks: 0
+      afterLine: 0
+    - text: Now, impress me, pardner!
+      playerSpeaks: 0
+      afterLine: 0
   customerEndings:
   - npcId: 1
     lines:
     - text: ...This is delicious! I will definitely be back!!!
       playerSpeaks: 0
       afterLine: 0
-    - text: Glad to hear! See you later!!
+    - text: Glad to hear it! See you later!!
       playerSpeaks: 1
       afterLine: 0
   - npcId: 2
@@ -64,16 +106,16 @@ MonoBehaviour:
     - text: This tastes way better than meat soup...
       playerSpeaks: 0
       afterLine: 0
-    - text: I don't get it..why would people hunt animals just in order to get their meat when we have cuisines like this?
+    - text: I don't get it... Why would people hunt animals just in order to get their meat when we have cuisine like this?
       playerSpeaks: 0
       afterLine: 0
-    - text: Right! We were always oppose to animal hunting!
+    - text: Right! We were always opposed to animal hunting!
       playerSpeaks: 1
       afterLine: 0
-    - text: Like isn't killing vegetables like this more satisfying?
+    - text: Like, isn't killing vegetables like this more satisfying?
       playerSpeaks: 0
       afterLine: 0
-    - text: Well...sure.
+    - text: Well... sure.
       playerSpeaks: 1
       afterLine: 0
   - npcId: 1
@@ -81,16 +123,44 @@ MonoBehaviour:
     - text: Thanks for the stew!
       playerSpeaks: 0
       afterLine: 0
+  - npcId: 3
+    lines:
+    - text: Oh... this is delicious...
+      playerSpeaks: 0
+      afterLine: 0
+    - text: It reminds me of the days when I was still flying...
+      playerSpeaks: 0
+      afterLine: 0
+  - npcId: 4
+    lines:
+    - text: ...
+      playerSpeaks: 0
+      afterLine: 0
+    - text: Ain't no way!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: This is amazing!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: What an elegant dish you've made!
+      playerSpeaks: 0
+      afterLine: 0
+    - text: Thank you.
+      playerSpeaks: 1
+      afterLine: 0
+    - text: "Adi\xF3s! Till we meet again."
+      playerSpeaks: 0
+      afterLine: 0
   betweenCustomers:
   - afterCustomer: 1
     playerLines:
     - text: ...
       afterLine: 0
-    - text: Looking at this line, this veggie soup thing is indeed is getting popular.
+    - text: Looking at this line, this veggie soup thing is indeed getting popular.
       afterLine: 0
-    - text: But like...this is not making THAT much profit.
+    - text: But like... this is not making THAT much profit.
       afterLine: 0
-    - text: Ugh... and there is no work life balance either.
+    - text: Ugh... and there is no work-life balance either.
       afterLine: 0
     - text: How can I actually get a big bag of money...
       afterLine: 0
@@ -113,10 +183,10 @@ MonoBehaviour:
     - text: (Q to open or close the letter.)
       afterLine: 0
   forestUnlockLines:
-  - text: I have nothing to do except waiting...
+  - text: I have nothing to do except wait...
     playerSpeaks: 1
     afterLine: 0
-  - text: what about...
+  - text: What about...
     playerSpeaks: 1
     afterLine: 3
   auditorNpcId: 99
@@ -127,7 +197,7 @@ MonoBehaviour:
     afterLine: 0
   auditFailSprite: {fileID: -8202339034397663981, guid: b60f29e74e7a60743b96ea6ff6cc507b, type: 3}
   auditFailLines:
-  - text: We've noticed some ireegularities in your reported income.
+  - text: We've noticed some irregularities in your reported income.
     playerSpeaks: 0
     afterLine: 0
   - text: You'll need to explain and come with us.

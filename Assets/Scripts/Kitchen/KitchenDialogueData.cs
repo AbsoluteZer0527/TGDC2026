@@ -5,13 +5,13 @@ using UnityEngine;
 public sealed class KitchenDialogueData : ScriptableObject
 {
     [Header("Greetings")]
-    [Tooltip("Random customers say one nonblank entry from this list.")]
+    [Tooltip("Used by random customers and by key NPCs without a written greeting.")]
     [TextArea(1, 4)] public string[] randomGreetings = Array.Empty<string>();
-    [Tooltip("A key NPC plays one matching conversation, in line order.")]
+    [Tooltip("For each NPC, matching greetings play in list order on successive visits. Later visits repeat the last greeting.")]
     public CustomerConversation[] keyGreetings = Array.Empty<CustomerConversation>();
 
     [Header("Farewells and personal dialogue")]
-    [Tooltip("One matching conversation is chosen after serving. No match skips the farewell.")]
+    [Tooltip("Key NPC farewells follow visit order like greetings. Random customers pick a matching farewell at random. No match skips the farewell.")]
     public CustomerConversation[] customerEndings = Array.Empty<CustomerConversation>();
     [Tooltip("Player lines to play at the empty counter after the numbered customer leaves.")]
     public BetweenCustomerDialogue[] betweenCustomers = Array.Empty<BetweenCustomerDialogue>();

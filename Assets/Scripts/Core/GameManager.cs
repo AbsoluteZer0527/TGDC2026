@@ -45,8 +45,8 @@ public class GameManager : MonoBehaviour
     [Tooltip("On: thrown ingredients fall back onto the board and can be added again (duplicates allowed).\n" +
              "Off: each ingredient goes in once and stays in the soup until Discard.")]
     public bool ingredientRefresh = true;
-    [Min(0f), Tooltip("Seconds to serve a finished soup before it explodes (day 1). Shrinks to 50% by day 10.")]
-    public float servingWindowSeconds = 30f;
+    [Min(0f), Tooltip("Seconds to serve ready stew on day 1. The window shortens to one third by day 10.")]
+    public float servingWindowSeconds = 15f;
     [Min(0f), Tooltip("Seconds the exploded timer stays on the HUD.")]
     public float explosionDisplaySeconds = 4f;
     public SoupState Soup { get; private set; } = SoupState.Empty;
@@ -64,6 +64,8 @@ public class GameManager : MonoBehaviour
     public int CurrentNpcId { get; private set; }
     public Sprite CurrentNpcSprite { get; private set; }
     public int CustomersArrived { get; private set; }
+    readonly Dictionary<int, int> keyNpcVisits = new();
+    public int CurrentNpcVisit { get; private set; }
     public CustomerPhase Phase { get; private set; }
     public bool HasAdvancedDialogue { get; private set; }
     public PigeonDeliveryStage DeliveryStage { get; private set; }
@@ -79,7 +81,27 @@ public class GameManager : MonoBehaviour
     {
         CustomersArrived++;
         CurrentNpcId = npcId;
+        if (npcId > 0)
+        {
+            keyNpcVisits.TryGetValue(npcId, out int previous);
+            CurrentNpcVisit = previous + 1;
+            keyNpcVisits[npcId] = CurrentNpcVisit;
+        }
+        else CurrentNpcVisit = 0;
         CurrentNpcSprite = sprite;
+    }
+
+    public void SkipCustomerForPlaytest()
+    {
+        // Keep story unlocks attached to lines that the tester skips.
+        while (CurrentCustomerLine != null) AdvanceCustomerDialogue();
+        if (DeliveryStage == PigeonDeliveryStage.Flying || DeliveryStage == PigeonDeliveryStage.WaitingForLetter ||
+            DeliveryStage == PigeonDeliveryStage.Reading)
+        {
+            DeliveryStage = PigeonDeliveryStage.Complete;
+            LetterBackRevealed = true;
+        }
+        DiscardSoup();
     }
 
     public void BeginCustomerDialogue(CustomerPhase phase, IEnumerable<DialogueLine> lines)
@@ -206,7 +228,7 @@ public class GameManager : MonoBehaviour
         if (Soup == SoupState.Ready && SoupTimeLeft <= 0f)
         {
             Soup = SoupState.Ruined;
-            //TODO: (tomato splat when the 30-second serving window expires)
+            //TODO: (tomato splat when the serving window expires)
             explosionEndsAt = Time.time + explosionDisplaySeconds + SoupTimeLeft;
         }
         SoupTimeLeft = Mathf.Max(0f, SoupTimeLeft);

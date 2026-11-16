@@ -67,8 +67,12 @@ public sealed class KitchenDialogue : MonoBehaviour
     {
         if (GM.CurrentNpcId != 0)
         {
-            GM.BeginCustomerDialogue(CustomerPhase.AtCounter, PickConversation(dialogueFile.keyGreetings));
-            return;
+            var greeting = PickConversation(dialogueFile.keyGreetings);
+            if (greeting.Length > 0)
+            {
+                GM.BeginCustomerDialogue(CustomerPhase.AtCounter, greeting);
+                return;
+            }
         }
 
         var choices = dialogueFile.randomGreetings.Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
@@ -112,7 +116,10 @@ public sealed class KitchenDialogue : MonoBehaviour
     {
         var matches = conversations.Where(c => c?.npcId == GM.CurrentNpcId &&
             c.lines != null && c.lines.Any(line => !string.IsNullOrWhiteSpace(line?.text))).ToArray();
-        return matches.Length == 0 ? Array.Empty<DialogueLine>() : matches[Random.Range(0, matches.Length)].lines;
+        if (matches.Length == 0) return Array.Empty<DialogueLine>();
+        int index = GM.CurrentNpcId == 0 ? Random.Range(0, matches.Length)
+            : Mathf.Clamp(GM.CurrentNpcVisit - 1, 0, matches.Length - 1);
+        return matches[index].lines;
     }
 
     void AdvanceDialogue()
