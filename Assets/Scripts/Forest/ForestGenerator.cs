@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.AI.Navigation;
 using UnityEngine;
@@ -6,13 +5,6 @@ using UnityEngine;
 public class ForestGenerator : MonoBehaviour
 {
     public const int Wall = 0, Corridor = 1, Room = 2;
-
-    [Serializable]
-    public class CreatureSpawn
-    {
-        public Creature prefab;
-        [Min(0)] public float weight = 1f;
-    }
 
     [Header("Layout (in tiles)")]
     public int width = 41;                         // odd numbers; even gets bumped up by 1
@@ -43,7 +35,8 @@ public class ForestGenerator : MonoBehaviour
     [Min(0f)] public float bushSpacing = 1.5f;
 
     [Header("Creatures")]
-    public CreatureSpawn[] creatures;
+    [SerializeField] Creature creaturePrefab;
+    [SerializeField] ForestRoster roster;
     public int creatureCount = 40;
     public float creatureSpacing = 4f;
 
@@ -229,30 +222,19 @@ public class ForestGenerator : MonoBehaviour
     // ---------------- Creatures ----------------
     void SpawnCreatures(GameManager gm)
     {
+        if (!creaturePrefab || !roster) return;
         float jitter = tileSize / 2f - 1f;
         for (int i = 0; i < creatureCount; i++)
         {
             bool found = TryFloorPoint(floorTiles, jitter, creatureSpacing, out var p);
-            var prefab = PickCreature();                 // always roll, keeps later spawns identical
-            if (!found || prefab == null) continue;
+            var species = roster.Pick(rng);
+            if (!found || !species) continue;
+            // Consume all rolls for this slot even when it was killed on a previous visit.
+            float yaw = Range(0f, 360f);
             if (gm != null && gm.KilledCreatures.Contains(i)) continue;
-
-            var c = Instantiate(prefab, p, Quaternion.Euler(0, Range(0f, 360f), 0), transform);
-            c.id = i;
+            var creature = Instantiate(creaturePrefab, p, Quaternion.Euler(0, yaw, 0), transform);
+            creature.Initialize(species, i);
         }
-    }
-
-    Creature PickCreature()
-    {
-        float total = 0f;
-        foreach (var c in creatures) total += c.weight;
-        float r = Range(0f, total);
-        foreach (var c in creatures)
-        {
-            r -= c.weight;
-            if (r <= 0f) return c.prefab;
-        }
-        return creatures.Length > 0 ? creatures[^1].prefab : null;
     }
 
     // ---------------- Helpers ----------------

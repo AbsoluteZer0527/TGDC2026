@@ -1,37 +1,44 @@
 using System.Collections;
 using UnityEngine;
 
-public class Creature : MonoBehaviour
+[RequireComponent(typeof(CreatureAI))]
+public sealed class Creature : MonoBehaviour
 {
-    public string displayName = "Creature";
-    public int maxHealth = 1;
-    public int value = 10;
-    public Renderer rend;
-    [HideInInspector] public int id;
+    [SerializeField] SpriteRenderer visual;
 
+    public CreatureData Data { get; private set; }
+    public int SpawnId { get; private set; }
+    CreatureAI ai;
     int hp;
-    Color baseColor;
+    Coroutine flash;
 
-    void Start()
+    public void Initialize(CreatureData data, int spawnId)
     {
-        hp = maxHealth;
-        if (rend) baseColor = rend.material.color;
+        Data = data;
+        SpawnId = spawnId;
+        hp = data.maxHealth;
+        transform.localScale = Vector3.one * data.worldScale;
+        visual.sprite = data.worldSprite;
+        ai = GetComponent<CreatureAI>();
+        ai.Initialize(data);
     }
 
     public void TakeDamage(int dmg)
     {
-        //TODO: (optional hurt sound specific to each mob when hit)
+        if (hp <= 0 || dmg <= 0) return;
         hp -= dmg;
-        if (TryGetComponent(out CreatureAI ai)) ai.OnHurt();
         if (hp <= 0) { Die(); return; }
-        if (rend) StartCoroutine(Flash());
+        ai.OnHurt();
+        if (flash != null) StopCoroutine(flash);
+        flash = StartCoroutine(Flash());
     }
 
     IEnumerator Flash()
     {
-        rend.material.color = Color.white;
+        visual.color = new Color(1f, 0.55f, 0.55f);
         yield return new WaitForSeconds(0.08f);
-        rend.material.color = baseColor;
+        visual.color = Color.white;
+        flash = null;
     }
 
     void Die()
@@ -39,9 +46,9 @@ public class Creature : MonoBehaviour
         var gm = GameManager.I;
         if (gm != null)
         {
-            gm.AddDirtyMoney(value);
-            gm.KilledCreatures.Add(id);
-            gm.ShowMessage($"+${value}  {displayName}", 1.2f);
+            gm.KilledCreatures.Add(SpawnId);
+            gm.AddDirtyMoney(Data.bountyPrice);
+            gm.ShowMessage($"+${Data.bountyPrice}  {Data.displayName}", 1.2f);
         }
         Destroy(gameObject);
     }

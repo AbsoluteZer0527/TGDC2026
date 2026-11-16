@@ -12,8 +12,6 @@ public sealed class PigeonDelivery : MonoBehaviour
     [SerializeField] Transform pigeonStand;
     [SerializeField] SpriteRenderer letter;
     [SerializeField] Image openLetterView;
-    [Tooltip("Uses the scene letter as a preview until an open-letter sprite is assigned.")]
-    [SerializeField] Sprite openLetterSprite;
     [Min(0.1f), SerializeField] float flightSeconds = 2.6f;
     [Min(1), SerializeField] int flaps = 5;
     [Min(0f), SerializeField] float flapHeight = 0.36f;
@@ -50,7 +48,6 @@ public sealed class PigeonDelivery : MonoBehaviour
         hitbox.offset = letter.sprite.bounds.center;
         hitbox.size = letter.sprite.bounds.size;
         target.Clicked += OpenLetter;
-        openLetterView.sprite = openLetterSprite ? openLetterSprite : letter.sprite;
         Refresh();
     }
 
