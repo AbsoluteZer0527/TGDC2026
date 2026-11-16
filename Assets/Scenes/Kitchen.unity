@@ -1534,6 +1534,7 @@ GameObject:
   - component: {fileID: 434741360}
   - component: {fileID: 434741359}
   - component: {fileID: 434741362}
+  - component: {fileID: 434741363}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1600,6 +1601,20 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &434741363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434741358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c5df8e85ae4407482da53d14ad4e7a3, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KitchenCameraLook
+  maxTurnDegrees: {x: 2, y: 1.2}
+  maxShift: {x: 0.06, y: 0.03}
 --- !u!4 &434741361
 Transform:
   m_ObjectHideFlags: 0
