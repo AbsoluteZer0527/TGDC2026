@@ -149,7 +149,7 @@ public class GameManager : MonoBehaviour
     public int debugSeed = 0;
     public int ForestSeed { get; private set; }
     public HashSet<int> KilledCreatures { get; } = new();
-    public bool[] Explored { get; set; }   // minimap fog, one entry per tile, resets each day
+    public bool[] VisitedForestTiles { get; set; }   // centers of the minimap reveal circles
 
     void Awake()
     {
@@ -358,7 +358,7 @@ public class GameManager : MonoBehaviour
         // New forest.
         ForestSeed = debugSeed != 0 ? debugSeed : Random.Range(1, int.MaxValue);
         KilledCreatures.Clear();
-        Explored = null;
+        VisitedForestTiles = null;
 
         CurtainTransition.TransitionTo("Kitchen", startClosed: true);  // curtain opens on the new morning
     }
