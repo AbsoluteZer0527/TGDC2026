@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -22,9 +23,11 @@ public class HitscanGun : MonoBehaviour
     [Range(0.2f, 1f)] public float aimFovMultiplier = 0.7f;
     [Range(0f, 1f)] public float aimMoveMultiplier = 0.5f;
     public float recoilDistance = 40f;
-    public LineRenderer tracer;
-    public Transform muzzle;
-    public float tracerTime = 0.04f;
+    [Header("Arrow shot")]
+    public Sprite arrowShot;
+    [Min(0.01f)] public float arrowFlightTime = 0.22f;
+
+    readonly List<Image> flyingArrows = new();
 
     Vector2 gunRestPos;
     Image gunImage;
@@ -50,7 +53,10 @@ public class HitscanGun : MonoBehaviour
         if (player) player.MoveSpeedMultiplier = 1f;
         if (cam) cam.fieldOfView = normalFov;
         if (muzzleFlash) muzzleFlash.enabled = false;
-        if (tracer) tracer.enabled = false;
+        StopAllCoroutines();
+        foreach (var arrow in flyingArrows)
+            if (arrow) Destroy(arrow.gameObject);
+        flyingArrows.Clear();
     }
 
     void OnApplicationFocus(bool focused)
@@ -107,23 +113,73 @@ public class HitscanGun : MonoBehaviour
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         Vector3 end = ray.GetPoint(range);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, range, hitMask, QueryTriggerInteraction.Ignore))
-        {
-            end = hit.point;
-            var creature = hit.collider.GetComponentInParent<Creature>();
-            if (creature) creature.TakeDamage(damage);
-        }
+        if (Physics.Raycast(ray, out RaycastHit aimHit, range, hitMask, QueryTriggerInteraction.Ignore))
+            end = aimHit.point;
 
         if (gunSprite) gunSprite.anchoredPosition = gunRestPos + Vector2.down * recoilDistance;
-        if (tracer && muzzle) StartCoroutine(ShowTracer(muzzle.position, end));
+        StartCoroutine(FlyArrow(end));
     }
 
-    IEnumerator ShowTracer(Vector3 a, Vector3 b)
+    IEnumerator FlyArrow(Vector3 aimPoint)
     {
-        tracer.SetPosition(0, a);
-        tracer.SetPosition(1, b);
-        tracer.enabled = true;
-        yield return new WaitForSeconds(tracerTime);
-        tracer.enabled = false;
+        Image image = null;
+        Camera uiCamera = null;
+        Vector3 start = cam.transform.position;
+        float launchDepth = cam.nearClipPlane + 0.01f;
+        if (gunSprite && arrowShot && aimSprite)
+        {
+            image = new GameObject("Arrow shot", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            RectTransform arrow = image.rectTransform;
+            arrow.SetParent(gunSprite.parent, false);
+            arrow.SetSiblingIndex((muzzleFlash ? muzzleFlash.transform : gunSprite).GetSiblingIndex() + 1);
+            image.sprite = arrowShot;
+            image.raycastTarget = false;
+            flyingArrows.Add(image);
+
+            // Both sprites use the same artboard. The arrow slice marks the muzzle in the firing pose.
+            Rect gun = gunSprite.rect;
+            Rect art = aimSprite.rect;
+            float fit = Mathf.Min(gun.width / art.width, gun.height / art.height);
+            Vector2 origin = gun.min + (gun.size - art.size * fit) * gunSprite.pivot;
+            arrow.position = gunSprite.TransformPoint(origin + (arrowShot.rect.center - art.min) * fit);
+            arrow.sizeDelta = arrowShot.rect.size * fit;
+            Canvas canvas = image.canvas.rootCanvas;
+            uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            Vector2 muzzle = RectTransformUtility.WorldToScreenPoint(uiCamera, arrow.position);
+            start = cam.ScreenToWorldPoint(new Vector3(muzzle.x, muzzle.y, launchDepth));
+        }
+
+        Vector3 direction = (aimPoint - start).normalized;
+        Vector3 position = start;
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.01f, arrowFlightTime);
+        while (elapsed < duration)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            Vector3 next = start + direction * (range * t * t);
+            // Sweep only the distance the arrow actually covered this frame.
+            if (Physics.Linecast(position, next, out RaycastHit hit, hitMask, QueryTriggerInteraction.Ignore))
+            {
+                var creature = hit.collider.GetComponentInParent<Creature>();
+                if (creature) creature.TakeDamage(damage);
+                break;
+            }
+            position = next;
+            if (!image) continue;
+            Vector3 screen = cam.WorldToScreenPoint(position);
+            image.enabled = screen.z >= cam.nearClipPlane;
+            if (!image.enabled) continue;
+            RectTransform arrow = image.rectTransform;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)arrow.parent, screen, uiCamera, out Vector2 local);
+            arrow.localPosition = local;
+            arrow.localScale = Vector3.one / (1f + Vector3.Distance(start, position));
+        }
+        if (image)
+        {
+            flyingArrows.Remove(image);
+            Destroy(image.gameObject);
+        }
     }
 }

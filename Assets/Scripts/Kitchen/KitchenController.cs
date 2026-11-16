@@ -45,7 +45,7 @@ public class KitchenController : MonoBehaviour
     [SerializeField] KeyVisit[] keyVisits = System.Array.Empty<KeyVisit>();
 
     [Header("Pot")]
-    public GameObject soupVisual, readyVisual;
+    public GameObject soupVisual, readyVisual, overcookedVisual;
     public Transform throwFrom, potTarget;
 
     readonly Dictionary<IngredientData, Button> buttons = new();
@@ -152,8 +152,9 @@ public class KitchenController : MonoBehaviour
         serveButton.interactable   = CanServe && GM.Soup == SoupState.Ready;
         discardButton.interactable = !GM.DayOver && GM.Soup != SoupState.Empty;
 
-        if (soupVisual)  soupVisual.SetActive(GM.Soup == SoupState.Cooking || GM.Soup == SoupState.Ready);
+        if (soupVisual) soupVisual.SetActive(GM.Soup == SoupState.Cooking);
         if (readyVisual) readyVisual.SetActive(GM.Soup == SoupState.Ready);
+        if (overcookedVisual) overcookedVisual.SetActive(GM.Soup == SoupState.Ruined);
     }
 
     void OnGUI()

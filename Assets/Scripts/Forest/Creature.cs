@@ -4,6 +4,7 @@ using UnityEngine;
 public sealed class Creature : MonoBehaviour
 {
     [SerializeField] SpriteRenderer visual;
+    [SerializeField, Min(0.01f)] float fallDuration = 0.35f;
 
     public CreatureData Data { get; private set; }
     public int SpawnId { get; private set; }
@@ -41,6 +42,12 @@ public sealed class Creature : MonoBehaviour
 
     void Die()
     {
+        ai.enabled = false;
+        GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
+        foreach (var collider in GetComponentsInChildren<Collider>()) collider.enabled = false;
+        if (visual.TryGetComponent<Billboard>(out var billboard)) billboard.enabled = false;
+        if (flash != null) StopCoroutine(flash);
+        visual.color = Color.white;
         var gm = GameManager.I;
         if (gm != null)
         {
@@ -48,6 +55,26 @@ public sealed class Creature : MonoBehaviour
             gm.AddDirtyMoney(Data.bountyPrice);
             gm.ShowMessage($"+${Data.bountyPrice}  {Data.displayName}", 1.2f);
         }
+        StartCoroutine(FallOver());
+    }
+
+    IEnumerator FallOver()
+    {
+        Transform card = visual.transform;
+        Quaternion upright = card.rotation;
+        Vector3 feet = visual.localBounds.center;
+        feet.y = visual.localBounds.min.y;
+        Vector3 hinge = card.TransformPoint(feet);
+        float elapsed = 0f;
+        while (elapsed < fallDuration)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / fallDuration);
+            card.rotation = upright * Quaternion.Euler(90f * t * t, 0f, 0f);
+            card.position += hinge - card.TransformPoint(feet);
+        }
+        yield return null;
         Destroy(gameObject);
     }
 }
