@@ -121,16 +121,16 @@ TextureImporter:
         x: 419
         y: 698
         width: 78
-        height: 130
+        height: 128
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: c32e7bfa98229d700800000000000000
+      spriteID: 7b7b3b10001c01746947bd6b2c36485d
       internalID: 565521202965635644
       vertices: []
       indices: 
@@ -140,10 +140,10 @@ TextureImporter:
       name: Hedgehog_1
       rect:
         serializedVersion: 2
-        x: 127
-        y: 116
-        width: 561
-        height: 496
+        x: 145
+        y: 141
+        width: 543
+        height: 470
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,7 +152,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8df2fea99a468f4409efd414acd1c34c
+      spriteID: 5eb10fcf3a5417d46a651c8d1dc022b5
       internalID: -1380640285
       vertices: []
       indices: 

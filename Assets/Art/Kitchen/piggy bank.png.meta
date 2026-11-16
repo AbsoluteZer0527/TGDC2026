@@ -118,9 +118,9 @@ TextureImporter:
       name: piggy bank_0
       rect:
         serializedVersion: 2
-        x: 1018
+        x: 1038
         y: 383
-        width: 69
+        width: 49
         height: 74
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -130,7 +130,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8833fbcd31e66404a950d10080d3b07e
+      spriteID: ebe28509707800c4497659628e6fabdc
       internalID: -3513915382352427800
       vertices: []
       indices: 
@@ -140,10 +140,10 @@ TextureImporter:
       name: piggy bank_1
       rect:
         serializedVersion: 2
-        x: 943
-        y: 152
-        width: 255
-        height: 208
+        x: 973
+        y: 177
+        width: 195
+        height: 155
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,30 +152,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eba5233c37bab094a89e79c6c9bfaf2f
+      spriteID: 6f47d399b1d6e3d4b9cb6247209e4d05
       internalID: -1077052441
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: piggy bank_2
-      rect:
-        serializedVersion: 2
-        x: 1028
-        y: 153
-        width: 9
-        height: 10
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a0ed580fc185b084b9ffce81e8ea3c1b
-      internalID: 2140064562
       vertices: []
       indices: 
       edges: []
@@ -200,7 +178,6 @@ TextureImporter:
     nameFileIdTable:
       piggy bank_0: -3513915382352427800
       piggy bank_1: -1077052441
-      piggy bank_2: 2140064562
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

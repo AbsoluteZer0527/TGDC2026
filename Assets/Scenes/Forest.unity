@@ -500,6 +500,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: Systems
       objectReference: {fileID: 0}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 930bdda0cc5f8214782ec7e4acd0fa2e, type: 2}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0.54795074
+      objectReference: {fileID: 0}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.8283656
+      objectReference: {fileID: 0}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0.8706199
+      objectReference: {fileID: 0}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 41134186990901026, guid: 930bdda0cc5f8214782ec7e4acd0fa2e, type: 2}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4287419358
+      objectReference: {fileID: 0}
+    - target: {fileID: 3546616727962175994, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1543,6 +1575,7 @@ MonoBehaviour:
   aimMoveMultiplier: 0.5
   recoilDistance: 40
   arrowShot: {fileID: 8617966479395503066, guid: 1f14dd6ec9c91ff4a89c1bc0d6d74d4b, type: 3}
+  arrowSizeMultiplier: 1.75
   arrowFlightTime: 0.5
 --- !u!114 &1013081936
 MonoBehaviour:
@@ -2309,7 +2342,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2085275857
 RectTransform:
   m_ObjectHideFlags: 0
