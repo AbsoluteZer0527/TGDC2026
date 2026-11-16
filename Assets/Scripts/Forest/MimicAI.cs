@@ -31,7 +31,7 @@ public sealed class MimicAI : GooseAI
         //TODO: (bush rustle / mimic snarl on reveal)
         if (disguise) Destroy(disguise.gameObject);
         disguise = null;
-        creature.SetVisualHidden(false);
+        creature.Visual.enabled = true;
     }
 
     protected override void OnGiveUp() => Disguise();
@@ -40,7 +40,7 @@ public sealed class MimicAI : GooseAI
     {
         creature.ShowAttackPose(false);
         if (!bushPrefab) return;   // no bush assigned: just stays visible as itself
-        creature.SetVisualHidden(true);
+        creature.Visual.enabled = false;
         if (!disguise)
             disguise = Instantiate(bushPrefab, transform.position, Quaternion.identity, transform.parent);
         disguise.transform.position = transform.position;

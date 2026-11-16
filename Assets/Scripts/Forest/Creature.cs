@@ -8,6 +8,7 @@ public sealed class Creature : MonoBehaviour
     [SerializeField, Min(0f)] float walkBounceHeight = 0.075f;
 
     public CreatureData Data { get; private set; }
+    internal SpriteRenderer Visual => visual;
     public int SpawnId { get; private set; }
     CreatureAI ai;
     int hp;
