@@ -13,10 +13,16 @@ public class PiggyBank : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     [SerializeField] TMP_Text amountText;
     [SerializeField] Color positive = new(1f, 0.83f, 0.3f);   // yellow
     [SerializeField] Color negative = new(1f, 0.3f, 0.3f);    // red
+    [SerializeField] Transform bankVisual;
+    [SerializeField, Min(0f)] float shakeDegrees = 4f;
+    [SerializeField, Min(0f)] float shakesPerSecond = 5f;
 
     bool hovered;
+    Quaternion restRotation;
+    float hoverStart;
 
     void OnEnable() => SetHovered(false);
+    void OnDisable() => SetHovered(false);
 
     //TODO: (coin jingle on hover)
     public void OnPointerEnter(PointerEventData eventData) => SetHovered(true);
@@ -24,14 +30,26 @@ public class PiggyBank : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void SetHovered(bool on)
     {
+        if (bankVisual && on && !hovered)
+        {
+            restRotation = bankVisual.localRotation;
+            hoverStart = Time.unscaledTime;
+        }
+        else if (bankVisual && !on && hovered) bankVisual.localRotation = restRotation;
         hovered = on;
-        amountText.gameObject.SetActive(on);
+        if (amountText) amountText.gameObject.SetActive(on);
     }
 
     void Update()
     {
+        if (!hovered) return;
+        if (bankVisual)
+        {
+            float phase = (Time.unscaledTime - hoverStart) * shakesPerSecond * 2f * Mathf.PI;
+            bankVisual.localRotation = restRotation * Quaternion.AngleAxis(Mathf.Sin(phase) * shakeDegrees, Vector3.forward);
+        }
         var gm = GameManager.I;
-        if (!hovered || !gm) return;
+        if (!gm || !amountText) return;
         long s = gm.Savings;
         amountText.text = (s < 0 ? "-$" : "$") + HUD.FormatMoney(System.Math.Abs(s));
         amountText.color = s < 0 ? negative : positive;
