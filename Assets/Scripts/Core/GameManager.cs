@@ -278,9 +278,11 @@ public class GameManager : MonoBehaviour
 
     public string Message { get; private set; } = "";
     public float MessageUntil { get; private set; }
-    public void ShowMessage(string text, float duration = 2f)
+    public Sprite MessageIcon { get; private set; }     // optional picture shown left of the message (e.g. a mob's item)
+    public void ShowMessage(string text, float duration = 2f, Sprite icon = null)
     {
         Message = text;
+        MessageIcon = icon;
         MessageUntil = Time.time + duration;
     }
 

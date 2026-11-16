@@ -19,3 +19,5 @@ MonoBehaviour:
     weight: 2
   - creature: {fileID: 11400000, guid: bc962dc4a82dd470aae166e97551f20f, type: 2}
     weight: 1.5
+  dailySelection: 1
+  dailyPickFraction: 0.8

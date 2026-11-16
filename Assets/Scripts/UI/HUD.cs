@@ -24,6 +24,9 @@ public class HUD : MonoBehaviour
 
     [Header("Status")]
     public TMP_Text messageText;
+    [Tooltip("Optional Image, child of Message Text. Placed just left of the message when it has an icon (kill popups).")]
+    [SerializeField] Image messageIcon;
+    [SerializeField, Min(0f)] float messageIconGap = 12f;
     [FormerlySerializedAs("cleanText")] public TMP_Text stewText;
     [FormerlySerializedAs("dirtyText"), FormerlySerializedAs("totalText")] public TMP_Text huntText;
     [SerializeField] Image openMoney;
@@ -86,7 +89,22 @@ public class HUD : MonoBehaviour
             bool show = Time.time < gm.MessageUntil;
             messageText.gameObject.SetActive(show);
             if (show) messageText.text = gm.Message;
+            if (messageIcon) UpdateMessageIcon(show ? gm.MessageIcon : null);
         }
+    }
+
+    // Sits just left of the visible text, vertically centered on it.
+    void UpdateMessageIcon(Sprite icon)
+    {
+        messageIcon.gameObject.SetActive(icon);
+        if (!icon) return;
+        messageIcon.sprite = icon;
+        messageIcon.preserveAspect = true;
+        messageText.ForceMeshUpdate();
+        Bounds text = messageText.textBounds;   // in the text's local space, same as the child's localPosition
+        var rect = messageIcon.rectTransform;
+        rect.pivot = new Vector2(1f, 0.5f);
+        rect.localPosition = new Vector3(text.min.x - messageIconGap, text.center.y, 0f);
     }
 
     void UpdateCookingTimer(GameManager gm)

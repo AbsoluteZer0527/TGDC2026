@@ -253,9 +253,10 @@ public class ForestGenerator : MonoBehaviour
     {
         if (!roster) return;
         float jitter = tileSize / 2f - 1f;
+        var today = roster.Today(gm != null ? gm.ForestSeed : 12345);   // today's species (see roster's Daily Selection)
         for (int i = 0; i < creatureCount; i++)
         {
-            var species = roster.Pick(rng);
+            var species = roster.Pick(rng, today);
             bool found = TryFloorPoint(floorTiles, jitter, creatureSpacing, out var p,
                 species ? species.minSpawnDistance : 0f);
             if (!found || !species) continue;
