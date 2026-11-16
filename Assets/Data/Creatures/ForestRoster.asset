@@ -15,3 +15,9 @@ MonoBehaviour:
   entries:
   - creature: {fileID: 11400000, guid: 19996f555c2843ad9a91b51f5f8143ad, type: 2}
     weight: 1
+  - creature: {fileID: 11400000, guid: 765b24e85e39c41358bf7bbab670008d, type: 2}
+    weight: 2
+  - creature: {fileID: 11400000, guid: bc962dc4a82dd470aae166e97551f20f, type: 2}
+    weight: 1.5
+  dailySelection: 1
+  dailyPickFraction: 0.8

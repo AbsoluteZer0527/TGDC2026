@@ -167,6 +167,10 @@ public class GameManager : MonoBehaviour
         CultureInfo.InvariantCulture, out long saved) ? saved : PlayerPrefs.GetInt("HighScore", 0);
 
     [Header("Forest")]
+    [Min(1), Tooltip("Hearts the player starts with. Upgrades add to this with AddMaxHearts (kept across days).")]
+    public int startingHearts = 3;
+    public int MaxHearts { get; private set; }
+    public void AddMaxHearts(int amount) => MaxHearts = Mathf.Max(1, MaxHearts + amount);
     [Tooltip("0 = random each day. Set a number to test the same layout every time.")]
     public int debugSeed = 0;
     public int ForestSeed { get; private set; }
@@ -184,6 +188,7 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         TimeLeft = dayLength;
         Day = startDay;
+        MaxHearts = startingHearts;
         ForestSeed = debugSeed != 0 ? debugSeed : Random.Range(1, int.MaxValue);
     }
 
@@ -209,6 +214,16 @@ public class GameManager : MonoBehaviour
         float elapsed = Mathf.Min(Time.deltaTime, TimeLeft);
         AdvanceSoupTimer(elapsed);                                           // soup keeps cooking while the clock is held
         TimeLeft -= Mathf.Min(elapsed, Mathf.Max(0f, TimeLeft - MinTimeLeft));
+        if (TimeLeft <= 0f) EndDay();
+    }
+
+    // Jump the clock forward (e.g. passing out in the forest). The soup keeps cooking through the skipped time.
+    public void SkipDayTime(float fraction)
+    {
+        if (DayOver) return;
+        float skip = Mathf.Min(dayLength * fraction, Mathf.Max(0f, TimeLeft - MinTimeLeft));
+        AdvanceSoupTimer(skip);
+        TimeLeft -= skip;
         if (TimeLeft <= 0f) EndDay();
     }
 
@@ -285,9 +300,11 @@ public class GameManager : MonoBehaviour
 
     public string Message { get; private set; } = "";
     public float MessageUntil { get; private set; }
-    public void ShowMessage(string text, float duration = 2f)
+    public Sprite MessageIcon { get; private set; }     // optional picture shown left of the message (e.g. a mob's item)
+    public void ShowMessage(string text, float duration = 2f, Sprite icon = null)
     {
         Message = text;
+        MessageIcon = icon;
         MessageUntil = Time.time + duration;
     }
 

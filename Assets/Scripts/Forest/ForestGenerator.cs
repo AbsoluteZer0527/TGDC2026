@@ -253,10 +253,12 @@ public class ForestGenerator : MonoBehaviour
     {
         if (!roster) return;
         float jitter = tileSize / 2f - 1f;
+        var today = roster.Today(gm != null ? gm.ForestSeed : 12345);   // today's species (see roster's Daily Selection)
         for (int i = 0; i < creatureCount; i++)
         {
-            bool found = TryFloorPoint(floorTiles, jitter, creatureSpacing, out var p);
-            var species = roster.Pick(rng);
+            var species = roster.Pick(rng, today);
+            bool found = TryFloorPoint(floorTiles, jitter, creatureSpacing, out var p,
+                species ? species.minSpawnDistance : 0f);
             if (!found || !species) continue;
             // Consume all rolls for this slot even when it was killed on a previous visit.
             float yaw = Range(0f, 360f);
@@ -267,12 +269,13 @@ public class ForestGenerator : MonoBehaviour
     }
 
     // ---------------- Helpers ----------------
-    bool TryFloorPoint(List<Vector2Int> tiles, float jitter, float spacing, out Vector3 point)
+    bool TryFloorPoint(List<Vector2Int> tiles, float jitter, float spacing, out Vector3 point, float minFromSpawn = 0f)
     {
         for (int attempt = 0; attempt < 20; attempt++)
         {
             var t = tiles[rng.Next(tiles.Count)];
             Vector3 p = TileToWorld(t.x, t.y) + new Vector3(Range(-jitter, jitter), 0f, Range(-jitter, jitter));
+            if ((p - SpawnPoint).sqrMagnitude < minFromSpawn * minFromSpawn) continue;
             if (TryUse(p, spacing)) { point = p; return true; }
         }
         point = default;

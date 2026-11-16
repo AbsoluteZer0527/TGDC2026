@@ -22,6 +22,10 @@ public sealed class Creature : MonoBehaviour
         ai = GetComponent<CreatureAI>();
     }
 
+    // Swap to the species' attack sprite (if it has one) while winding up / attacking.
+    public void ShowAttackPose(bool on) =>
+        visual.sprite = on && Data.attackSprite ? Data.attackSprite : Data.worldSprite;
+
     public void TakeDamage(int dmg)
     {
         if (hp <= 0 || dmg <= 0) return;
@@ -53,7 +57,7 @@ public sealed class Creature : MonoBehaviour
         {
             gm.KilledCreatures.Add(SpawnId);
             gm.AddDirtyMoney(Data.bountyPrice);
-            gm.ShowMessage($"+${Data.bountyPrice}  {Data.displayName}", 1.2f);
+            gm.ShowMessage($"+${Data.bountyPrice}  {Data.displayName}", 1.2f, Data.itemIcon);
         }
         StartCoroutine(FallOver());
     }

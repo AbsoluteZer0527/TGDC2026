@@ -13,10 +13,11 @@ public sealed class BountyListView : MonoBehaviour
     void OnEnable()
     {
         var listed = new HashSet<CreatureData>();
+        var today = roster.Today(GameManager.I ? GameManager.I.ForestSeed : 12345);   // only today's species
         int count = 0;
         foreach (var entry in roster.Entries)
         {
-            if (!entry.IsEligible || !listed.Add(entry.creature)) continue;
+            if (!entry.IsEligible || !today.Contains(entry.creature) || !listed.Add(entry.creature)) continue;
             if (count == rows.Count) rows.Add(Instantiate(rowPrefab, scroll.content));
             var row = rows[count++];
             row.Bind(entry.creature);
