@@ -270,38 +270,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &122627199
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 122627200}
-  - component: {fileID: 122627195}
-  m_Layer: 0
-  m_Name: Bank Visual
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &122627200
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 122627199}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 122627196}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &122627195
 SpriteRenderer:
   serializedVersion: 3
@@ -392,9 +360,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PiggyBank
   amountText: {fileID: 740958402}
-  bankVisual: {fileID: 122627200}
   positive: {r: 0.9622642, g: 0.85472524, b: 0.51290494, a: 1}
   negative: {r: 1, g: 0.3, b: 0.3, a: 1}
+  bankVisual: {fileID: 122627200}
+  shakeDegrees: 4
+  shakesPerSecond: 5
 --- !u!61 &122627198
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -441,6 +411,38 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.55, y: 2.08}
   m_EdgeRadius: 0
+--- !u!1 &122627199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 122627200}
+  - component: {fileID: 122627195}
+  m_Layer: 0
+  m_Name: Bank Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &122627200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122627199}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 122627196}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &135304114
 GameObject:
   m_ObjectHideFlags: 0
@@ -2274,13 +2276,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
-  m_fontSizeBase: 4
+  m_fontSize: 5
+  m_fontSizeBase: 5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -3720,10 +3722,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 10678cc1d8f134afe92196bfb93166e1, type: 2}
   - {fileID: 11400000, guid: 61395af370065462892e6e6d21335ad5, type: 2}
   minOrderSize: 2
-  maxOrderSize: 3
   maxCopiesPerIngredient: 2
   soupPrice: 10
-  secondsPerIngredient: 3
   ingredientButtonPrefab: {fileID: 2355970609247980472, guid: 7ae55c278ab4f40c3820c20360066be7, type: 3}
   ingredientButtonParent: {fileID: 0}
   cookButton: {fileID: 1269309905}
@@ -5505,7 +5505,7 @@ MonoBehaviour:
   playerBubble: {fileID: 1489648619}
   playerText: {fileID: 764467332}
   dialogueEffects:
-    charactersPerSecond: 20
+    charactersPerSecond: 36
     hopHeight: 0.06
   orderIconSizePercent: 250
   orderIconRaise: 0.3

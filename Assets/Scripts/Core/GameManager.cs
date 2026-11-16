@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     public bool DayOver => Night != NightPhase.None;          // freezes normal gameplay
     public LossReason AuditOutcome { get; private set; }
     public bool AuditInProgress => Night == NightPhase.Audit;
+    public bool AuditorPresent { get; private set; }
     public int Day { get; private set; } = 1;
     public long RentDue => (long)rentPerDay * Day;
 
@@ -301,6 +302,7 @@ public class GameManager : MonoBehaviour
     // The IRS visitor uses the normal customer slot, but doesn't count as a story visit.
     public void AuditorArrives(int npcId, Sprite sprite)
     {
+        AuditorPresent = true;
         CurrentNpcId = npcId;
         CurrentNpcSprite = sprite;
     }
@@ -309,6 +311,7 @@ public class GameManager : MonoBehaviour
     public void FinishAudit()
     {
         if (!AuditInProgress) return;
+        AuditorPresent = false;
         if (AuditOutcome == LossReason.Jail) { Lose(LossReason.Jail); return; }
 
         var r = new NightReport { day = Day, stew = CleanMoney, hunt = DirtyMoney, rent = RentDue, savingsBefore = Savings };
