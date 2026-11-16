@@ -10,6 +10,7 @@ public class IngredientRunner : MonoBehaviour
     [Tooltip("SpriteRenderer on the Visual child (the child also has Billboard).")]
     public SpriteRenderer sprite;
     public bool artFacesRight = true;
+    [Tooltip("Speed, pause and hop values are the max-difficulty (day 10) values; see Difficulty.cs.")]
     public float speed = 1.2f;
     public float maxPause = 0.8f;
     public float hopHeight = 0.08f, hopsPerSecond = 3f;
@@ -187,16 +188,18 @@ public class IngredientRunner : MonoBehaviour
         to.y = 0f;
         if (to.magnitude < 0.05f)
         {
-            pauseLeft = Random.Range(0f, maxPause);
+            pauseLeft = Random.Range(0f, maxPause * Difficulty.MaxPause);
             target = table.RandomPoint();
             return;
         }
-        pos += Vector3.ClampMagnitude(to.normalized * speed * dt, to.magnitude);
+        // Inspector values are the day-10 maximums; Difficulty scales them down on earlier days.
+        pos += Vector3.ClampMagnitude(to.normalized * speed * Difficulty.RunSpeed * dt, to.magnitude);
         pos.y = table.SurfaceHeightAt(pos); // follow a tilted board
         sprite.flipX = (to.x < 0f) == artFacesRight;
         timer += dt;
-        hop = Mathf.Abs(Mathf.Sin(timer * hopsPerSecond * Mathf.PI)) * hopHeight;
-        SetFrame((int)(timer * hopsPerSecond)); // one frame per hop
+        float hps = hopsPerSecond * Difficulty.Hop;
+        hop = Mathf.Abs(Mathf.Sin(timer * hps * Mathf.PI)) * hopHeight * Difficulty.Hop;
+        SetFrame((int)(timer * hps)); // one frame per hop
     }
 
     void SetFrame(int i)

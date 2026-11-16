@@ -11,15 +11,19 @@ public class KitchenController : MonoBehaviour
 {
     [Header("Data")]
     public IngredientData[] ingredients;
-    [Tooltip("How many DIFFERENT ingredients an order asks for")]
-    public int minOrderSize = 2, maxOrderSize = 3;
+    [Tooltip("Fewest DIFFERENT ingredients an order asks for. The most grows with the day (see Difficulty.cs).")]
+    public int minOrderSize = 2;
     [Tooltip("Max copies of one ingredient in an order. Only used when GameManager's Ingredient Refresh is on.")]
     [Min(1)] public int maxCopiesPerIngredient = 2;
     public int soupPrice = 10;
 
-    [Header("Cooking")]
-    [Tooltip("Cook seconds each ingredient adds to the pot")]
-    public float secondsPerIngredient = 3f;
+    // The first customers of the game always order these (one of each), matched by IngredientData display name.
+    static readonly string[][] TutorialOrders =
+    {
+        new[] { "Potato", "Leek" },
+        new[] { "Tomato", "Carrot" },
+        new[] { "Tomato", "Onion" },
+    };
 
     [Header("UI")]
     public Button ingredientButtonPrefab;
@@ -91,11 +95,11 @@ public class KitchenController : MonoBehaviour
     public event System.Action<IngredientData> IngredientAdded;
     public event System.Action PotDiscarded;
 
-    // Adds the ingredient with a flat cook time. Returns true if it went in.
+    // Adds the ingredient (cook time = ingredients × GameManager's Cook Seconds Per Ingredient). Returns true if it went in.
     public bool TryAddIngredient(IngredientData ing)
     {
         Deselect();
-        if (GM.DayOver || !GM.AddIngredient(ing, secondsPerIngredient)) return false;
+        if (GM.DayOver || !GM.AddIngredient(ing)) return false;
 
         //TODO: (ingredient catch sound on selection, maybe a different "AHHH!" for each ingredient)
         if (IngredientAdded != null) IngredientAdded(ing);
@@ -165,20 +169,38 @@ public class KitchenController : MonoBehaviour
         var npc = keyNpcs.FirstOrDefault(k => k != null && k.npcId > 0 && k.npcId == visit?.npcId);
         var sprite = npc == null ? Pick(randomNpcSprites.Where(s => s).ToArray()) : npc.sprite;
         GM.CustomerArrives(npc?.npcId ?? 0, sprite ? sprite : defaultCustomerSprite);
-        int n = Random.Range(minOrderSize, maxOrderSize + 1);
-        GM.CurrentOrder.Clear();
-        foreach (var ing in ingredients.OrderBy(_ => Random.value).Take(n))
-        {
-            // Duplicates only make sense when thrown veggies come back (ingredient refresh).
-            int copies = GM.ingredientRefresh ? Random.Range(1, maxCopiesPerIngredient + 1) : 1;
-            for (int c = 0; c < copies; c++) GM.CurrentOrder.Add(ing);
-        }
+        PickOrder();
         dialogue.BeginGreeting();
 
         customer.gameObject.SetActive(true);
         if (customerRenderer) customerRenderer.sprite = GM.CurrentNpcSprite;
         //TODO: (NPC footsteps while walking up to the counter)
         StartCoroutine(MoveCustomer(true));
+    }
+
+    void PickOrder()
+    {
+        GM.CurrentOrder.Clear();
+        int tutorial = GM.CustomersArrived - 1;
+        if (tutorial < TutorialOrders.Length)
+        {
+            foreach (string wanted in TutorialOrders[tutorial])
+            {
+                var ing = ingredients.FirstOrDefault(i => i && i.displayName == wanted);
+                if (ing) GM.CurrentOrder.Add(ing);
+                else Debug.LogWarning($"Tutorial order: no ingredient named '{wanted}' in KitchenController's Ingredients list.");
+            }
+            if (GM.CurrentOrder.Count > 0) return;
+        }
+
+        int max = Mathf.Max(minOrderSize, Difficulty.MaxOrderSize);
+        int n = Random.Range(minOrderSize, max + 1);
+        foreach (var ing in ingredients.OrderBy(_ => Random.value).Take(n))
+        {
+            // Duplicates only make sense when thrown veggies come back (ingredient refresh).
+            int copies = GM.ingredientRefresh ? Random.Range(1, maxCopiesPerIngredient + 1) : 1;
+            for (int c = 0; c < copies; c++) GM.CurrentOrder.Add(ing);
+        }
     }
 
     static T Pick<T>(T[] choices) where T : class =>

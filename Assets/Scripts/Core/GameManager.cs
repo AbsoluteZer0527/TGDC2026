@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     public float dayLength = 300f;
     [Tooltip("Rent charged at the end of each day = this × the day number.")]
     public int rentPerDay = 200;
+    [Min(1), Tooltip("Playtest: start the game on this day (difficulty and rent follow it). Keep at 1 for release.")]
+    public int startDay = 1;
     public float TimeLeft { get; private set; }
     public NightPhase Night { get; private set; }
     public LossReason Loss { get; private set; }
@@ -28,20 +30,29 @@ public class GameManager : MonoBehaviour
     public int Day { get; private set; } = 1;
     public long RentDue => (long)rentPerDay * Day;
 
+    [Header("Tutorial (the first customers of the game)")]
+    [Tooltip("While customer 1, 2, ... is the latest arrival, the day clock stops at this fraction of the day. " +
+             "Customers past the end of the list don't stop it.")]
+    public float[] tutorialClockCaps = { 0.25f, 0.5f };
+    [Tooltip("Fixed cook seconds for customer 1, 2, 3... (customer 3 is long so the player can explore the forest). " +
+             "Customers past the end of the list use the normal cook time.")]
+    public float[] tutorialCookSeconds = { 10f, 10f, 60f };
+
     [Header("Soup")]
-    [Tooltip("Cook time before the per-ingredient seconds are added")]
-    public float baseCookTime = 3f;
+    [Tooltip("Cook time = ingredients in the pot × this")]
+    public float cookSecondsPerIngredient = 7.5f;
     [Tooltip("On: thrown ingredients fall back onto the board and can be added again (duplicates allowed).\n" +
              "Off: each ingredient goes in once and stays in the soup until Discard.")]
     public bool ingredientRefresh = true;
-    [Min(0f), Tooltip("Seconds to serve a finished soup before it explodes.")]
+    [Min(0f), Tooltip("Seconds to serve a finished soup before it explodes (day 1). Shrinks to 50% by day 10.")]
     public float servingWindowSeconds = 30f;
     [Min(0f), Tooltip("Seconds the exploded timer stays on the HUD.")]
     public float explosionDisplaySeconds = 4f;
     public SoupState Soup { get; private set; } = SoupState.Empty;
     public List<IngredientData> PotContents { get; } = new();
-    public float PendingCookTime { get; private set; }   // sum of per-ingredient seconds
-    public float TotalCookTime => baseCookTime + PendingCookTime;
+    public float TotalCookTime => CustomersArrived >= 1 && CustomersArrived <= tutorialCookSeconds.Length && Phase == CustomerPhase.AtCounter
+        ? tutorialCookSeconds[CustomersArrived - 1]
+        : PotContents.Count * cookSecondsPerIngredient;
     public float SoupTimeLeft { get; private set; }
     public float CookTimeLeft => Soup == SoupState.Cooking ? SoupTimeLeft : 0f;
     float explosionEndsAt;
@@ -149,7 +160,18 @@ public class GameManager : MonoBehaviour
         I = this;
         DontDestroyOnLoad(gameObject);
         TimeLeft = dayLength;
+        Day = startDay;
         ForestSeed = debugSeed != 0 ? debugSeed : Random.Range(1, int.MaxValue);
+    }
+
+    // Tutorial: the clock can't run past the current customer's cap (customer 1 = 25%, customer 2 = 50%).
+    float MinTimeLeft
+    {
+        get
+        {
+            int i = Mathf.Max(CustomersArrived, 1) - 1;
+            return i < tutorialClockCaps.Length ? dayLength * (1f - tutorialClockCaps[i]) : 0f;
+        }
     }
 
     void Update()
@@ -162,8 +184,8 @@ public class GameManager : MonoBehaviour
             return;
         }
         float elapsed = Mathf.Min(Time.deltaTime, TimeLeft);
-        TimeLeft -= elapsed;
-        AdvanceSoupTimer(elapsed);
+        AdvanceSoupTimer(elapsed);                                           // soup keeps cooking while the clock is held
+        TimeLeft -= Mathf.Min(elapsed, Mathf.Max(0f, TimeLeft - MinTimeLeft));
         if (TimeLeft <= 0f) EndDay();
     }
 
@@ -178,7 +200,7 @@ public class GameManager : MonoBehaviour
         {
             Soup = SoupState.Ready;
             //TODO: (loop the tomato clock alarm while the soup is ready and the day is active)
-            SoupTimeLeft += servingWindowSeconds;
+            SoupTimeLeft += servingWindowSeconds * Difficulty.ServingWindow;
         }
         if (Soup == SoupState.Ready && SoupTimeLeft <= 0f)
         {
@@ -192,11 +214,10 @@ public class GameManager : MonoBehaviour
     public bool CanAddIngredient(IngredientData ing) =>
         (Soup == SoupState.Empty || Soup == SoupState.Filling) && (ingredientRefresh || !PotContents.Contains(ing));
 
-    public bool AddIngredient(IngredientData ing, float cookSeconds)
+    public bool AddIngredient(IngredientData ing)
     {
         if (!CanAddIngredient(ing)) return false;
         PotContents.Add(ing);
-        PendingCookTime += cookSeconds;
         Soup = SoupState.Filling;
         return true;
     }
@@ -224,7 +245,6 @@ public class GameManager : MonoBehaviour
     public void DiscardSoup()
     {
         PotContents.Clear();
-        PendingCookTime = 0f;
         SoupTimeLeft = 0f;
         Soup = SoupState.Empty;
     }

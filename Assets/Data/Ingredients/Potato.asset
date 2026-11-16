@@ -18,4 +18,4 @@ MonoBehaviour:
   frames:
   - {fileID: -2846972854709655179, guid: a8cc54579421a234581765340ba47c5b, type: 3}
   - {fileID: 3484832852833258796, guid: 6380baed110d4544eb12f567830bb7ce, type: 3}
-  orderIconExtraGap: 0.375
+  orderIconExtraGap: 0.32
