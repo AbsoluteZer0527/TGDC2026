@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4018823408dc1a54297ac8c934f43077
+guid: fac23ccee63f1ba438cc57cbbb4d8183
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 781495521835043174
-    second: Mob items_0
+      213: -2092730633671331588
+    second: Unicorn_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 0
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Mob items_0
+      name: Unicorn_0
       rect:
         serializedVersion: 2
-        x: 283
-        y: 703
-        width: 300
-        height: 300
+        x: 1090
+        y: 180
+        width: 788
+        height: 900
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,52 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 669498c590e68da00800000000000000
-      internalID: 781495521835043174
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Mob items_1
-      rect:
-        serializedVersion: 2
-        x: 664
-        y: 705
-        width: 300
-        height: 300
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3295d7ab318ae734aa59e6bf7067e0af
-      internalID: 67640081
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Mob items_2
-      rect:
-        serializedVersion: 2
-        x: 1129
-        y: 709
-        width: 300
-        height: 300
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 44100a915fbdda04da9f22c8825ad72b
-      internalID: -1147149048
+      spriteID: cf03171939025f2e0800000000000000
+      internalID: -2092730633671331588
       vertices: []
       indices: 
       edges: []
@@ -184,7 +140,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: bd11f7b76b3b6644796031918138211d
+    spriteID: fc080f461a770654c93ff55a2d424b89
     internalID: 0
     vertices: []
     indices: 
@@ -192,13 +148,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Mob items_0: 781495521835043174
-      Mob items_1: 67640081
-      Mob items_2: -1147149048
+      Unicorn_0: -2092730633671331588
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 846ef7396d6df5142ad1687b1e63d39b
+guid: 64a2533710323f3458b43fa351203fc2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1499067527547856346
-    second: Goose attack_0
+      213: 2733741852203317717
+    second: Sus Bush_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 0
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -115,23 +115,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Goose attack_0
+      name: Sus Bush_0
       rect:
         serializedVersion: 2
-        x: 136
-        y: 245
-        width: 550
-        height: 500
-      alignment: 9
-      pivot: {x: 0.5, y: 0.87}
+        x: 1260
+        y: 68
+        width: 532
+        height: 559
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ad520d159f1cdc410800000000000000
-      internalID: 1499067527547856346
+      spriteID: 5d972380bb330f520800000000000000
+      internalID: 2733741852203317717
       vertices: []
       indices: 
       edges: []
@@ -140,7 +140,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: ee2f169372b18164dbbf8c058073722f
+    spriteID: 79f5687e3c3e14547888d08c23f31084
     internalID: 0
     vertices: []
     indices: 
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Goose attack_0: 1499067527547856346
+      Sus Bush_0: 2733741852203317717
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
