@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 741084f6207e45df93bf9bfe902b59f8, type: 3}
   m_Name: Mimic
   m_EditorClassIdentifier: Assembly-CSharp::CreatureData
-  displayName: 
-  worldSprite: {fileID: 0}
-  attackSprite: {fileID: 0}
+  displayName: Mimic
+  worldSprite: {fileID: 2733741852203317717, guid: 64a2533710323f3458b43fa351203fc2, type: 3}
+  attackSprite: {fileID: -3200779584694267956, guid: 48e1c3686fc01e14ca9f622ca1c6b98f, type: 3}
   minSpawnDistance: 10
   worldScale: 2.5
   itemIcon: {fileID: 0}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rabbit
   m_EditorClassIdentifier: Assembly-CSharp::CreatureData
   displayName: Rabbit
-  worldSprite: {fileID: 0}
+  worldSprite: {fileID: 5110612511535974256, guid: 2db0e40741ffd0d40bbcbb77e4d4e00a, type: 3}
   attackSprite: {fileID: 0}
   minSpawnDistance: 0
   worldScale: 2.5

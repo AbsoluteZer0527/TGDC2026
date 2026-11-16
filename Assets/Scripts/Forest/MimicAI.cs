@@ -1,30 +1,25 @@
 using UnityEngine;
 
-// Looks exactly like a bush and doesn't move. Get too close (or shoot it) and it reveals itself,
-// then chases and attacks exactly like the goose. If you escape far enough it settles and becomes a bush again.
+// Looks like a bush (World Sprite = "Sus Bush") and doesn't move. Get too close (or shoot it) and it reveals
+// itself (Attack Sprite = "Sus bush attack"), then chases and attacks exactly like the goose.
+// If you escape far enough it settles back down and looks like a bush again.
 public sealed class MimicAI : GooseAI
 {
     [Header("Disguise")]
-    [SerializeField, Tooltip("The forest's Bush prefab, so the disguise matches the real bushes.")]
-    Vegetation bushPrefab;
     [SerializeField, Min(0), Tooltip("Reveals itself when you come this close (no line of sight needed).")]
     float revealRadius = 3.5f;
 
-    Vegetation disguise;
+    bool revealed;
 
-    protected override void Start()
+    protected override void Tick()
     {
-        base.Start();
-        Disguise();
+        base.Tick();
+        creature.ShowAttackPose(revealed);   // face shows for the whole chase, not just during the bite
     }
 
     protected override bool Notices(float distance) => distance < revealRadius;
 
-    protected override void Idle()
-    {
-        agent.isStopped = true;   // bushes don't walk
-        if (!disguise) Disguise();
-    }
+    protected override void Idle() => agent.isStopped = true;   // bushes don't walk
 
     protected override void OnStartChase()
     {

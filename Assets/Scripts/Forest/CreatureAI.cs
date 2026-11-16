@@ -34,8 +34,8 @@ public abstract class CreatureAI : MonoBehaviour
         playerHealth = pc.GetComponent<PlayerHealth>();
     }
 
-    // Middle of this creature's body: where it looks and shoots from.
-    protected Vector3 Eyes => body ? body.bounds.center : transform.position + Vector3.up;
+    // Middle of this creature's sprite: where it looks and shoots from (so short creatures shoot from low down).
+    protected Vector3 Eyes => creature ? creature.VisualCenter : body ? body.bounds.center : transform.position + Vector3.up;
 
     // In range and nothing (wall, tree) between us.
     protected bool CanSeePlayer(float radius)

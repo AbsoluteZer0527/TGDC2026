@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Hedgehog
   m_EditorClassIdentifier: Assembly-CSharp::CreatureData
   displayName: Hedgehog
-  worldSprite: {fileID: 0}
+  worldSprite: {fileID: -1380640285, guid: e4236d1a33041bf4ebe6d2cae2b0598b, type: 3}
   attackSprite: {fileID: 0}
   minSpawnDistance: 10
   worldScale: 2.5
