@@ -1055,7 +1055,6 @@ MonoBehaviour:
   cookingSprite: {fileID: 9115179596405522701, guid: 866b644c54a9cfc4096bb277a4827bd7, type: 3}
   explodedSprite: {fileID: -9142740976917757487, guid: 0cb2295331ea8094da2afee6110ada91, type: 3}
   soupText: {fileID: 4698532832389495183}
-  forestCookTimerOffset: {x: 0, y: -150}
   messageText: {fileID: 3546616727962175994}
   messageIcon: {fileID: 5145357661037631154}
   messageIconGap: 12

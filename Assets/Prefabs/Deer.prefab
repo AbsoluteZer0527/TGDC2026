@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &7465812047527364919
+--- !u!1001 &5500000000000000000
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -8,45 +8,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
+    - target: {fileID: 243854240350105785, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
+      propertyPath: m_Speed
+      value: 3.5
       objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 679944170335460483, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+    - target: {fileID: 243854240350105785, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
+      propertyPath: m_Radius
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 1148300584546774289, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
       propertyPath: m_Name
@@ -58,40 +26,33 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1148300584546774289, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7490134186739136208}
+      addedObject: {fileID: 6369103377733669113}
   m_SourcePrefab: {fileID: 100100000, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
---- !u!1 &7526765999739888678 stripped
+--- !u!1 &4880909756315643153 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1148300584546774289, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
-  m_PrefabInstance: {fileID: 7465812047527364919}
+  m_PrefabInstance: {fileID: 5500000000000000000}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7490134186739136208
+--- !u!114 &6369103377733669113
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7526765999739888678}
+  m_GameObject: {fileID: 4880909756315643153}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da7707a4d5df7463b933055c439ff3f7, type: 3}
+  m_Script: {fileID: 11500000, guid: 225b4dc7b21f24c6e9a3dc9b9429b5a6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DeerAI
+  m_EditorClassIdentifier: Assembly-CSharp::UnicornAI
   wanderRadius: 4
-  wanderSpeed: 1
-  fleeRadius: 9
+  wanderSpeed: 2.5
+  fleeRadius: 15
   strafeRadius: 4
-  fleeSpeed: 2.5
+  fleeSpeed: 4.5
   strafeSpeed: 4.5
   acceleration: 12
   minJukeTime: 0.5
   maxJukeTime: 1.2
   panicMultiplier: 1.6
   panicDuration: 2
-  detectRadius: 20
-  memorySeconds: 3
-  fireCooldown: 2.5
-  windup: 0.5
-  projectileSpeed: 9
-  damage: 1
-  projectilePrefab: {fileID: 3857748511340079284, guid: e8011c4607f454332996e9da0b2ac1f9, type: 3}
