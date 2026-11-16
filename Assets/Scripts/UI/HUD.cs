@@ -21,6 +21,10 @@ public class HUD : MonoBehaviour
     [SerializeField] Image cookingTimer;
     [SerializeField] Sprite cookingSprite, explodedSprite;
     [SerializeField] TMP_Text soupText;
+    [Tooltip("Extra offset for the cooking timer in the Forest, so it sits below the hearts.")]
+    [SerializeField] Vector2 forestCookTimerOffset = new(0f, -300f);
+    Vector2 cookTimerHome;
+    bool cookTimerHomeSaved;
 
     [Header("Status")]
     public TMP_Text messageText;
@@ -47,7 +51,12 @@ public class HUD : MonoBehaviour
 
     void UpdateDayClock(Scene previous, Scene current)
     {
-        dayClock.overrideSprite = current.name == "Forest" ? forestDayClock : null;
+        bool forest = current.name == "Forest";
+        dayClock.overrideSprite = forest ? forestDayClock : null;
+
+        var timer = cookingTimer.rectTransform;
+        if (!cookTimerHomeSaved) { cookTimerHome = timer.anchoredPosition; cookTimerHomeSaved = true; }
+        timer.anchoredPosition = cookTimerHome + (forest ? forestCookTimerOffset : Vector2.zero);
     }
 
     void Start() => restartButton.onClick.AddListener(() => GameManager.I.Restart());
