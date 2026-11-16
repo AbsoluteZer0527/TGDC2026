@@ -30,6 +30,8 @@ public sealed class ForestWallArt : MonoBehaviour
             foreach (var direction in Directions)
             {
                 if (!Floor(x + direction.x, y + direction.y)) continue;
+                // Leave the store-back tile bare so its illustration shows instead of trees.
+                if (maze.storeBack && new Vector2Int(x, y) == maze.DoorTile && direction == Vector2Int.up) continue;
                 Vector3 outward = new(direction.x, 0, direction.y);
                 Vector3 along = direction.x == 0 ? Vector3.right : Vector3.forward;
                 int column = direction.x == 0 ? x : y;
