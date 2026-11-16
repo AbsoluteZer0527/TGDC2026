@@ -108,7 +108,7 @@ public sealed class Creature : MonoBehaviour
         {
             gm.KilledCreatures.Add(SpawnId);
             gm.AddDirtyMoney(Data.bountyPrice);
-            gm.ShowMessage($"+${Data.bountyPrice}  {Data.displayName}", 1.2f, Data.itemIcon);
+            gm.ShowMessage($"+{Data.bountyPrice}", 1.2f, Data.itemIcon);
         }
         StartCoroutine(FallOver());
     }

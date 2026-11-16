@@ -102,7 +102,7 @@ public class HUD : MonoBehaviour
         }
     }
 
-    // Sits just left of the visible text, vertically centered on it.
+    // Sits just right of the visible text, vertically centered on it.
     void UpdateMessageIcon(Sprite icon)
     {
         messageIcon.gameObject.SetActive(icon);
@@ -112,8 +112,8 @@ public class HUD : MonoBehaviour
         messageText.ForceMeshUpdate();
         Bounds text = messageText.textBounds;   // in the text's local space, same as the child's localPosition
         var rect = messageIcon.rectTransform;
-        rect.pivot = new Vector2(1f, 0.5f);
-        rect.localPosition = new Vector3(text.min.x - messageIconGap, text.center.y, 0f);
+        rect.pivot = new Vector2(0f, 0.5f);
+        rect.localPosition = new Vector3(text.max.x + messageIconGap, text.center.y, 0f);
     }
 
     void UpdateCookingTimer(GameManager gm)

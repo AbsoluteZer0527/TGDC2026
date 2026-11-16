@@ -300,7 +300,7 @@ public class GameManager : MonoBehaviour
 
     public string Message { get; private set; } = "";
     public float MessageUntil { get; private set; }
-    public Sprite MessageIcon { get; private set; }     // optional picture shown left of the message (e.g. a mob's item)
+    public Sprite MessageIcon { get; private set; }     // optional picture shown after the message
     public void ShowMessage(string text, float duration = 2f, Sprite icon = null)
     {
         Message = text;
