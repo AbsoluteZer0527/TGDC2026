@@ -35,7 +35,6 @@ public class ForestGenerator : MonoBehaviour
     [Min(0f)] public float bushSpacing = 1.5f;
 
     [Header("Creatures")]
-    [SerializeField] Creature creaturePrefab;
     [SerializeField] ForestRoster roster;
     public int creatureCount = 40;
     public float creatureSpacing = 4f;
@@ -222,7 +221,7 @@ public class ForestGenerator : MonoBehaviour
     // ---------------- Creatures ----------------
     void SpawnCreatures(GameManager gm)
     {
-        if (!creaturePrefab || !roster) return;
+        if (!roster) return;
         float jitter = tileSize / 2f - 1f;
         for (int i = 0; i < creatureCount; i++)
         {
@@ -232,8 +231,8 @@ public class ForestGenerator : MonoBehaviour
             // Consume all rolls for this slot even when it was killed on a previous visit.
             float yaw = Range(0f, 360f);
             if (gm != null && gm.KilledCreatures.Contains(i)) continue;
-            var creature = Instantiate(creaturePrefab, p, Quaternion.Euler(0, yaw, 0), transform);
-            creature.Initialize(species, i);
+            var behavior = Instantiate(species.behaviorPrefab, p, Quaternion.Euler(0, yaw, 0), transform);
+            behavior.GetComponent<Creature>().Initialize(species, i);
         }
     }
 

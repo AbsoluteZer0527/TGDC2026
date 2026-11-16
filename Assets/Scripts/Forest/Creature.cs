@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(CreatureAI))]
 public sealed class Creature : MonoBehaviour
 {
     [SerializeField] SpriteRenderer visual;
@@ -20,7 +19,6 @@ public sealed class Creature : MonoBehaviour
         transform.localScale = Vector3.one * data.worldScale;
         visual.sprite = data.worldSprite;
         ai = GetComponent<CreatureAI>();
-        ai.Initialize(data);
     }
 
     public void TakeDamage(int dmg)

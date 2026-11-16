@@ -10,7 +10,7 @@ public sealed class ForestRoster : ScriptableObject
     {
         public CreatureData creature;
         [Min(0)] public float weight;
-        public bool IsEligible => creature != null && weight > 0;
+        public bool IsEligible => creature != null && creature.behaviorPrefab != null && weight > 0;
     }
 
     [Tooltip("Letter order. A weight of zero removes a species from both the forest and the letter.")]

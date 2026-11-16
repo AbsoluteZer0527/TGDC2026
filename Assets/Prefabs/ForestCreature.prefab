@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2326098505822107512}
   - component: {fileID: 2639368531340996322}
   - component: {fileID: 243854240350105785}
-  - component: {fileID: 6369103377733669113}
   m_Layer: 7
   m_Name: ForestCreature
   m_TagString: Untagged
@@ -94,18 +93,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &6369103377733669113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1148300584546774289}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 583ff401800ec40b0877b943b6b631d6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CreatureAI
 --- !u!1 &7063494474965784002
 GameObject:
   m_ObjectHideFlags: 0

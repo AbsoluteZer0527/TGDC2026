@@ -14,20 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CreatureData
   displayName: Unicorn
   worldSprite: {fileID: -2092730633671331588, guid: 80daf460a436bca4eb4cf53e5e9d651e, type: 3}
-  worldScale: 1.5
+  worldScale: 2.5
   itemIcon: {fileID: -1816198131, guid: cd30efd7c0cda2341beb9e9dc8274e49, type: 3}
   maxHealth: 3
   bountyPrice: 10
-  behavior: 0
-  wanderRadius: 4
-  wanderSpeed: 1
-  fleeAndDodge:
-    fleeRadius: 9
-    strafeRadius: 4
-    fleeSpeed: 2.5
-    strafeSpeed: 4.5
-    acceleration: 12
-    minJukeTime: 0.5
-    maxJukeTime: 1.2
-    panicMultiplier: 1.6
-    panicDuration: 2
+  behaviorPrefab: {fileID: 6369103377733669113, guid: e7287e56b2ee48c99c6ebe2f89287608, type: 3}

@@ -25,7 +25,6 @@ public class KitchenController : MonoBehaviour
     public Button ingredientButtonPrefab;
     public Transform ingredientButtonParent;
     public Button cookButton, serveButton, discardButton;
-    public TMP_Text potText;
 
     [Header("Customer")]
     public Transform customer;           // root object, feet on the floor
@@ -48,7 +47,6 @@ public class KitchenController : MonoBehaviour
     public Transform throwFrom, potTarget;
 
     readonly Dictionary<IngredientData, Button> buttons = new();
-    string lastThrow = "";
     Camera cam;
     Vector3 customerStop;
     Sprite defaultCustomerSprite;
@@ -78,7 +76,7 @@ public class KitchenController : MonoBehaviour
             buttons[ing] = b;
         }
         //TODO: (optional click when the Cook button is pressed)
-        cookButton.onClick.AddListener(() => { GM.StartCooking(); lastThrow = ""; Deselect(); });
+        cookButton.onClick.AddListener(() => { GM.StartCooking(); Deselect(); });
         serveButton.onClick.AddListener(Serve);
         discardButton.onClick.AddListener(Discard);
 
@@ -93,6 +91,7 @@ public class KitchenController : MonoBehaviour
 
     // Fired when an ingredient goes into the pot. IngredientTable animates the runner.
     public event System.Action<IngredientData> IngredientAdded;
+    public event System.Action PotDiscarded;
 
     // Adds the ingredient with a flat cook time. Returns true if it went in.
     public bool TryAddIngredient(IngredientData ing)
@@ -101,7 +100,6 @@ public class KitchenController : MonoBehaviour
         if (GM.DayOver || !GM.AddIngredient(ing, secondsPerIngredient)) return false;
 
         //TODO: (ingredient catch sound on selection, maybe a different "AHHH!" for each ingredient)
-        lastThrow = $"{ing.displayName}: +{secondsPerIngredient:0.#}s";
         if (IngredientAdded != null) IngredientAdded(ing);
         else StartCoroutine(ThrowVisual(ing.color)); // fallback sphere when no runners exist
         return true;
@@ -110,8 +108,8 @@ public class KitchenController : MonoBehaviour
     void Discard()
     {
         //TODO: (optional click when the Discard button is pressed)
+        PotDiscarded?.Invoke();
         GM.DiscardSoup();
-        lastThrow = "";
         Deselect();
     }
 
@@ -145,13 +143,6 @@ public class KitchenController : MonoBehaviour
         cookButton.interactable    = !busy && GM.Soup == SoupState.Filling;
         serveButton.interactable   = CanServe && GM.Soup == SoupState.Ready;
         discardButton.interactable = !GM.DayOver && GM.Soup != SoupState.Empty;
-
-        potText.text = GM.Soup switch
-        {
-            SoupState.Filling => $"{lastThrow}\nAdd more or Cook",
-            SoupState.Ruined  => "Soup ruined. Discard it.",
-            _                 => string.Empty
-        };
 
         if (soupVisual)  soupVisual.SetActive(GM.Soup == SoupState.Cooking || GM.Soup == SoupState.Ready);
         if (readyVisual) readyVisual.SetActive(GM.Soup == SoupState.Ready);
@@ -248,23 +239,25 @@ public class KitchenController : MonoBehaviour
         customerEntering = true;
         dialogue.Hide();
 
-        Vector3 start = customerStop + Vector3.right * 8f;
+        Vector3 offscreen = customerStop + (arriving ? Vector3.right : Vector3.left) * 8f;
         if (cam)
         {
             Vector3 viewport = cam.WorldToViewportPoint(customerStop);
-            viewport.x = 1.2f;
-            start = cam.ViewportToWorldPoint(viewport);
+            viewport.x = arriving ? 1.2f : -0.2f;
+            offscreen = cam.ViewportToWorldPoint(viewport);
         }
 
+        Vector3 start = arriving ? offscreen : customer.position;
+        Vector3 end = arriving ? customerStop : offscreen;
         for (float elapsed = 0f; elapsed < entranceDuration; elapsed += Time.deltaTime)
         {
             float t = elapsed / entranceDuration;
-            float slide = Mathf.SmoothStep(0f, 1f, arriving ? t : 1f - t);
+            float slide = Mathf.SmoothStep(0f, 1f, t);
             float bob = Mathf.Abs(Mathf.Sin(slide * Mathf.PI * 4f)) * stepHeight;
-            customer.position = Vector3.Lerp(start, customerStop, slide) + Vector3.up * bob;
+            customer.position = Vector3.Lerp(start, end, slide) + Vector3.up * bob;
             yield return null;
         }
-        customer.position = arriving ? customerStop : start;
+        customer.position = end;
         if (!arriving) customer.gameObject.SetActive(false);
         customerEntering = false;
         if (resume) ResumeConversation();

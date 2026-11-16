@@ -17,6 +17,17 @@ public sealed class PigeonDelivery : MonoBehaviour
     [Min(0f), SerializeField] float flapHeight = 0.36f;
     [Range(0f, 45f), SerializeField] float tiltDegrees = 14f;
 
+    [SerializeField] Sprite letterFront;
+    [SerializeField] GameObject bountyHeading;
+    [SerializeField] GameObject bountyScroll;
+
+    Sprite letterBack;
+    Vector2 raisedPosition;
+    Quaternion raisedRotation;
+    bool letterRaised;
+    float raiseProgress;
+    const float RaiseSeconds = 0.32f;
+
     Vector3 flightStart;
     Camera kitchenCamera;
     Vector3 authoredPerch, authoredStand, authoredLetter;
@@ -27,6 +38,9 @@ public sealed class PigeonDelivery : MonoBehaviour
 
     public void Initialize(Camera camera, Action resume)
     {
+        letterBack = openLetterView.sprite;
+        raisedPosition = openLetterView.rectTransform.anchoredPosition;
+        raisedRotation = openLetterView.rectTransform.localRotation;
         resumeDialogue = resume;
         kitchenCamera = camera;
         authoredPerch = perchedPigeon.position;
@@ -69,9 +83,29 @@ public sealed class PigeonDelivery : MonoBehaviour
         perchedPigeon.gameObject.SetActive(stage == PigeonDeliveryStage.WaitingForLetter ||
             stage == PigeonDeliveryStage.Reading || stage == PigeonDeliveryStage.Complete);
         letter.gameObject.SetActive(stage == PigeonDeliveryStage.WaitingForLetter);
-        if (stage != PigeonDeliveryStage.Complete)
-            openLetterView.gameObject.SetActive(stage == PigeonDeliveryStage.Reading);
+        if (stage == PigeonDeliveryStage.Reading)
+        {
+            bool back = GM.LetterBackRevealed;
+            openLetterView.sprite = back ? letterBack : letterFront;
+            bountyHeading.SetActive(back);
+            bountyScroll.SetActive(back);
+            letterRaised = true;
+        }
         if (stage == PigeonDeliveryStage.Flying) PoseFlight(GM.PigeonFlightProgress);
+    }
+
+    void AnimateLetter()
+    {
+        if (!letterRaised && raiseProgress == 0f) return;
+        RectTransform rect = openLetterView.rectTransform;
+        var parent = (RectTransform)rect.parent;
+        float anchorY = Mathf.Lerp(parent.rect.yMin, parent.rect.yMax, rect.anchorMin.y);
+        float hiddenY = parent.rect.yMin - anchorY - rect.rect.yMax - 8f;
+        raiseProgress = Mathf.MoveTowards(raiseProgress, letterRaised ? 1f : 0f, Time.unscaledDeltaTime / RaiseSeconds);
+        float t = Mathf.SmoothStep(0f, 1f, raiseProgress);
+        rect.anchoredPosition = new Vector2(raisedPosition.x, Mathf.Lerp(hiddenY, raisedPosition.y, t));
+        rect.localRotation = raisedRotation * Quaternion.Euler(-30f * (1f - t), 0f, 0f);
+        openLetterView.gameObject.SetActive(raiseProgress > 0f);
     }
 
     void PoseFlight(float progress)
@@ -91,7 +125,9 @@ public sealed class PigeonDelivery : MonoBehaviour
 
     void Update()
     {
-        if (resumeDialogue == null || GM.DayOver) return;
+        if (resumeDialogue == null) return;
+        AnimateLetter();
+        if (GM.DayOver) return;
         FitPerchToView();
         if (GM.DeliveryStage == PigeonDeliveryStage.Flying)
         {
@@ -101,12 +137,12 @@ public sealed class PigeonDelivery : MonoBehaviour
         if (CurtainTransition.IsPlaying || Keyboard.current == null || !Keyboard.current.qKey.wasPressedThisFrame) return;
         if (GM.FinishReadingLetter())
         {
-            openLetterView.gameObject.SetActive(false);
+            letterRaised = false;
             resumeDialogue();
         }
         else if (GM.DeliveryStage == PigeonDeliveryStage.Complete)
         {
-            openLetterView.gameObject.SetActive(!openLetterView.gameObject.activeSelf);
+            letterRaised = !letterRaised;
         }
     }
 }

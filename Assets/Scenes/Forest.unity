@@ -1946,7 +1946,6 @@ MonoBehaviour:
   bushPrefab: {fileID: 786641106452370584, guid: c81ffde27e54430d91124815f0b9f24d, type: 3}
   bushCount: 70
   bushSpacing: 1.5
-  creaturePrefab: {fileID: 2639368531340996322, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
   roster: {fileID: 11400000, guid: ed3269cf6577443b851f01687f910287, type: 2}
   creatureCount: 40
   creatureSpacing: 4

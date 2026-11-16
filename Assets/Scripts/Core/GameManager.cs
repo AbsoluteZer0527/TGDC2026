@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
     public bool HasAdvancedDialogue { get; private set; }
     public PigeonDeliveryStage DeliveryStage { get; private set; }
     public float PigeonFlightProgress { get; private set; }
+    public bool LetterBackRevealed { get; private set; }
     int lastDialogueAdvanceFrame;
     readonly Queue<DialogueLine> customerLines = new();
     public DialogueLine CurrentCustomerLine => customerLines.Count > 0 ? customerLines.Peek() : null;
@@ -79,6 +80,8 @@ public class GameManager : MonoBehaviour
         var line = customerLines.Dequeue();
         if (line.afterLine == AfterDialogueLine.PigeonDelivery && DeliveryStage == PigeonDeliveryStage.NotStarted)
             DeliveryStage = PigeonDeliveryStage.Flying;
+        if (line.afterLine == AfterDialogueLine.RevealLetterBack && DeliveryStage == PigeonDeliveryStage.Reading)
+            LetterBackRevealed = true;
         lastDialogueAdvanceFrame = Time.frameCount;
         HasAdvancedDialogue = true;
     }
@@ -99,8 +102,10 @@ public class GameManager : MonoBehaviour
 
     public bool FinishReadingLetter()
     {
-        if (DayOver || DeliveryStage != PigeonDeliveryStage.Reading || CurrentCustomerLine != null ||
+        if (DayOver || DeliveryStage != PigeonDeliveryStage.Reading ||
+            (CurrentCustomerLine != null && (!LetterBackRevealed || customerLines.Count != 1)) ||
             Time.frameCount == lastDialogueAdvanceFrame) return false;
+        if (CurrentCustomerLine != null) AdvanceCustomerDialogue();
         DeliveryStage = PigeonDeliveryStage.Complete;
         return true;
     }

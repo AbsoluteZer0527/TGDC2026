@@ -45,6 +45,11 @@ MonoBehaviour:
     - text: I'm so excited!!
       playerSpeaks: 0
       afterLine: 0
+  - npcId: 2
+    lines:
+    - text: I want to try the veggie stew.
+      playerSpeaks: 0
+      afterLine: 0
   customerEndings:
   - npcId: 1
     lines:
@@ -54,7 +59,7 @@ MonoBehaviour:
     - text: See you later!
       playerSpeaks: 1
       afterLine: 0
-  - npcId: 0
+  - npcId: 2
     lines:
     - text: This tastes way better than meat soup...
       playerSpeaks: 0
@@ -103,7 +108,15 @@ MonoBehaviour:
       afterLine: 0
     - text: This must've been the wrong letter!
       afterLine: 0
+    - text: 'Animal hunting...? '
+      afterLine: 2
     - text: (Q to open or close the letter.)
       afterLine: 0
-    - text: (Q to open or close the letter.)
-      afterLine: 0
+  auditPassLines:
+  - text: Everything looks good...
+    playerSpeaks: 0
+    afterLine: 0
+  auditFailLines:
+  - text: Something seems wrong here...
+    playerSpeaks: 0
+    afterLine: 0
