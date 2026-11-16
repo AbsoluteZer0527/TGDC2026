@@ -13,6 +13,7 @@ public enum LossReason { None, Jail, Evicted }
 public class GameManager : MonoBehaviour
 {
     public static GameManager I { get; private set; }
+    bool restarting;
 
     [Header("Day")]
     public float dayLength = 300f;
@@ -140,7 +141,11 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (I != null) { Destroy(gameObject); return; }
+        if (I != null)
+        {
+            if (!I.restarting) { Destroy(gameObject); return; }
+            Destroy(I.gameObject);
+        }
         I = this;
         DontDestroyOnLoad(gameObject);
         TimeLeft = dayLength;
@@ -337,8 +342,10 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
-        I = null;
-        Destroy(gameObject);
+        if (restarting) return;
+        // LoadScene completes next frame. Keep serving the outgoing kitchen until
+        // the replacement Systems object takes ownership in Awake.
+        restarting = true;
         SceneManager.LoadScene("Kitchen");
     }
 }
