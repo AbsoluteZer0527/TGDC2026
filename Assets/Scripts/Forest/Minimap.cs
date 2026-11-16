@@ -95,7 +95,7 @@ public class Minimap : MonoBehaviour
     void Paint(int x, int y)
     {
         Color c = generator.Tiles[x, y] == ForestGenerator.Wall ? wallColor : floorColor;
-        if (new Vector2Int(x, y) == generator.CenterTile) c = homeColor;   // the door
+        if (new Vector2Int(x, y) == generator.DoorTile) c = homeColor;   // the door
         tex.SetPixel(x + 1, y + 1, c);
     }
 }

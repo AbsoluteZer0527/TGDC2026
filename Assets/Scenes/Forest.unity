@@ -2031,6 +2031,10 @@ MonoBehaviour:
   ground: {fileID: 1449445713}
   navSurface: {fileID: 2056371782}
   spawnClearRadius: 8
+  door: {fileID: 505624509}
+  storeBack: {fileID: 0}
+  player: {fileID: 1013081932}
+  playerSpawnDistance: 3
   treePrefabs:
   - {fileID: 1841301877755671019, guid: a54ec1b6a1b8349f59c568dd7cd93050, type: 3}
   roomTreeCount: 250

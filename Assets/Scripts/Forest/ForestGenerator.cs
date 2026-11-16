@@ -23,6 +23,16 @@ public class ForestGenerator : MonoBehaviour
     public NavMeshSurface navSurface;
     public float spawnClearRadius = 8f;            // no trees/creatures near the door
 
+    [Header("Door (back wall of the start room, on the map's south edge)")]
+    [Tooltip("DoorToKitchen. Moved onto the door tile every visit (keeps its own height).")]
+    public Transform door;
+    [Tooltip("Optional store-back illustration (e.g. a SpriteRenderer). Placed on the door tile's wall, " +
+             "and the forest wall painting is left off that tile. Keeps its own height.")]
+    public Transform storeBack;
+    [Tooltip("Player is placed this far in front of the door, facing into the forest.")]
+    public Transform player;
+    public float playerSpawnDistance = 3f;
+
     [Header("Trees")]
     public GameObject[] treePrefabs;
     public int roomTreeCount = 250;
@@ -43,7 +53,10 @@ public class ForestGenerator : MonoBehaviour
     public int[,] Tiles { get; private set; }
     public int Width => width;
     public int Height => height;
-    public Vector2Int CenterTile => new Vector2Int(width / 2, height / 2);
+    // The store-back tile: a wall tile in the outer south wall, behind the start room. Its floor side faces +Z.
+    public Vector2Int DoorTile => new Vector2Int(width / 2, 0);
+    public Vector3 DoorFace => TileToWorld(DoorTile.x, DoorTile.y) + Vector3.forward * (tileSize / 2f);
+    public Vector3 SpawnPoint => DoorFace + Vector3.forward * playerSpawnDistance;
 
     readonly List<Vector3> used = new();
     readonly List<Vector2Int> roomTiles = new(), corridorTiles = new(), floorTiles = new();
@@ -59,6 +72,7 @@ public class ForestGenerator : MonoBehaviour
 
         GenerateLayout();
         BuildWalls();
+        PlaceDoor();
         if (ground)
         {
             ground.position = Vector3.zero;
@@ -120,9 +134,9 @@ public class ForestGenerator : MonoBehaviour
             Fill(t, x0, y0, w, h, Room);
         }
 
-        // 4) Start room in the center (door + player spawn)
+        // 4) Start room against the south edge, centered on the door tile (door + player spawn)
         int s = startRoomSize;
-        Fill(t, width / 2 - s / 2, height / 2 - s / 2, s, s, Room);
+        Fill(t, width / 2 - s / 2, 1, s, s, Room);
 
         Tiles = t;
         for (int x = 0; x < width; x++)
@@ -167,6 +181,22 @@ public class ForestGenerator : MonoBehaviour
         }
         if (wallArt) wallArt.Build(this);
         else StaticBatchingUtility.Combine(root.gameObject);
+    }
+
+    // Door + store back sit flush on the wall face; the player starts in front, looking into the forest.
+    void PlaceDoor()
+    {
+        Vector3 face = DoorFace + Vector3.forward * 0.02f;   // just off the wall so it doesn't z-fight
+        if (door) door.SetPositionAndRotation(new Vector3(face.x, door.position.y, face.z), Quaternion.identity);
+        if (storeBack) storeBack.SetPositionAndRotation(new Vector3(face.x, storeBack.position.y, face.z), Quaternion.identity);
+        if (player)
+        {
+            // CharacterController overwrites teleports while enabled.
+            var cc = player.GetComponent<CharacterController>();
+            if (cc) cc.enabled = false;
+            player.SetPositionAndRotation(new Vector3(SpawnPoint.x, player.position.y, SpawnPoint.z), Quaternion.identity);
+            if (cc) cc.enabled = true;
+        }
     }
 
     bool TouchesFloor(int x, int y)
@@ -251,7 +281,7 @@ public class ForestGenerator : MonoBehaviour
 
     bool TryUse(Vector3 p, float spacing)
     {
-        if (p.magnitude < spawnClearRadius) return false;
+        if ((p - SpawnPoint).sqrMagnitude < spawnClearRadius * spawnClearRadius) return false;
         foreach (var u in used)
             if ((u - p).sqrMagnitude < spacing * spacing) return false;
         used.Add(p);
