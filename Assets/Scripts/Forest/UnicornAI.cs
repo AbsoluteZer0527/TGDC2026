@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public sealed class UnicornAI : CreatureAI
+// Also the movement base for DeerAI (same fleeing/dodging, plus shooting).
+public class UnicornAI : CreatureAI
 {
     [Header("Fleeing and dodging")]
     [SerializeField, Min(0)] float fleeRadius = 9f, strafeRadius = 4f;

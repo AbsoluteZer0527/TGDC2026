@@ -22,6 +22,10 @@ public sealed class Creature : MonoBehaviour
         ai = GetComponent<CreatureAI>();
     }
 
+    // Swap to the species' attack sprite (if it has one) while winding up / attacking.
+    public void ShowAttackPose(bool on) =>
+        visual.sprite = on && Data.attackSprite ? Data.attackSprite : Data.worldSprite;
+
     public void TakeDamage(int dmg)
     {
         if (hp <= 0 || dmg <= 0) return;

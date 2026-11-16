@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 741084f6207e45df93bf9bfe902b59f8, type: 3}
+  m_Name: Deer
+  m_EditorClassIdentifier: Assembly-CSharp::CreatureData
+  displayName: Deer
+  worldSprite: {fileID: -2449844058664256442, guid: 0c22ddbaa6c6a9e46a52819aa6aef511, type: 3}
+  attackSprite: {fileID: 0}
+  minSpawnDistance: 15
+  worldScale: 2.5
+  itemIcon: {fileID: -1147149048, guid: 4018823408dc1a54297ac8c934f43077, type: 3}
+  maxHealth: 1
+  bountyPrice: 75
+  behaviorPrefab: {fileID: 7490134186739136208, guid: 26e2c339d112a48c2924360417926271, type: 3}

@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 243854240350105785, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
+      propertyPath: m_Speed
+      value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 243854240350105785, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
+      propertyPath: m_Radius
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 1148300584546774289, guid: 2d80faec69d6a418d9f1714148f8025a, type: 3}
       propertyPath: m_Name
       value: Unicorn
@@ -35,11 +43,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 225b4dc7b21f24c6e9a3dc9b9429b5a6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnicornAI
   wanderRadius: 4
-  wanderSpeed: 1
-  fleeRadius: 9
+  wanderSpeed: 4
+  fleeRadius: 15
   strafeRadius: 4
   fleeSpeed: 2.5
   strafeSpeed: 4.5

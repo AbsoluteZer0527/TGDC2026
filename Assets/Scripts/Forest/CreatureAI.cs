@@ -8,21 +8,52 @@ public abstract class CreatureAI : MonoBehaviour
     [SerializeField, Min(0)] float wanderRadius = 4f, wanderSpeed = 1f;
 
     protected NavMeshAgent agent;
-    protected Transform player;
+    protected Creature creature;
+    protected Transform player, playerEyes;
+    protected PlayerHealth playerHealth;
 
     bool waitingToWander;
-    float nextWanderTime;
+    float nextWanderTime, alertUntil;
+    Collider body;
+    static int sightMask;
+
     protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false; // sprites billboard, so rotation doesn't matter
+        creature = GetComponent<Creature>();
+        body = GetComponent<Collider>();
     }
 
     protected virtual void Start()
     {
         var pc = FindAnyObjectByType<PlayerController>();
-        if (pc) player = pc.transform;
+        if (!pc) return;
+        player = pc.transform;
+        playerEyes = pc.cameraPivot ? pc.cameraPivot : pc.transform;
+        playerHealth = pc.GetComponent<PlayerHealth>();
     }
+
+    // Middle of this creature's body: where it looks and shoots from.
+    protected Vector3 Eyes => body ? body.bounds.center : transform.position + Vector3.up;
+
+    // In range and nothing (wall, tree) between us.
+    protected bool CanSeePlayer(float radius)
+    {
+        Vector3 from = Eyes, to = playerEyes.position;
+        if ((to - from).sqrMagnitude > radius * radius) return false;
+        if (sightMask == 0) sightMask = ~LayerMask.GetMask("Creature", "Player", "Ignore Raycast", "UI");
+        return !Physics.Linecast(from, to, sightMask, QueryTriggerInteraction.Ignore);
+    }
+
+    // Stays alert for a while after losing sight, so it doesn't give up the moment you step behind a tree.
+    protected bool Alerted(float radius, float memorySeconds)
+    {
+        if (CanSeePlayer(radius)) Alert(memorySeconds);
+        return Time.time < alertUntil;
+    }
+
+    protected void Alert(float seconds) => alertUntil = Mathf.Max(alertUntil, Time.time + seconds);
 
     protected void Update()
     {
