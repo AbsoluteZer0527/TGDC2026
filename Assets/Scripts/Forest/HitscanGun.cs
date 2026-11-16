@@ -25,6 +25,7 @@ public class HitscanGun : MonoBehaviour
     public float recoilDistance = 40f;
     [Header("Arrow shot")]
     public Sprite arrowShot;
+    [SerializeField, Min(0.1f)] float arrowSizeMultiplier = 1.75f;
     [Min(0.01f)] public float arrowFlightTime = 0.22f;
 
     readonly List<Image> flyingArrows = new();
@@ -142,7 +143,7 @@ public class HitscanGun : MonoBehaviour
             float fit = Mathf.Min(gun.width / art.width, gun.height / art.height);
             Vector2 origin = gun.min + (gun.size - art.size * fit) * gunSprite.pivot;
             arrow.position = gunSprite.TransformPoint(origin + (arrowShot.rect.center - art.min) * fit);
-            arrow.sizeDelta = arrowShot.rect.size * fit;
+            arrow.sizeDelta = arrowShot.rect.size * fit * arrowSizeMultiplier;
             Canvas canvas = image.canvas.rootCanvas;
             uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
             Vector2 muzzle = RectTransformUtility.WorldToScreenPoint(uiCamera, arrow.position);

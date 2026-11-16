@@ -5,12 +5,15 @@ public sealed class Creature : MonoBehaviour
 {
     [SerializeField] SpriteRenderer visual;
     [SerializeField, Min(0.01f)] float fallDuration = 0.35f;
+    [SerializeField, Min(0f)] float walkBounceHeight = 0.075f;
 
     public CreatureData Data { get; private set; }
     public int SpawnId { get; private set; }
     CreatureAI ai;
     int hp;
     Coroutine flash;
+    Vector3 visualRestPosition, previousPosition;
+    float stepPhase, bounceWeight;
 
     public void Initialize(CreatureData data, int spawnId)
     {
@@ -19,7 +22,24 @@ public sealed class Creature : MonoBehaviour
         hp = data.maxHealth;
         transform.localScale = Vector3.one * data.worldScale;
         visual.sprite = data.worldSprite;
+        visualRestPosition = visual.transform.localPosition;
+        previousPosition = transform.position;
         ai = GetComponent<CreatureAI>();
+    }
+
+    void LateUpdate()
+    {
+        if (hp <= 0 || Time.deltaTime <= 0f) return;
+        Vector3 movement = transform.position - previousPosition;
+        previousPosition = transform.position;
+        movement.y = 0f;
+        float speed = movement.magnitude / Time.deltaTime;
+        // Use actual movement so wandering, dodging and charging share the same gait.
+        float stepsPerSecond = Mathf.Min(speed * 2f, 4f);
+        stepPhase = Mathf.Repeat(stepPhase + stepsPerSecond * Time.deltaTime, 1f);
+        bounceWeight = Mathf.MoveTowards(bounceWeight, Mathf.Clamp01(speed), 8f * Time.deltaTime);
+        float hop = 4f * stepPhase * (1f - stepPhase);
+        visual.transform.localPosition = visualRestPosition + Vector3.up * (walkBounceHeight * bounceWeight * hop);
     }
 
     // Swap to the species' attack sprite (if it has one) while winding up / attacking.
@@ -46,6 +66,7 @@ public sealed class Creature : MonoBehaviour
 
     void Die()
     {
+        visual.transform.localPosition = visualRestPosition;
         ai.enabled = false;
         GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
         foreach (var collider in GetComponentsInChildren<Collider>()) collider.enabled = false;
