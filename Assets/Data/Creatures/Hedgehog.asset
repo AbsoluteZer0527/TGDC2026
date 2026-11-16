@@ -15,9 +15,10 @@ MonoBehaviour:
   displayName: Hedgehog
   worldSprite: {fileID: -1380640285, guid: e4236d1a33041bf4ebe6d2cae2b0598b, type: 3}
   attackSprite: {fileID: 0}
+  groundOffset: 0
   minSpawnDistance: 10
   worldScale: 2.5
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: -2319801734451905957, guid: e9a1ca766fa321244830cd1f93c92053, type: 3}
   maxHealth: 1
   bountyPrice: 60
   behaviorPrefab: {fileID: 7490134186739136208, guid: 26e2c339d112a48c2924360417926271, type: 3}

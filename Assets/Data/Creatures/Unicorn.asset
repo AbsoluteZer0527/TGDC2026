@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Unicorn
   m_EditorClassIdentifier: Assembly-CSharp::CreatureData
   displayName: Unicorn
-  worldSprite: {fileID: -2092730633671331588, guid: 80daf460a436bca4eb4cf53e5e9d651e, type: 3}
+  worldSprite: {fileID: -2092730633671331588, guid: fac23ccee63f1ba438cc57cbbb4d8183, type: 3}
   attackSprite: {fileID: 0}
+  groundOffset: 0
   minSpawnDistance: 20
   worldScale: 2.5
   itemIcon: {fileID: -1816198131, guid: cd30efd7c0cda2341beb9e9dc8274e49, type: 3}

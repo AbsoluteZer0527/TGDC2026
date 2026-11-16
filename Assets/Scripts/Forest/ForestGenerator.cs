@@ -188,7 +188,7 @@ public class ForestGenerator : MonoBehaviour
     {
         Vector3 face = DoorFace + Vector3.forward * 0.02f;   // just off the wall so it doesn't z-fight
         if (door) door.SetPositionAndRotation(new Vector3(face.x, door.position.y, face.z), Quaternion.identity);
-        if (storeBack) storeBack.SetPositionAndRotation(new Vector3(face.x, storeBack.position.y, face.z), Quaternion.identity);
+        if (storeBack) storeBack.position = new Vector3(face.x, storeBack.position.y, face.z);
         if (player)
         {
             // CharacterController overwrites teleports while enabled.

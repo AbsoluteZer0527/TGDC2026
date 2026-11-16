@@ -15,9 +15,10 @@ MonoBehaviour:
   displayName: Rabbit
   worldSprite: {fileID: 5110612511535974256, guid: 2db0e40741ffd0d40bbcbb77e4d4e00a, type: 3}
   attackSprite: {fileID: 0}
+  groundOffset: 0
   minSpawnDistance: 0
   worldScale: 2.5
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: -9307417, guid: e9a1ca766fa321244830cd1f93c92053, type: 3}
   maxHealth: 1
   bountyPrice: 20
   behaviorPrefab: {fileID: 1896331594109781640, guid: cd07bd79608d0419884972e751adb39c, type: 3}
