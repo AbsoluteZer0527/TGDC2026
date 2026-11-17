@@ -269,8 +269,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c5df8e85ae4407482da53d14ad4e7a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KitchenCameraLook
-  maxTurnDegrees: {x: 0, y: 0}
-  maxShift: {x: 0.16, y: 0.09}
+  maxTurnDegrees: {x: 0.03, y: 0.04}
+  maxShift: {x: 0.16, y: 0.05}
 --- !u!1 &155249262
 GameObject:
   m_ObjectHideFlags: 0

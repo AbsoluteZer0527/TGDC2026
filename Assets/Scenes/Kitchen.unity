@@ -1655,8 +1655,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c5df8e85ae4407482da53d14ad4e7a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KitchenCameraLook
-  maxTurnDegrees: {x: 1, y: 1.2}
-  maxShift: {x: 0.16, y: 0.04}
+  maxTurnDegrees: {x: 0.7, y: 0.5}
+  maxShift: {x: 0.08, y: 0.04}
 --- !u!114 &434741364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6708,15 +6708,15 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 970252465060905416, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 594843857}
     - targetCorrespondingSourceObject: {fileID: 2531946945029842352, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
       insertIndex: 1
       addedObject: {fileID: 1599471247}
     - targetCorrespondingSourceObject: {fileID: 336592647498702378, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
       insertIndex: 0
       addedObject: {fileID: 843965500}
-    - targetCorrespondingSourceObject: {fileID: 970252465060905416, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 594843857}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
 --- !u!1 &1813030565
