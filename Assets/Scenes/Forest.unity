@@ -1839,7 +1839,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   cameraPivot: {fileID: 961739753}
   moveSpeed: 6
-  mouseSensitivity: 0.1
+  mouseSensitivity: 0.18
   maxPitch: 60
 --- !u!114 &1013081935
 MonoBehaviour:
