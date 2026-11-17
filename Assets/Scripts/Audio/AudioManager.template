@@ -1,0 +1,39 @@
+
+
+// this is an FMOD audio manager singleton in unity
+// ensure it does not destroy on load and is a singleton monobehavior
+// ensure that the fmod state can be managed on this in editor, for 3 categories, as grouped by bus
+
+// the busses will be 
+// MASTER
+//   music, sfx, cutscene
+// i should be able to add to each of those individually in the editor
+// also, ideally the names should eb able to be seen by autocomplete  in other files so i don't have to remember the names of each sfx file
+// all fmod events that we add should be tracked by an ID string
+
+
+playSFX()
+// plays sfx, doesn't care about the timing. no need to track state
+
+playMusic()
+// only one music track can be playing at a time. add a pause and restart feature where each song can have the otpion to restart from where it last was
+// specifically we have a kitchen and hunting phase so the timers should be separate so we can always restart those if we want
+// the option should be a bool we put into the function as an argument
+// make sure this refrence is saved somewhere so we can change its parameters later!
+
+playCutscene()
+// this will be used for cutscene audio that is prepared in fmod as an event. 
+// it should pause any music and sfx ideally. 
+
+setVolume()
+// sets volume. the ui slider will be 0-1 so account for that.
+
+setBusVolume()
+// helper function, this will be used for cutscnes to disable all sfx that would trigger during it normally.
+
+tweenBusVolume()
+// takes the bus name, start, end volume, and a time for it to do. also a curve parameter than sets how the curve is
+// 0 is linear, more negative front loads the change, more positive makes the curve shift right in time
+
+setMusicParameter()
+// helper function, sets the parameter by name on current track

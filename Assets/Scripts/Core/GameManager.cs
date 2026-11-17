@@ -46,6 +46,8 @@ public class GameManager : MonoBehaviour
     public bool ingredientRefresh = true;
     [Min(0f), Tooltip("Seconds to serve ready stew on day 1. The window shortens to one third by day 10.")]
     public float servingWindowSeconds = 15f;
+    [Min(0f), Tooltip("The clock starts ticking this many seconds before the soup is ready.")]
+    public float clockTickSeconds = 5f;
     [Min(0f), Tooltip("Seconds the exploded timer stays on the HUD.")]
     public float explosionDisplaySeconds = 4f;
     public SoupState Soup { get; private set; } = SoupState.Empty;
@@ -247,17 +249,22 @@ public class GameManager : MonoBehaviour
         if (Soup != SoupState.Cooking && Soup != SoupState.Ready) return;
 
         SoupTimeLeft -= elapsed;
+        // Countdown tick for the last few seconds before the alarm (PlayLoopingSFX ignores repeat calls).
+        if (Soup == SoupState.Cooking && SoupTimeLeft > 0f && SoupTimeLeft <= clockTickSeconds)
+            AudioManager.Instance?.PlayLoopingSFX("clockTicking");
         // Carry the remainder of the frame into the next stage.
         if (Soup == SoupState.Cooking && SoupTimeLeft <= 0f)
         {
             Soup = SoupState.Ready;
-            //TODO: (loop the tomato clock alarm while the soup is ready and the day is active)
+            AudioManager.Instance?.StopLoopingSFX("clockTicking", fadeOut: false);
+            AudioManager.Instance?.PlayLoopingSFX("timerRinging");
             SoupTimeLeft += servingWindowSeconds * Difficulty.ServingWindow;
         }
         if (Soup == SoupState.Ready && SoupTimeLeft <= 0f)
         {
             Soup = SoupState.Ruined;
-            //TODO: (tomato splat when the serving window expires)
+            AudioManager.Instance?.StopLoopingSFX("timerRinging");
+            AudioManager.Instance?.PlaySFX("timerExplode");
             explosionEndsAt = Time.time + explosionDisplaySeconds + SoupTimeLeft;
         }
         SoupTimeLeft = Mathf.Max(0f, SoupTimeLeft);
@@ -296,6 +303,8 @@ public class GameManager : MonoBehaviour
 
     public void DiscardSoup()
     {
+        AudioManager.Instance?.StopLoopingSFX("clockTicking");
+        AudioManager.Instance?.StopLoopingSFX("timerRinging"); // covers serving, discarding and day end
         PotContents.Clear();
         SoupTimeLeft = 0f;
         Soup = SoupState.Empty;
