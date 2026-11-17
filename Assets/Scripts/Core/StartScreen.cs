@@ -25,6 +25,7 @@ public sealed class StartScreen : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance?.PlayMusic("titleMusic");
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

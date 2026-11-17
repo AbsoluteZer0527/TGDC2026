@@ -108,6 +108,7 @@ public class HitscanGun : MonoBehaviour
 
     void Fire()
     {
+        AudioManager.Instance?.PlaySFX("gunshot");
         //TODO: (gunshot and arrow launch together on each shot)
         reloadStarted = Time.time + flashDuration;
         nextFire = reloadStarted + fireCooldown;

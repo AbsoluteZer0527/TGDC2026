@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1293052790139950170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3464221013633090489}
+  - component: {fileID: 4765068035960609915}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3464221013633090489
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293052790139950170}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4765068035960609915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293052790139950170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2808f3a47758de6ca0793f2d63bfe8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  masterBusPath: bus:/
+  musicBusPath: bus:/music
+  sfxBusPath: bus:/sfx
+  cutsceneBusPath: bus:/cutscene
+  masterVolume: 1
+  musicVolume: 1
+  sfxVolume: 1
+  cutsceneVolume: 1
+  music:
+  - id: huntingMusic
+    eventRef:
+      Guid:
+        Data1: -1806734714
+        Data2: 1340108867
+        Data3: 1324102565
+        Data4: -1047029467
+      Path: event:/music/hunting
+  - id: titleMusic
+    eventRef:
+      Guid:
+        Data1: -386321539
+        Data2: 1172196480
+        Data3: 1971757460
+        Data4: 1357203152
+      Path: event:/music/title
+  - id: kitchenMusic
+    eventRef:
+      Guid:
+        Data1: 1997801446
+        Data2: 1251302662
+        Data3: -1748729427
+        Data4: -1831120682
+      Path: event:/music/kitchen
+  sfx:
+  - id: gunshot
+    eventRef:
+      Guid:
+        Data1: -1289851675
+        Data2: 1266515512
+        Data3: 297625535
+        Data4: 848355599
+      Path: event:/sfx/scene/gunshot
+  - id: bellChime
+    eventRef:
+      Guid:
+        Data1: 26518949
+        Data2: 1118370054
+        Data3: 1037755836
+        Data4: -729185558
+      Path: event:/sfx/scene/bellChime
+  - id: timerExplode
+    eventRef:
+      Guid:
+        Data1: -1991652758
+        Data2: 1263429876
+        Data3: 1598389379
+        Data4: -1500152382
+      Path: event:/sfx/scene/timerExplode
+  - id: reject
+    eventRef:
+      Guid:
+        Data1: 362884051
+        Data2: 1254857952
+        Data3: -1356863052
+        Data4: -1635387920
+      Path: event:/sfx/global/reject
+  loopingSfx:
+  - id: timerRinging
+    eventRef:
+      Guid:
+        Data1: 1771143912
+        Data2: 1167943132
+        Data3: 1148812973
+        Data4: -357184513
+      Path: event:/sfx/scene/timerRinging
+  - id: clockTicking
+    eventRef:
+      Guid:
+        Data1: 1062876151
+        Data2: 1323408964
+        Data3: 2096668319
+        Data4: 526787131
+      Path: event:/sfx/scene/clockTicking
+  cutscenes: []

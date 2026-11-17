@@ -3,9 +3,21 @@ public static class AudioIDs
 {
     public static class Music
     {
+        public const string huntingMusic = "huntingMusic";
+        public const string titleMusic = "titleMusic";
+        public const string kitchenMusic = "kitchenMusic";
     }
     public static class SFX
     {
+        public const string gunshot = "gunshot";
+        public const string bellChime = "bellChime";
+        public const string timerExplode = "timerExplode";
+        public const string reject = "reject";
+    }
+    public static class LoopingSFX
+    {
+        public const string timerRinging = "timerRinging";
+        public const string clockTicking = "clockTicking";
     }
     public static class Cutscene
     {

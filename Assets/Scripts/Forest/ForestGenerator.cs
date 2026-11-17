@@ -66,6 +66,7 @@ public class ForestGenerator : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance?.PlayMusic("huntingMusic", resumeFromLast: true);
         if (width % 2 == 0) width++;
         if (height % 2 == 0) height++;
 

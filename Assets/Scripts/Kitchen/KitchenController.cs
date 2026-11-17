@@ -62,6 +62,7 @@ public class KitchenController : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance?.PlayMusic("kitchenMusic", resumeFromLast: true);
         cam = Camera.main;
         customerStop = customer.position;
         if (customerRenderer) defaultCustomerSprite = customerRenderer.sprite;
@@ -86,7 +87,7 @@ public class KitchenController : MonoBehaviour
         if (GM.AuditInProgress) customer.gameObject.SetActive(false); // came back from the forest at day end: Update starts the IRS visit
         else if (GM.CustomersArrived == 0)
         {
-            //TODO: (bell ring for first npc of the day)
+            AudioManager.Instance?.PlaySFX("bellChime");
             NewCustomer();
         }
         else ResumeConversation();
@@ -100,7 +101,11 @@ public class KitchenController : MonoBehaviour
     public bool TryAddIngredient(IngredientData ing)
     {
         Deselect();
-        if (GM.DayOver || !GM.AddIngredient(ing)) return false;
+        if (GM.DayOver || !GM.AddIngredient(ing))
+        {
+            AudioManager.Instance?.PlaySFX("reject");
+            return false;
+        }
 
         //TODO: (ingredient catch sound on selection, maybe a different "AHHH!" for each ingredient)
         if (IngredientAdded != null) IngredientAdded(ing);

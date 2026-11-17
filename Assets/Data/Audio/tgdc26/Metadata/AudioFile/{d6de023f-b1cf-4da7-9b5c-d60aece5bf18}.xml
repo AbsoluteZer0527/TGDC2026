@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{d6de023f-b1cf-4da7-9b5c-d60aece5bf18}">
+		<property name="assetPath">
+			<value>tickingClock.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>2.7689795918367346</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{867a67bb-d1cd-4cf4-a4ae-c93503a34e7d}</destination>
+		</relationship>
+	</object>
+</objects>

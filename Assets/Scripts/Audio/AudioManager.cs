@@ -32,9 +32,9 @@ public class AudioManager : MonoBehaviour
 
     [Header("FMOD bus paths")]
     [SerializeField] string masterBusPath = "bus:/";
-    [SerializeField] string musicBusPath = "bus:/Music";
-    [SerializeField] string sfxBusPath = "bus:/SFX";
-    [SerializeField] string cutsceneBusPath = "bus:/Cutscene";
+    [SerializeField] string musicBusPath = "bus:/music";
+    [SerializeField] string sfxBusPath = "bus:/sfx";
+    [SerializeField] string cutsceneBusPath = "bus:/cutscene";
 
     [Header("Volumes (0-1, editable at runtime)")]
     [Range(0f, 1f)] public float masterVolume = 1f;
@@ -45,10 +45,14 @@ public class AudioManager : MonoBehaviour
     [Header("Events (add per category)")]
     public List<AudioEntry> music = new List<AudioEntry>();
     public List<AudioEntry> sfx = new List<AudioEntry>();
+    [Tooltip("SFX events that loop in FMOD. Played via PlayLoopingSFX; only one instance per ID at a time.")]
+    public List<AudioEntry> loopingSfx = new List<AudioEntry>();
     public List<AudioEntry> cutscenes = new List<AudioEntry>();
 
     readonly Dictionary<string, EventReference> musicLookup = new Dictionary<string, EventReference>();
     readonly Dictionary<string, EventReference> sfxLookup = new Dictionary<string, EventReference>();
+    readonly Dictionary<string, EventReference> loopingLookup = new Dictionary<string, EventReference>();
+    readonly Dictionary<string, EventInstance> loopingInstances = new Dictionary<string, EventInstance>();
     readonly Dictionary<string, EventReference> cutsceneLookup = new Dictionary<string, EventReference>();
 
     readonly Dictionary<AudioBus, Bus> buses = new Dictionary<AudioBus, Bus>();
@@ -68,6 +72,10 @@ public class AudioManager : MonoBehaviour
     public bool IsCutscenePlaying { get; private set; }
 
     #region Lifecycle
+    // The project has domain reload disabled on entering Play Mode, so statics survive between play sessions.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => Instance = null;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -76,14 +84,29 @@ public class AudioManager : MonoBehaviour
             return;
         }
         Instance = this;
+        // DontDestroyOnLoad only works on root objects, so detach if placed under e.g. a Systems prefab.
+        if (transform.parent != null) transform.SetParent(null, true);
         DontDestroyOnLoad(gameObject);
 
         BuildLookups();
-        buses[AudioBus.Master] = RuntimeManager.GetBus(masterBusPath);
-        buses[AudioBus.Music] = RuntimeManager.GetBus(musicBusPath);
-        buses[AudioBus.SFX] = RuntimeManager.GetBus(sfxBusPath);
-        buses[AudioBus.Cutscene] = RuntimeManager.GetBus(cutsceneBusPath);
+        TryAddBus(AudioBus.Master, masterBusPath);
+        TryAddBus(AudioBus.Music, musicBusPath);
+        TryAddBus(AudioBus.SFX, sfxBusPath);
+        TryAddBus(AudioBus.Cutscene, cutsceneBusPath);
         ApplyInspectorVolumes();
+    }
+
+    void SetBusPaused(AudioBus key, bool paused)
+    {
+        if (buses.TryGetValue(key, out var b)) b.setPaused(paused);
+    }
+
+    // Missing buses only warn; they must never abort Awake.
+    void TryAddBus(AudioBus key, string path)
+    {
+        var result = RuntimeManager.StudioSystem.getBus(path, out Bus bus);
+        if (result == FMOD.RESULT.OK) buses[key] = bus;
+        else Debug.LogWarning($"AudioManager: bus '{path}' not found ({result}). Create it in FMOD Studio and rebuild banks.");
     }
 
     void OnDestroy()
@@ -94,6 +117,13 @@ public class AudioManager : MonoBehaviour
             currentMusic.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
             currentMusic.release();
         }
+        foreach (var inst in loopingInstances.Values)
+        {
+            if (!inst.isValid()) continue;
+            inst.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            inst.release();
+        }
+        loopingInstances.Clear();
         Instance = null;
     }
 
@@ -111,6 +141,7 @@ public class AudioManager : MonoBehaviour
     {
         Fill(music, musicLookup, "music");
         Fill(sfx, sfxLookup, "sfx");
+        Fill(loopingSfx, loopingLookup, "looping sfx");
         Fill(cutscenes, cutsceneLookup, "cutscene");
     }
 
@@ -135,6 +166,67 @@ public class AudioManager : MonoBehaviour
     #endregion
 
     #region SFX
+    /// <summary>
+    /// Starts a looping SFX (an FMOD event that loops). Only one instance per ID: if it is already
+    /// playing, the existing instance is returned and nothing new starts. Stop it with StopLoopingSFX.
+    /// Route looping events to bus:/sfx/scene or bus:/sfx/global in Studio depending on whether they
+    /// should die on scene change (a scene-bus stop leaves a stopped instance; the next play replaces it).
+    /// </summary>
+    public EventInstance PlayLoopingSFX(string id)
+    {
+        if (!loopingLookup.TryGetValue(id, out var ev) || ev.IsNull)
+        {
+            Debug.LogWarning($"AudioManager: unknown looping sfx id '{id}'");
+            return default;
+        }
+
+        if (loopingInstances.TryGetValue(id, out var existing))
+        {
+            if (existing.isValid())
+            {
+                existing.getPlaybackState(out PLAYBACK_STATE state);
+                if (state != PLAYBACK_STATE.STOPPED && state != PLAYBACK_STATE.STOPPING) return existing;
+                existing.release();
+            }
+            loopingInstances.Remove(id);
+        }
+
+        var inst = RuntimeManager.CreateInstance(ev);
+        inst.start();
+        loopingInstances[id] = inst;
+        return inst;
+    }
+
+    public bool IsLoopingSFXPlaying(string id)
+    {
+        if (!loopingInstances.TryGetValue(id, out var inst) || !inst.isValid()) return false;
+        inst.getPlaybackState(out PLAYBACK_STATE state);
+        return state != PLAYBACK_STATE.STOPPED && state != PLAYBACK_STATE.STOPPING;
+    }
+
+    /// <summary>Stops a looping SFX by ID (no-op if it isn't playing).</summary>
+    public void StopLoopingSFX(string id, bool fadeOut = true)
+    {
+        if (!loopingInstances.TryGetValue(id, out var inst)) return;
+        loopingInstances.Remove(id);
+        if (!inst.isValid()) return;
+        inst.stop(fadeOut ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
+        inst.release();
+    }
+
+    /// <summary>Stops every tracked looping SFX.</summary>
+    public void StopAllLoopingSFX(bool fadeOut = true)
+    {
+        foreach (var id in new List<string>(loopingInstances.Keys)) StopLoopingSFX(id, fadeOut);
+    }
+
+    /// <summary>Sets a parameter on a playing looping SFX by name.</summary>
+    public void SetLoopingSFXParameter(string id, string parameterName, float value)
+    {
+        if (loopingInstances.TryGetValue(id, out var inst) && inst.isValid())
+            inst.setParameterByName(parameterName, value);
+    }
+
     /// <summary>One-shot sound effect. Fire and forget.</summary>
     public void PlaySFX(string id, Vector3 position = default)
     {
@@ -231,8 +323,8 @@ public class AudioManager : MonoBehaviour
 
         StopCutscene();
 
-        buses[AudioBus.Music].setPaused(true);
-        buses[AudioBus.SFX].setPaused(true);
+        SetBusPaused(AudioBus.Music, true);
+        SetBusPaused(AudioBus.SFX, true);
         IsCutscenePlaying = true;
 
         currentCutscene = RuntimeManager.CreateInstance(ev);
@@ -274,8 +366,8 @@ public class AudioManager : MonoBehaviour
     {
         if (!IsCutscenePlaying) return;
         IsCutscenePlaying = false;
-        buses[AudioBus.Music].setPaused(false);
-        buses[AudioBus.SFX].setPaused(false);
+        SetBusPaused(AudioBus.Music, false);
+        SetBusPaused(AudioBus.SFX, false);
     }
     #endregion
 
@@ -345,6 +437,7 @@ public class AudioManager : MonoBehaviour
         sb.AppendLine("{");
         AppendGroup(sb, "Music", music);
         AppendGroup(sb, "SFX", sfx);
+        AppendGroup(sb, "LoopingSFX", loopingSfx);
         AppendGroup(sb, "Cutscene", cutscenes);
         sb.AppendLine("}");
 
