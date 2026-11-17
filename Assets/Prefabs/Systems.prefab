@@ -865,7 +865,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameMenu
   pausePanel: {fileID: 7797796073030390348}
   resumeButton: {fileID: 5691738954096784623}
-  pauseQuitButton: {fileID: 2187530923050134460}
+  backButton: {fileID: 2187530923050134460}
 --- !u!1 &1331770813108448654
 GameObject:
   m_ObjectHideFlags: 0
@@ -2035,7 +2035,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Quit
+  m_text: 'Back
 
 '
   m_isRightToLeft: 0
@@ -3448,7 +3448,7 @@ GameObject:
   - component: {fileID: 9745536352125115}
   - component: {fileID: 2187530923050134460}
   m_Layer: 0
-  m_Name: PauseQuitButton
+  m_Name: BackButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
