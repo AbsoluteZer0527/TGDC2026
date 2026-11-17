@@ -51,7 +51,7 @@ public class HUD : MonoBehaviour
         dayClock.overrideSprite = forest ? forestDayClock : null;
     }
 
-    void Start() => restartButton.onClick.AddListener(() => GameManager.I.Restart());
+    void Start() => restartButton.onClick.AddListener(() => { AudioManager.Instance?.PlaySFX("pickup"); GameManager.I.Restart(); });
 
     void LateUpdate()
     {

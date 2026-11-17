@@ -104,7 +104,11 @@ public sealed class Spotlight : MonoBehaviour, ICanvasRaycastFilter, IPointerCli
     public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera) =>
         image.enabled && goal > 0f && Vector2.Distance(screenPoint, center) > radius;
 
-    public void OnPointerClick(PointerEventData eventData) => Hide();
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        AudioManager.Instance?.PlaySFX("pickup");
+        Hide();
+    }
 
     void OnDestroy()
     {

@@ -124,7 +124,10 @@ public sealed class KitchenDialogue : MonoBehaviour
 
     void AdvanceDialogue()
     {
-        if ((GM.DayOver && !GM.AuditInProgress) || dialogueEffects.FinishTyping() || GM.CurrentCustomerLine == null) return;
+        if (GM.DayOver && !GM.AuditInProgress) return;
+        if (dialogueEffects.FinishTyping()) { AudioManager.Instance?.PlaySFX("pickup"); return; } // click skips the typing
+        if (GM.CurrentCustomerLine == null) return;
+        AudioManager.Instance?.PlaySFX("pickup");
         GM.AdvanceCustomerDialogue();
         onAdvanced();
     }

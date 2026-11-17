@@ -29,8 +29,8 @@ public sealed class PauseMenu : MonoBehaviour
     {
         if (!IsMain) return;
         curtain = GetComponent<CurtainTransition>();
-        resumeButton.onClick.AddListener(Resume);
-        if (backButton) backButton.onClick.AddListener(BackToMainMenu);
+        resumeButton.onClick.AddListener(() => { AudioManager.Instance?.PlaySFX("pickup"); Resume(); });
+        if (backButton) backButton.onClick.AddListener(() => { AudioManager.Instance?.PlaySFX("pickup"); BackToMainMenu(); });
         pausePanel.SetActive(false);
     }
 

@@ -35,6 +35,8 @@ public sealed class PigeonLetter : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left) Clicked?.Invoke();
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+        AudioManager.Instance?.PlaySFX("pickup");
+        Clicked?.Invoke();
     }
 }

@@ -17,13 +17,18 @@ public class SceneDoor : MonoBehaviour, IPointerClickHandler
 
     public void Go()
     {
-        if (sceneToLoad == "Forest" && (!GameManager.I || !GameManager.I.ForestUnlocked)) return;
+        if (sceneToLoad == "Forest" && (!GameManager.I || !GameManager.I.ForestUnlocked))
+        {
+            AudioManager.Instance?.PlaySFX("reject");
+            return;
+        }
         Travel();
     }
 
     void Travel()
     {
         if (GameManager.I != null && GameManager.I.DayOver) return;
+        AudioManager.Instance?.PlaySFX("pickup");
         CurtainTransition.TransitionTo(sceneToLoad);
     }
 }

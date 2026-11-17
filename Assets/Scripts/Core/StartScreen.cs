@@ -28,10 +28,10 @@ public sealed class StartScreen : MonoBehaviour
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        playButton.onClick.AddListener(Play);
-        quitButton.onClick.AddListener(Quit);
-        if (creditsButton) creditsButton.onClick.AddListener(() => { if (!busy) StartCoroutine(ShowCredits(true)); });
-        if (backButton) backButton.onClick.AddListener(() => { if (!busy) StartCoroutine(ShowCredits(false)); });
+        playButton.onClick.AddListener(() => { AudioManager.Instance?.PlaySFX("pickup"); Play(); });
+        quitButton.onClick.AddListener(() => { AudioManager.Instance?.PlaySFX("pickup"); Quit(); });
+        if (creditsButton) creditsButton.onClick.AddListener(() => { if (!busy) { AudioManager.Instance?.PlaySFX("pickup"); StartCoroutine(ShowCredits(true)); } });
+        if (backButton) backButton.onClick.AddListener(() => { if (!busy) { AudioManager.Instance?.PlaySFX("pickup"); StartCoroutine(ShowCredits(false)); } });
         if (curtain) curtain.gameObject.SetActive(false);
         if (creditsPanel) creditsPanel.SetActive(false);
     }
