@@ -14,6 +14,10 @@ public sealed class CurtainTransition : MonoBehaviour
     static CurtainTransition active;
     public static bool IsPlaying => active != null;
 
+    // Domain reload is off, so clear this between Play sessions (stopping mid-transition would leave it stuck).
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => active = null;
+
     // startClosed: skip the closing animation and begin fully shut (e.g. coming from the black night screen).
     public static void TransitionTo(string sceneName, bool startClosed = false)
     {
@@ -30,6 +34,38 @@ public sealed class CurtainTransition : MonoBehaviour
     public void Close(System.Action whenClosed)
     {
         StartCoroutine(Play(null, false, whenClosed));
+    }
+
+    // Menus (start / pause) hold the curtain shut. Real time, so it works while the game is paused.
+    // While held, IsPlaying is true, so doors and other transitions wait.
+    public IEnumerator Shut(bool animate)
+    {
+        active = this;
+        overlay.gameObject.SetActive(true);
+        if (EventSystem.current) EventSystem.current.SetSelectedGameObject(null);
+        if (!animate)
+        {
+            if (frames.Length > 0) curtain.sprite = frames[frames.Length - 1];
+            yield break;
+        }
+        var hold = new WaitForSecondsRealtime(secondsPerFrame);
+        foreach (var frame in frames)
+        {
+            curtain.sprite = frame;
+            yield return hold;
+        }
+    }
+
+    public IEnumerator Open()
+    {
+        var hold = new WaitForSecondsRealtime(secondsPerFrame);
+        for (int i = frames.Length - 2; i >= 0; i--)
+        {
+            curtain.sprite = frames[i];
+            yield return hold;
+        }
+        overlay.gameObject.SetActive(false);
+        active = null;
     }
 
     IEnumerator Play(string sceneName, bool startClosed, System.Action whenClosed = null)

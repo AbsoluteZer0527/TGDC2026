@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Black screen between days (after a passed audit):
+// Night screen between days (after a passed audit), drawn on the closed curtain:
 //   1. day counter rolls slot-machine style (old number slides down, new one drops in from above)
 //   2. equation appears line by line:   + income (stew + hunt)  /  - rent  /  ----  /  +- total
 //   3. piggy bank counts from the old savings to the new savings
@@ -11,7 +11,7 @@ using UnityEngine.UI;
 // Lives in the Systems prefab's HUDCanvas. Everything visual is placeholder: swap sprites/fonts freely.
 public class NightScreen : MonoBehaviour
 {
-    [Tooltip("Full-screen black panel (child of this object). Hidden during the day.")]
+    [Tooltip("Full-screen panel (child of this object) showing the closed curtain. Hidden during the day.")]
     [SerializeField] GameObject panel;
 
     [Header("Day counter (both texts inside a RectMask2D)")]

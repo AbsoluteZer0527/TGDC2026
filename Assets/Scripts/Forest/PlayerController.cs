@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
         var k = Keyboard.current; var m = Mouse.current;
         if (k == null || m == null) return;
 
-        if (GameManager.I != null && GameManager.I.DayOver) { SetCursorLocked(false); return; }
+        if (PauseMenu.IsOpen || (GameManager.I != null && GameManager.I.DayOver)) { SetCursorLocked(false); return; }
         if (k.escapeKey.wasPressedThisFrame) SetCursorLocked(false);
         if (m.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked) SetCursorLocked(true);
         if (!CanAct) return;
