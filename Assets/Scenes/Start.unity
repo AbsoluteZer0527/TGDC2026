@@ -139,20 +139,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1759563
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1759558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c5df8e85ae4407482da53d14ad4e7a3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KitchenCameraLook
-  maxTurnDegrees: {x: 2, y: 1.2}
-  maxShift: {x: 0.06, y: 0.03}
 --- !u!81 &1759559
 AudioListener:
   m_ObjectHideFlags: 0
@@ -271,6 +257,20 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &1759563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c5df8e85ae4407482da53d14ad4e7a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KitchenCameraLook
+  maxTurnDegrees: {x: 0, y: 0}
+  maxShift: {x: 0.16, y: 0.09}
 --- !u!1 &155249262
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,8 +586,8 @@ Transform:
   m_GameObject: {fileID: 566249253}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.22, y: -1.15, z: 0.87}
-  m_LocalScale: {x: 1.16, y: 1.16, z: 1.16}
+  m_LocalPosition: {x: -0.294793, y: -1.419255, z: 9}
+  m_LocalScale: {x: 2.027599, y: 2.027599, z: 2.027599}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -982,8 +982,8 @@ Transform:
   m_GameObject: {fileID: 1106647928}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.6, y: -1.13, z: -1.43}
-  m_LocalScale: {x: 0.87, y: 0.87, z: 0.87}
+  m_LocalPosition: {x: -0.5120653, y: -1.067713, z: -3}
+  m_LocalScale: {x: 0.76, y: 0.76, z: 0.76}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1213,8 +1213,8 @@ Transform:
   m_GameObject: {fileID: 1324542796}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: -1.5310876, z: 0.18}
-  m_LocalScale: {x: 0.89, y: 0.89, z: 0.89}
+  m_LocalPosition: {x: 1.365265, y: -1.772778, z: 3.5}
+  m_LocalScale: {x: 1.180255, y: 1.180255, z: 1.180255}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1546,8 +1546,8 @@ Transform:
   m_GameObject: {fileID: 1576638937}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.78, z: 1.74}
-  m_LocalScale: {x: 1.4299998, y: 1.4299998, z: 1.4299998}
+  m_LocalPosition: {x: 0.2070869, y: -0.7627428, z: 22}
+  m_LocalScale: {x: 3.897785, y: 3.897785, z: 3.897785}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1940,22 +1940,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1850497050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1850497047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de64c56a60f444d5998283a5cf047472, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteLoop
-  frames:
-  - {fileID: -536259853212343384, guid: 82b724f516b24164a9793721922f44f2, type: 3}
-  - {fileID: 5426337052416805544, guid: e036236b301bda5479d015700fbce806, type: 3}
-  framesPerSecond: 4
 --- !u!212 &1850497048
 SpriteRenderer:
   serializedVersion: 3
@@ -2025,12 +2009,28 @@ Transform:
   m_GameObject: {fileID: 1850497047}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.33380687, w: 0.9426415}
-  m_LocalPosition: {x: 6.26, y: 3.13, z: 0}
-  m_LocalScale: {x: 0.78, y: 0.78, z: 0.78}
+  m_LocalPosition: {x: 5.4625, y: 2.64, z: -1.25}
+  m_LocalScale: {x: 0.6825, y: 0.6825, z: 0.6825}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -39}
+--- !u!114 &1850497050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850497047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de64c56a60f444d5998283a5cf047472, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteLoop
+  frames:
+  - {fileID: -536259853212343384, guid: 82b724f516b24164a9793721922f44f2, type: 3}
+  - {fileID: 5426337052416805544, guid: e036236b301bda5479d015700fbce806, type: 3}
+  framesPerSecond: 4
 --- !u!1 &1852278992
 GameObject:
   m_ObjectHideFlags: 0
@@ -2154,8 +2154,8 @@ Transform:
   m_GameObject: {fileID: 1874455167}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.05, y: -0.94, z: 0.11}
-  m_LocalScale: {x: 1.06, y: 1.06, z: 1.06}
+  m_LocalPosition: {x: 0.05319486, y: -0.942819, z: 0.3}
+  m_LocalScale: {x: 1.079921, y: 1.079921, z: 1.079921}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
