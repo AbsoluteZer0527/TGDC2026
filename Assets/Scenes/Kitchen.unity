@@ -6217,10 +6217,6 @@ PrefabInstance:
       value: 8.074923
       objectReference: {fileID: 0}
     - target: {fileID: 2655446665099589878, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
-      propertyPath: m_margin.x
-      value: -41.778
-      objectReference: {fileID: 0}
-    - target: {fileID: 2655446665099589878, guid: fbae4327bbf594f59b9aca28d6017aec, type: 3}
       propertyPath: m_margin.y
       value: 1.5140533
       objectReference: {fileID: 0}
