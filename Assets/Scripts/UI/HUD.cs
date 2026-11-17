@@ -82,8 +82,8 @@ public class HUD : MonoBehaviour
         bool lost = gm.Night == NightPhase.Lost;
         endPanel.SetActive(lost);
         if (lost) endText.text = gm.Loss == LossReason.Jail
-            ? "Put in jail for improper money laundering"
-            : "Evicted from shop, could not pay rent";
+            ? "You got put in jail for improper money laundering."
+            : "You got evicted from stand because you could not pay rent";
 
         if (messageText)
         {
