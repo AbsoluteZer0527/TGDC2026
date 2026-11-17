@@ -12,12 +12,19 @@ public sealed class PigeonDelivery : MonoBehaviour
     [SerializeField] Transform pigeonStand;
     [SerializeField] SpriteRenderer letter;
     [SerializeField] Image openLetterView;
-    [Tooltip("Uses the scene letter as a preview until an open-letter sprite is assigned.")]
-    [SerializeField] Sprite openLetterSprite;
     [Min(0.1f), SerializeField] float flightSeconds = 2.6f;
     [Min(1), SerializeField] int flaps = 5;
     [Min(0f), SerializeField] float flapHeight = 0.36f;
     [Range(0f, 45f), SerializeField] float tiltDegrees = 14f;
+
+    [SerializeField] Sprite letterFront;
+    [SerializeField] GameObject bountyHeading;
+    [SerializeField] GameObject bountyScroll;
+
+    Sprite letterBack;
+    HandRaiseAnimation hand;
+    bool letterRaised;
+    bool showingBack;
 
     Vector3 flightStart;
     Camera kitchenCamera;
@@ -29,6 +36,9 @@ public sealed class PigeonDelivery : MonoBehaviour
 
     public void Initialize(Camera camera, Action resume)
     {
+        letterBack = openLetterView.sprite;
+        ShowLetterFace(GM.LetterBackRevealed);
+        hand = new HandRaiseAnimation(openLetterView.rectTransform);
         resumeDialogue = resume;
         kitchenCamera = camera;
         authoredPerch = perchedPigeon.position;
@@ -50,7 +60,6 @@ public sealed class PigeonDelivery : MonoBehaviour
         hitbox.offset = letter.sprite.bounds.center;
         hitbox.size = letter.sprite.bounds.size;
         target.Clicked += OpenLetter;
-        openLetterView.sprite = openLetterSprite ? openLetterSprite : letter.sprite;
         Refresh();
     }
 
@@ -72,9 +81,34 @@ public sealed class PigeonDelivery : MonoBehaviour
         perchedPigeon.gameObject.SetActive(stage == PigeonDeliveryStage.WaitingForLetter ||
             stage == PigeonDeliveryStage.Reading || stage == PigeonDeliveryStage.Complete);
         letter.gameObject.SetActive(stage == PigeonDeliveryStage.WaitingForLetter);
-        if (stage != PigeonDeliveryStage.Complete)
-            openLetterView.gameObject.SetActive(stage == PigeonDeliveryStage.Reading);
+        if (stage == PigeonDeliveryStage.Reading)
+            letterRaised = true;
         if (stage == PigeonDeliveryStage.Flying) PoseFlight(GM.PigeonFlightProgress);
+    }
+
+    public void CloseLetterForPlaytest()
+    {
+        letterRaised = false;
+        Refresh();
+    }
+
+    void ShowLetterFace(bool back)
+    {
+        showingBack = back;
+        openLetterView.sprite = back ? letterBack : letterFront;
+        bountyHeading.SetActive(back);
+        bountyScroll.SetActive(back);
+    }
+
+    void AnimateLetter()
+    {
+        bool changingFace = GM.LetterBackRevealed && !showingBack;
+        if (changingFace && hand.IsLowered)
+        {
+            ShowLetterFace(true);
+            changingFace = false;
+        }
+        hand.Animate(letterRaised && !changingFace);
     }
 
     void PoseFlight(float progress)
@@ -94,22 +128,24 @@ public sealed class PigeonDelivery : MonoBehaviour
 
     void Update()
     {
-        if (resumeDialogue == null || GM.DayOver) return;
+        if (resumeDialogue == null) return;
+        AnimateLetter();
+        if (GM.DayOver) return;
         FitPerchToView();
         if (GM.DeliveryStage == PigeonDeliveryStage.Flying)
         {
             GM.AdvancePigeonFlight(Time.deltaTime / Mathf.Max(0.1f, flightSeconds));
             Refresh();
         }
-        if (Keyboard.current == null || !Keyboard.current.qKey.wasPressedThisFrame) return;
+        if (CurtainTransition.IsPlaying || Keyboard.current == null || !Keyboard.current.qKey.wasPressedThisFrame) return;
         if (GM.FinishReadingLetter())
         {
-            openLetterView.gameObject.SetActive(false);
+            letterRaised = false;
             resumeDialogue();
         }
         else if (GM.DeliveryStage == PigeonDeliveryStage.Complete)
         {
-            openLetterView.gameObject.SetActive(!openLetterView.gameObject.activeSelf);
+            letterRaised = !letterRaised;
         }
     }
 }

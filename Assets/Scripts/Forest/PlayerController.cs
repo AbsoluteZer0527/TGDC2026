@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public float MoveSpeedMultiplier { get; set; } = 1f;
 
     public bool CanAct =>
-        Cursor.lockState == CursorLockMode.Locked &&
+        !CurtainTransition.IsPlaying && Cursor.lockState == CursorLockMode.Locked &&
         !(GameManager.I != null && GameManager.I.DayOver);
 
     CharacterController cc;
@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
         var k = Keyboard.current; var m = Mouse.current;
         if (k == null || m == null) return;
 
-        if (GameManager.I != null && GameManager.I.DayOver) { SetCursorLocked(false); return; }
+        if (PauseMenu.IsOpen || (GameManager.I != null && GameManager.I.DayOver)) { SetCursorLocked(false); return; }
         if (k.escapeKey.wasPressedThisFrame) SetCursorLocked(false);
         if (m.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked) SetCursorLocked(true);
         if (!CanAct) return;

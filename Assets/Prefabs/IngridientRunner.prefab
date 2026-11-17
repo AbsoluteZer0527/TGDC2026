@@ -69,12 +69,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IngredientRunner
   sprite: {fileID: 8303904196709040867}
   artFacesRight: 1
-  speed: 1.2
-  maxPause: 0.8
-  hopHeight: 0.08
-  hopsPerSecond: 3
+  speed: 1.8
+  maxPause: 0.5
+  hopHeight: 0.12
+  hopsPerSecond: 5
   gravity: 20
-  inPotTint: {r: 0.45, g: 0.45, b: 0.45, a: 1}
 --- !u!1 &7048439057389405294
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c882c71f7307499e982f5d641777b795, type: 3}
+  m_Name: ForestRoster
+  m_EditorClassIdentifier: Assembly-CSharp::ForestRoster
+  entries:
+  - creature: {fileID: 11400000, guid: 19996f555c2843ad9a91b51f5f8143ad, type: 2}
+    weight: 1
+    everyDay: 1
+  - creature: {fileID: 11400000, guid: 765b24e85e39c41358bf7bbab670008d, type: 2}
+    weight: 4
+    everyDay: 0
+  - creature: {fileID: 11400000, guid: bc962dc4a82dd470aae166e97551f20f, type: 2}
+    weight: 2
+    everyDay: 0
+  - creature: {fileID: 11400000, guid: 323468f1c7f8142ce9c71c7e869b9db4, type: 2}
+    weight: 2.5
+    everyDay: 0
+  - creature: {fileID: 11400000, guid: 294304e4f0f9748728308f7275b85f22, type: 2}
+    weight: 3
+    everyDay: 0
+  - creature: {fileID: 11400000, guid: 02fe6a36c12124149880271bd2d01025, type: 2}
+    weight: 3
+    everyDay: 0
+  - creature: {fileID: 11400000, guid: 2cf77eaad87834a1b87f2e811f120f31, type: 2}
+    weight: 6
+    everyDay: 1
+  dailySelection: 1
+  minSpeciesPerDay: 4
+  maxSpeciesPerDay: 5

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum AfterDialogueLine { None, PigeonDelivery }
+public enum AfterDialogueLine { None, PigeonDelivery, RevealLetterBack, UnlockForest }
 
 [System.Serializable]
 public class DialogueLine

@@ -67,14 +67,37 @@ public sealed class KitchenDialogue : MonoBehaviour
     {
         if (GM.CurrentNpcId != 0)
         {
-            GM.BeginCustomerDialogue(CustomerPhase.AtCounter, PickConversation(dialogueFile.keyGreetings));
-            return;
+            var greeting = PickConversation(dialogueFile.keyGreetings);
+            if (greeting.Length > 0)
+            {
+                GM.BeginCustomerDialogue(CustomerPhase.AtCounter, greeting);
+                return;
+            }
         }
 
         var choices = dialogueFile.randomGreetings.Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
         var lines = choices.Length == 0 ? Array.Empty<DialogueLine>() :
             new[] { new DialogueLine { text = choices[Random.Range(0, choices.Length)] } };
         GM.BeginCustomerDialogue(CustomerPhase.AtCounter, lines);
+    }
+
+    public int AuditorNpcId => dialogueFile.auditorNpcId;
+    public void BeginForestUnlockDialogue() =>
+        GM.BeginCustomerDialogue(CustomerPhase.AtCounter, dialogueFile.forestUnlockLines);
+    public Sprite AuditArrivalSprite => dialogueFile.auditArrivalSprite;
+
+    public Sprite BeginAudit(LossReason outcome)
+    {
+        var (lines, sprite, fallback) = outcome switch
+        {
+            LossReason.Jail => (dialogueFile.auditFailLines, dialogueFile.auditFailSprite, "Something seems wrong here..."),
+            LossReason.Evicted => (dialogueFile.evictionLines, dialogueFile.evictionSprite, "Your rent is still overdue. I have to close the stand."),
+            _ => (dialogueFile.auditPassLines, AuditArrivalSprite, "...")
+        };
+        if (lines == null || !lines.Any(l => !string.IsNullOrWhiteSpace(l?.text)))
+            lines = new[] { new DialogueLine { text = fallback } };
+        GM.BeginCustomerDialogue(CustomerPhase.AtCounter, lines);
+        return sprite;
     }
 
     public void BeginFarewell() =>
@@ -93,12 +116,15 @@ public sealed class KitchenDialogue : MonoBehaviour
     {
         var matches = conversations.Where(c => c?.npcId == GM.CurrentNpcId &&
             c.lines != null && c.lines.Any(line => !string.IsNullOrWhiteSpace(line?.text))).ToArray();
-        return matches.Length == 0 ? Array.Empty<DialogueLine>() : matches[Random.Range(0, matches.Length)].lines;
+        if (matches.Length == 0) return Array.Empty<DialogueLine>();
+        int index = GM.CurrentNpcId == 0 ? Random.Range(0, matches.Length)
+            : Mathf.Clamp(GM.CurrentNpcVisit - 1, 0, matches.Length - 1);
+        return matches[index].lines;
     }
 
     void AdvanceDialogue()
     {
-        if (GM.DayOver || dialogueEffects.FinishTyping() || GM.CurrentCustomerLine == null) return;
+        if ((GM.DayOver && !GM.AuditInProgress) || dialogueEffects.FinishTyping() || GM.CurrentCustomerLine == null) return;
         GM.AdvanceCustomerDialogue();
         onAdvanced();
     }

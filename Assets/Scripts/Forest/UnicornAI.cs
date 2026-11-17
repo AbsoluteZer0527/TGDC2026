@@ -1,63 +1,47 @@
 using UnityEngine;
 
+// Used as-is by the Unicorn and the Deer (different speeds on their prefabs).
+// Also the movement base for HedgehogAI (same fleeing/dodging, plus shooting).
 public class UnicornAI : CreatureAI
 {
-    [Header("Ranges")]
-    public float fleeRadius = 9f;     // starts walking away
-    public float strafeRadius = 4f;   // too close: dodges side to side
-
-    [Header("Speeds (player moves at 6)")]
-    public float wanderSpeed = 1f;
-    public float fleeSpeed = 2.5f;
-    public float strafeSpeed = 4.5f;
-    public float acceleration = 12f;
-
-    [Header("Dodging")]
-    public float minJukeTime = 0.5f, maxJukeTime = 1.2f;
-
+    [Header("Fleeing and dodging")]
+    [SerializeField, Min(0)] float fleeRadius = 9f, strafeRadius = 4f;
+    [SerializeField, Min(0)] float fleeSpeed = 2.5f, strafeSpeed = 4.5f, acceleration = 12f;
+    [SerializeField, Min(0)] float minJukeTime = 0.5f, maxJukeTime = 1.2f;
     [Header("When shot")]
-    public float panicMultiplier = 1.6f;
-    public float panicDuration = 2f;
+    [SerializeField, Min(0)] float panicMultiplier = 1.6f, panicDuration = 2f;
 
-    Vector3 vel;
+    Vector3 velocity;
     float side = 1f, nextJuke, panicUntil;
 
     protected override void Tick()
     {
-        float dist = DistToPlayer;
+        Vector3 away = transform.position - player.position;
+        away.y = 0;
+        float distance = away.magnitude;
         bool panicking = Time.time < panicUntil;
-
-        if (dist > fleeRadius && !panicking)
+        if (distance > fleeRadius && !panicking)
         {
-            vel = Vector3.zero;
-            Wander(4f, wanderSpeed);
+            velocity = Vector3.zero;
+            Wander();
             return;
         }
 
-        if (agent.hasPath) agent.ResetPath(); // steer by hand from here on
-
-        Vector3 away = -ToPlayerFlat().normalized;
+        if (agent.hasPath) agent.ResetPath();
+        away.Normalize();
+        bool strafe = distance < strafeRadius;
+        if (strafe && Time.time > nextJuke) Juke();
         Vector3 sideways = Vector3.Cross(Vector3.up, away) * side;
-        Vector3 desired;
-
-        if (dist < strafeRadius)
-        {
-            if (Time.time > nextJuke) Juke();
-            desired = (sideways + away * 0.5f).normalized * strafeSpeed;
-        }
-        else
-        {
-            desired = (away + sideways * 0.35f).normalized * fleeSpeed; // slight curve helps slip past trees
-        }
+        Vector3 desired = strafe
+            ? (sideways + away * 0.5f).normalized * strafeSpeed
+            : (away + sideways * 0.35f).normalized * fleeSpeed;
         if (panicking) desired *= panicMultiplier;
-
-        vel = Vector3.MoveTowards(vel, desired, acceleration * Time.deltaTime);
+        velocity = Vector3.MoveTowards(velocity, desired, acceleration * Time.deltaTime);
 
         Vector3 before = transform.position;
-        Vector3 step = vel * Time.deltaTime;
-        agent.Move(step); // stays on the NavMesh, so it can't walk through trees
-
-        // Barely moved = blocked by a tree/wall → dodge the other way
+        Vector3 step = velocity * Time.deltaTime;
+        agent.Move(step);
+        // Dodge the other way when a tree or wall blocks this step.
         if (step.sqrMagnitude > 0.0001f && (transform.position - before).sqrMagnitude < step.sqrMagnitude * 0.1f)
             Juke();
     }

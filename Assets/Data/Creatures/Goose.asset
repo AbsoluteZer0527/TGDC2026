@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 741084f6207e45df93bf9bfe902b59f8, type: 3}
+  m_Name: Goose
+  m_EditorClassIdentifier: Assembly-CSharp::CreatureData
+  displayName: Goose
+  worldSprite: {fileID: -199876445757598851, guid: bec13f447c667af498f880e036819577, type: 3}
+  attackSprite: {fileID: 1499067527547856346, guid: 08ddc685d59bff94b99e84f6a1f5241e, type: 3}
+  groundOffset: 0
+  minSpawnDistance: 10
+  worldScale: 2.5
+  itemIcon: {fileID: 5965089219692405641, guid: cd30efd7c0cda2341beb9e9dc8274e49, type: 3}
+  maxHealth: 1
+  bountyPrice: 35
+  behaviorPrefab: {fileID: -6702282105671830952, guid: 2f4a946d2e651446181b2b1e975b7c13, type: 3}

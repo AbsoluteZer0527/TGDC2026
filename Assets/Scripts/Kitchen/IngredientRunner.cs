@@ -10,6 +10,7 @@ public class IngredientRunner : MonoBehaviour
     [Tooltip("SpriteRenderer on the Visual child (the child also has Billboard).")]
     public SpriteRenderer sprite;
     public bool artFacesRight = true;
+    [Tooltip("Speed, pause and hop values are the max-difficulty (day 10) values; see Difficulty.cs.")]
     public float speed = 1.2f;
     public float maxPause = 0.8f;
     public float hopHeight = 0.08f, hopsPerSecond = 3f;
@@ -26,6 +27,7 @@ public class IngredientRunner : MonoBehaviour
     float timer, pauseLeft, hop;
     Color baseColor = Color.white;
     Collider col;
+    SpriteRenderer landing;
     Image flyer; // UI copy used during the throw so the dialogue box can't cover it
 
     public void Init(IngredientData data, IngredientTable owner)
@@ -56,17 +58,29 @@ public class IngredientRunner : MonoBehaviour
         state = State.Leaving;
     }
 
-    public void Throw()
+    public void Throw(SpriteRenderer potVeggie = null)
     {
         //TODO: (whoosh as the ingredient is thrown)
         throwStart = pos;
         timer = 0f;
+        if (landing) landing.enabled = true;
+        landing = potVeggie;
+        if (landing) landing.enabled = false;
         col.enabled = false;
         state = State.Thrown;
         if (table.flyLayer && table.Cam) SetFlying(true);
     }
 
     void Hide() { state = State.Hidden; SetVisible(false); }
+
+    public void ReleaseDiscardedThrow()
+    {
+        if (state != State.Thrown || !landing) return;
+        landing.transform.position = sprite.transform.position;
+        landing.enabled = true;
+        landing = null;
+        Hide();
+    }
 
     void SetVisible(bool on)
     {
@@ -131,13 +145,22 @@ public class IngredientRunner : MonoBehaviour
                 break;
 
             case State.Thrown:
+                if (GameManager.I.Soup != SoupState.Filling ||
+                    (!ReferenceEquals(landing, null) && (!landing || !landing.gameObject.activeSelf)))
+                {
+                    landing = null;
+                    Hide();
+                    return;
+                }
                 timer += dt / table.throwDuration;
                 Vector3 pot = table.PotTarget ? table.PotTarget.position : throwStart;
+                if (landing) pot = landing.transform.position - (sprite.transform.position - transform.position);
                 pos = Vector3.Lerp(throwStart, pot, timer) + Vector3.up * Mathf.Sin(Mathf.Clamp01(timer) * Mathf.PI) * table.throwArc;
                 if (timer >= 1f)
                 {
                     //TODO: (water pop as the ingredient lands in the pot)
-                    // Refresh off: it stays "in the soup" (hidden) until Discard empties the pot.
+                    if (landing) landing.enabled = true;
+                    landing = null;
                     if (table.ShouldShow && GameManager.I.ingredientRefresh) Drop(); else Hide();
                     return;
                 }
@@ -165,16 +188,18 @@ public class IngredientRunner : MonoBehaviour
         to.y = 0f;
         if (to.magnitude < 0.05f)
         {
-            pauseLeft = Random.Range(0f, maxPause);
+            pauseLeft = Random.Range(0f, maxPause * Difficulty.MaxPause);
             target = table.RandomPoint();
             return;
         }
-        pos += Vector3.ClampMagnitude(to.normalized * speed * dt, to.magnitude);
+        // Inspector values are the day-10 maximums; Difficulty scales them down on earlier days.
+        pos += Vector3.ClampMagnitude(to.normalized * speed * Difficulty.RunSpeed * dt, to.magnitude);
         pos.y = table.SurfaceHeightAt(pos); // follow a tilted board
         sprite.flipX = (to.x < 0f) == artFacesRight;
         timer += dt;
-        hop = Mathf.Abs(Mathf.Sin(timer * hopsPerSecond * Mathf.PI)) * hopHeight;
-        SetFrame((int)(timer * hopsPerSecond)); // one frame per hop
+        float hps = hopsPerSecond * Difficulty.Hop;
+        hop = Mathf.Abs(Mathf.Sin(timer * hps * Mathf.PI)) * hopHeight * Difficulty.Hop;
+        SetFrame((int)(timer * hps)); // one frame per hop
     }
 
     void SetFrame(int i)

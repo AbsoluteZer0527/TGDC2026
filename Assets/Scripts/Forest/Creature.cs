@@ -1,48 +1,139 @@
 using System.Collections;
 using UnityEngine;
 
-public class Creature : MonoBehaviour
+public sealed class Creature : MonoBehaviour
 {
-    public string displayName = "Creature";
-    public int maxHealth = 1;
-    public int value = 10;
-    public Renderer rend;
-    [HideInInspector] public int id;
+    [SerializeField] SpriteRenderer visual;
+    [SerializeField, Min(0.01f)] float fallDuration = 0.35f;
+    [SerializeField, Min(0f)] float walkBounceHeight = 0.075f;
+    [SerializeField, Range(0.5f, 1.5f), Tooltip("Hitbox size relative to the sprite. Above 1 is forgiving: " +
+                                                 "near misses just outside the art still count.")]
+    float hitboxScale = 1.15f;
 
+    public CreatureData Data { get; private set; }
+    public int SpawnId { get; private set; }
+    internal SpriteRenderer Visual => visual;
+    public Vector3 VisualCenter => visual.bounds.center;
+
+    CreatureAI ai;
+    BoxCollider hitbox;
     int hp;
-    Color baseColor;
+    Coroutine flash;
+    Vector3 visualRestPosition, previousPosition;
+    float stepPhase, bounceWeight;
 
-    void Start()
+    public void Initialize(CreatureData data, int spawnId)
     {
-        hp = maxHealth;
-        if (rend) baseColor = rend.material.color;
+        Data = data;
+        SpawnId = spawnId;
+        hp = data.maxHealth;
+        transform.localScale = Vector3.one * data.worldScale;
+        visualRestPosition = visual.transform.localPosition;
+        // The prefab's capsule is one tall shape for every species; the hitbox follows the sprite instead.
+        if (TryGetComponent<CapsuleCollider>(out var capsule)) capsule.enabled = false;
+        if (!visual.TryGetComponent(out hitbox)) hitbox = visual.gameObject.AddComponent<BoxCollider>();
+        SetSprite(data.worldSprite);
+        previousPosition = transform.position;
+        ai = GetComponent<CreatureAI>();
+    }
+
+    // Stands the sprite's bottom edge (its feet: slices are trimmed to the art) on the ground,
+    // and fits the hitbox to it. The hitbox sits on the billboarded Visual, so it always faces the camera.
+    void SetSprite(Sprite sprite)
+    {
+        visual.sprite = sprite;
+        if (!sprite) return;
+        float nudge = Data.groundOffset / Mathf.Max(0.01f, Data.worldScale);   // world units -> root space
+        visualRestPosition.y = -sprite.bounds.min.y * visual.transform.localScale.y + nudge;
+        visual.transform.localPosition = visualRestPosition;
+
+        Bounds art = sprite.bounds;
+        Vector3 size = art.size * hitboxScale;
+        size.z = Mathf.Min(art.size.x, art.size.y) * 0.75f;   // some depth so grazing shots still count
+        hitbox.center = art.center;
+        hitbox.size = size;
+    }
+
+    // Walk bounce driven by actual movement, so wandering, dodging and charging share the same gait.
+    void LateUpdate()
+    {
+        if (hp <= 0 || Time.deltaTime <= 0f) return;
+        Vector3 movement = transform.position - previousPosition;
+        previousPosition = transform.position;
+        movement.y = 0f;
+        float speed = movement.magnitude / Time.deltaTime;
+        float stepsPerSecond = Mathf.Min(speed * 2f, 4f);
+        stepPhase = Mathf.Repeat(stepPhase + stepsPerSecond * Time.deltaTime, 1f);
+        bounceWeight = Mathf.MoveTowards(bounceWeight, Mathf.Clamp01(speed), 8f * Time.deltaTime);
+        float hop = 4f * stepPhase * (1f - stepPhase);
+        visual.transform.localPosition = visualRestPosition + Vector3.up * (walkBounceHeight * bounceWeight * hop);
+    }
+
+    public void ShowAttackPose(bool on) => ShowPose(on ? Data.attackSprite : null);
+
+    // Any extra pose an AI has art for (e.g. the boar's stunned sprite). Null goes back to the normal sprite.
+    public void ShowPose(Sprite pose)
+    {
+        var sprite = pose ? pose : Data.worldSprite;
+        if (visual.sprite != sprite) SetSprite(sprite);
     }
 
     public void TakeDamage(int dmg)
     {
-        //TODO: (optional hurt sound specific to each mob when hit)
+        if (hp <= 0 || dmg <= 0) return;
         hp -= dmg;
-        if (TryGetComponent(out CreatureAI ai)) ai.OnHurt();
         if (hp <= 0) { Die(); return; }
-        if (rend) StartCoroutine(Flash());
+        ai.OnHurt();
+        if (flash != null) StopCoroutine(flash);
+        flash = StartCoroutine(Flash());
     }
 
     IEnumerator Flash()
     {
-        rend.material.color = Color.white;
+        visual.color = new Color(1f, 0.55f, 0.55f);
         yield return new WaitForSeconds(0.08f);
-        rend.material.color = baseColor;
+        visual.color = Color.white;
+        flash = null;
     }
 
     void Die()
     {
+        visual.transform.localPosition = visualRestPosition;
+        ai.enabled = false;
+        GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
+        foreach (var collider in GetComponentsInChildren<Collider>()) collider.enabled = false;
+        if (visual.TryGetComponent<Billboard>(out var billboard)) billboard.enabled = false;
+        if (flash != null) StopCoroutine(flash);
+        visual.color = Color.white;
+        visual.enabled = true;   // a mimic killed while disguised still shows itself falling
         var gm = GameManager.I;
         if (gm != null)
         {
-            gm.AddDirtyMoney(value);
-            gm.KilledCreatures.Add(id);
-            gm.ShowMessage($"+${value}  {displayName}", 1.2f);
+            gm.KilledCreatures.Add(SpawnId);
+            gm.AddDirtyMoney(Data.bountyPrice);
+            gm.ShowMessage($"+{Data.bountyPrice}", 1.2f, Data.itemIcon);
         }
+        StartCoroutine(FallOver());
+    }
+
+    // Tips the sprite backwards, hinged at its feet, then removes the creature.
+    IEnumerator FallOver()
+    {
+        Transform card = visual.transform;
+        Quaternion upright = card.rotation;
+        Vector3 feet = visual.localBounds.center;
+        feet.y = visual.localBounds.min.y;
+        Vector3 hinge = card.TransformPoint(feet);
+        float elapsed = 0f;
+        while (elapsed < fallDuration)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / fallDuration);
+            card.rotation = upright * Quaternion.Euler(90f * t * t, 0f, 0f);
+            card.position += hinge - card.TransformPoint(feet);
+        }
+        yield return null;
         Destroy(gameObject);
     }
 }

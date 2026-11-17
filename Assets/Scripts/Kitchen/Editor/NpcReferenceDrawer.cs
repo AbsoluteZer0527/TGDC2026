@@ -45,7 +45,8 @@ public class NpcReferenceDrawer : PropertyDrawer
         }
         EditorGUI.BeginProperty(rect, label, property);
         EditorGUI.BeginChangeCheck();
-        int selected = EditorGUI.IntPopup(rect, "NPC", property.intValue, labels.ToArray(), ids.ToArray());
+        int selected = EditorGUI.IntPopup(rect, label, property.intValue,
+            labels.ConvertAll(name => new GUIContent(name)).ToArray(), ids.ToArray());
         if (EditorGUI.EndChangeCheck()) property.intValue = selected;
         EditorGUI.EndProperty();
     }

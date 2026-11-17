@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 741084f6207e45df93bf9bfe902b59f8, type: 3}
+  m_Name: Boar
+  m_EditorClassIdentifier: Assembly-CSharp::CreatureData
+  displayName: Boar
+  worldSprite: {fileID: 3232954995629961432, guid: 294ae502c0eb55f49958913a91ab8703, type: 3}
+  attackSprite: {fileID: 3232954995629961432, guid: 294ae502c0eb55f49958913a91ab8703, type: 3}
+  groundOffset: 0
+  minSpawnDistance: 15
+  worldScale: 2.5
+  itemIcon: {fileID: 922585306, guid: e9a1ca766fa321244830cd1f93c92053, type: 3}
+  maxHealth: 3
+  bountyPrice: 75
+  behaviorPrefab: {fileID: 5291673172744020724, guid: 706e823690b2f4c1f8180fe1d375a3ad, type: 3}

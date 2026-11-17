@@ -9,6 +9,8 @@ public sealed class ForestExitHover : MonoBehaviour, IPointerEnterHandler, IPoin
     [SerializeField] Image forestIcon;
     [SerializeField] Sprite hoveredCurtain;
     [SerializeField] Sprite hoveredIcon;
+    [SerializeField, Tooltip("Optional. Spotlights the hunting button the moment it first appears.")]
+    Spotlight spotlight;
 
     readonly List<Vector2> curtainOutline = new();
     RectTransform frame;
@@ -16,12 +18,32 @@ public sealed class ForestExitHover : MonoBehaviour, IPointerEnterHandler, IPoin
     void Awake()
     {
         frame = (RectTransform)transform;
+        if (!spotlight) spotlight = FindAnyObjectByType<Spotlight>(FindObjectsInactive.Include);
         curtain.sprite.GetPhysicsShape(0, curtainOutline);
     }
 
-    void OnEnable() => SetHovered(false);
+    bool ForestUnlocked => GameManager.I && GameManager.I.ForestUnlocked;
+
+    void OnEnable()
+    {
+        forestIcon.enabled = ForestUnlocked;
+        SetHovered(false);
+    }
+
+    void LateUpdate()
+    {
+        if (forestIcon.enabled == ForestUnlocked) return;
+        forestIcon.enabled = ForestUnlocked;
+        // Unlocked while you're in the kitchen = the first time (on later visits it's already on in OnEnable).
+        if (ForestUnlocked && spotlight) spotlight.Show(forestIcon.rectTransform);
+    }
+
     //TODO: (curtain lifting when the pointer enters the hunting button)
-    public void OnPointerEnter(PointerEventData eventData) => SetHovered(true);
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        SetHovered(true);
+        if (spotlight) spotlight.Hide();
+    }
     public void OnPointerExit(PointerEventData eventData) => SetHovered(false);
 
     void SetHovered(bool hovered)
@@ -41,6 +63,7 @@ public sealed class ForestExitHover : MonoBehaviour, IPointerEnterHandler, IPoin
 
     public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
     {
+        if (!ForestUnlocked) return false;
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(frame, screenPoint, eventCamera, out var local))
             return false;
 

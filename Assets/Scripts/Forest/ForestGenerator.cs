@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.AI.Navigation;
 using UnityEngine;
@@ -6,13 +5,6 @@ using UnityEngine;
 public class ForestGenerator : MonoBehaviour
 {
     public const int Wall = 0, Corridor = 1, Room = 2;
-
-    [Serializable]
-    public class CreatureSpawn
-    {
-        public Creature prefab;
-        [Min(0)] public float weight = 1f;
-    }
 
     [Header("Layout (in tiles)")]
     public int width = 41;                         // odd numbers; even gets bumped up by 1
@@ -26,9 +18,20 @@ public class ForestGenerator : MonoBehaviour
 
     [Header("World")]
     public GameObject wallPrefab;
+    [SerializeField] ForestWallArt wallArt;
     public Transform ground;
     public NavMeshSurface navSurface;
     public float spawnClearRadius = 8f;            // no trees/creatures near the door
+
+    [Header("Door (back wall of the start room, on the map's south edge)")]
+    [Tooltip("DoorToKitchen. Moved onto the door tile every visit (keeps its own height).")]
+    public Transform door;
+    [Tooltip("Optional store-back illustration (e.g. a SpriteRenderer). Placed on the door tile's wall, " +
+             "and the forest wall painting is left off that tile. Keeps its own height.")]
+    public Transform storeBack;
+    [Tooltip("Player is placed this far in front of the door, facing into the forest.")]
+    public Transform player;
+    public float playerSpawnDistance = 3f;
 
     [Header("Trees")]
     public GameObject[] treePrefabs;
@@ -42,15 +45,20 @@ public class ForestGenerator : MonoBehaviour
     [Min(0f)] public float bushSpacing = 1.5f;
 
     [Header("Creatures")]
-    public CreatureSpawn[] creatures;
-    public int creatureCount = 40;
+    [SerializeField] ForestRoster roster;
+    [Tooltip("Creatures on day 1. Each later day adds Creatures Per Day (no cap).")]
+    public int baseCreatureCount = 250;
+    public int creaturesPerDay = 25;
     public float creatureSpacing = 4f;
 
     // Read by the minimap
     public int[,] Tiles { get; private set; }
     public int Width => width;
     public int Height => height;
-    public Vector2Int CenterTile => new Vector2Int(width / 2, height / 2);
+    // The store-back tile: a wall tile in the outer south wall, behind the start room. Its floor side faces +Z.
+    public Vector2Int DoorTile => new Vector2Int(width / 2, 0);
+    public Vector3 DoorFace => TileToWorld(DoorTile.x, DoorTile.y) + Vector3.forward * (tileSize / 2f);
+    public Vector3 SpawnPoint => DoorFace + Vector3.forward * playerSpawnDistance;
 
     readonly List<Vector3> used = new();
     readonly List<Vector2Int> roomTiles = new(), corridorTiles = new(), floorTiles = new();
@@ -66,6 +74,7 @@ public class ForestGenerator : MonoBehaviour
 
         GenerateLayout();
         BuildWalls();
+        PlaceDoor();
         if (ground)
         {
             ground.position = Vector3.zero;
@@ -127,9 +136,9 @@ public class ForestGenerator : MonoBehaviour
             Fill(t, x0, y0, w, h, Room);
         }
 
-        // 4) Start room in the center (door + player spawn)
+        // 4) Start room against the south edge, centered on the door tile (door + player spawn)
         int s = startRoomSize;
-        Fill(t, width / 2 - s / 2, height / 2 - s / 2, s, s, Room);
+        Fill(t, width / 2 - s / 2, 1, s, s, Room);
 
         Tiles = t;
         for (int x = 0; x < width; x++)
@@ -170,8 +179,26 @@ public class ForestGenerator : MonoBehaviour
             var w = Instantiate(wallPrefab, TileToWorld(x, y) + Vector3.up * (wallHeight / 2f),
                                 Quaternion.identity, root);
             w.transform.localScale = new Vector3(tileSize, wallHeight, tileSize);
+            if (wallArt) w.GetComponent<MeshRenderer>().enabled = false;
         }
-        StaticBatchingUtility.Combine(root.gameObject);   // fewer draw calls
+        if (wallArt) wallArt.Build(this);
+        else StaticBatchingUtility.Combine(root.gameObject);
+    }
+
+    // Door + store back sit flush on the wall face; the player starts in front, looking into the forest.
+    void PlaceDoor()
+    {
+        Vector3 face = DoorFace + Vector3.forward * 0.02f;   // just off the wall so it doesn't z-fight
+        if (door) door.SetPositionAndRotation(new Vector3(face.x, door.position.y, face.z), Quaternion.identity);
+        if (storeBack) storeBack.position = new Vector3(face.x, storeBack.position.y, face.z);
+        if (player)
+        {
+            // CharacterController overwrites teleports while enabled.
+            var cc = player.GetComponent<CharacterController>();
+            if (cc) cc.enabled = false;
+            player.SetPositionAndRotation(new Vector3(SpawnPoint.x, player.position.y, SpawnPoint.z), Quaternion.identity);
+            if (cc) cc.enabled = true;
+        }
     }
 
     bool TouchesFloor(int x, int y)
@@ -226,39 +253,33 @@ public class ForestGenerator : MonoBehaviour
     // ---------------- Creatures ----------------
     void SpawnCreatures(GameManager gm)
     {
+        if (!roster) return;
         float jitter = tileSize / 2f - 1f;
+        var today = roster.Today(gm != null ? gm.ForestSeed : 12345);   // today's species (see roster's Daily Selection)
+        int day = gm != null ? gm.Day : 1;
+        int creatureCount = baseCreatureCount + creaturesPerDay * Mathf.Max(0, day - 1);
         for (int i = 0; i < creatureCount; i++)
         {
-            bool found = TryFloorPoint(floorTiles, jitter, creatureSpacing, out var p);
-            var prefab = PickCreature();                 // always roll, keeps later spawns identical
-            if (!found || prefab == null) continue;
+            var species = roster.Pick(rng, today);
+            bool found = TryFloorPoint(floorTiles, jitter, creatureSpacing, out var p,
+                species ? species.minSpawnDistance : 0f);
+            if (!found || !species) continue;
+            // Consume all rolls for this slot even when it was killed on a previous visit.
+            float yaw = Range(0f, 360f);
             if (gm != null && gm.KilledCreatures.Contains(i)) continue;
-
-            var c = Instantiate(prefab, p, Quaternion.Euler(0, Range(0f, 360f), 0), transform);
-            c.id = i;
+            var behavior = Instantiate(species.behaviorPrefab, p, Quaternion.Euler(0, yaw, 0), transform);
+            behavior.GetComponent<Creature>().Initialize(species, i);
         }
-    }
-
-    Creature PickCreature()
-    {
-        float total = 0f;
-        foreach (var c in creatures) total += c.weight;
-        float r = Range(0f, total);
-        foreach (var c in creatures)
-        {
-            r -= c.weight;
-            if (r <= 0f) return c.prefab;
-        }
-        return creatures.Length > 0 ? creatures[^1].prefab : null;
     }
 
     // ---------------- Helpers ----------------
-    bool TryFloorPoint(List<Vector2Int> tiles, float jitter, float spacing, out Vector3 point)
+    bool TryFloorPoint(List<Vector2Int> tiles, float jitter, float spacing, out Vector3 point, float minFromSpawn = 0f)
     {
         for (int attempt = 0; attempt < 20; attempt++)
         {
             var t = tiles[rng.Next(tiles.Count)];
             Vector3 p = TileToWorld(t.x, t.y) + new Vector3(Range(-jitter, jitter), 0f, Range(-jitter, jitter));
+            if ((p - SpawnPoint).sqrMagnitude < minFromSpawn * minFromSpawn) continue;
             if (TryUse(p, spacing)) { point = p; return true; }
         }
         point = default;
@@ -267,7 +288,7 @@ public class ForestGenerator : MonoBehaviour
 
     bool TryUse(Vector3 p, float spacing)
     {
-        if (p.magnitude < spawnClearRadius) return false;
+        if ((p - SpawnPoint).sqrMagnitude < spawnClearRadius * spawnClearRadius) return false;
         foreach (var u in used)
             if ((u - p).sqrMagnitude < spacing * spacing) return false;
         used.Add(p);
