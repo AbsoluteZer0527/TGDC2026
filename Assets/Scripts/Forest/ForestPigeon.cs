@@ -13,6 +13,8 @@ public sealed class ForestPigeon : MonoBehaviour
     HandRaiseAnimation hand;
     float bountyTimeLeft, stewTimeLeft;
 
+    public bool IsShowing => hand != null && !hand.IsLowered;   // ForestBountyLetter leaves Q to the pigeon
+
     void Awake()
     {
         hand = new HandRaiseAnimation(pigeon, fromLeft: true);

@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Soup")]
     [Tooltip("Cook time = ingredients in the pot × this")]
-    public float cookSecondsPerIngredient = 7.5f;
+    public float cookSecondsPerIngredient = 8f;
     [Tooltip("On: thrown ingredients fall back onto the board and can be added again (duplicates allowed).\n" +
              "Off: each ingredient goes in once and stays in the soup until Discard.")]
     public bool ingredientRefresh = true;

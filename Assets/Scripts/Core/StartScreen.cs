@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 // The title screen: its own scene, first in Build Settings. Play loads the kitchen, Quit closes the game.
@@ -39,30 +38,49 @@ public sealed class StartScreen : MonoBehaviour
 
     void Play()
     {
-        //TODO: (start game button click)
+        if (busy || (creditsPanel && creditsPanel.activeSelf)) return;
+        if (!Application.CanStreamedLevelBeLoaded(firstScene))
+        {
+            Debug.LogError($"Cannot load start destination '{firstScene}'.");
+            return;
+        }
+        busy = true;
         playButton.interactable = false;
-        SceneManager.LoadScene(firstScene);
+        quitButton.interactable = false;
+        if (creditsButton) creditsButton.interactable = false;
+        StartCoroutine(StartGame());
+    }
+
+    IEnumerator StartGame()
+    {
+        yield return CloseCurtain();
+        CurtainTransition.LoadCoveredScene(firstScene);
+    }
+
+    IEnumerator CloseCurtain()
+    {
+        curtain.gameObject.SetActive(true);
+        var hold = new WaitForSecondsRealtime(secondsPerFrame);
+        foreach (var frame in curtainFrames)
+        {
+            curtain.sprite = frame;
+            yield return hold;
+        }
     }
 
     IEnumerator ShowCredits(bool show)
     {
         busy = true;
-        var hold = new WaitForSecondsRealtime(secondsPerFrame);
         if (show)
         {
-            //TODO: (curtain swishing shut)
-            curtain.gameObject.SetActive(true);   // also blocks clicks on the title buttons
-            foreach (var frame in curtainFrames)
-            {
-                curtain.sprite = frame;
-                yield return hold;
-            }
+            yield return CloseCurtain();
             creditsPanel.SetActive(true);
         }
         else
         {
             //TODO: (curtain swishing open)
             creditsPanel.SetActive(false);
+            var hold = new WaitForSecondsRealtime(secondsPerFrame);
             for (int i = curtainFrames.Length - 2; i >= 0; i--)
             {
                 curtain.sprite = curtainFrames[i];

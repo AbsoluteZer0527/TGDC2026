@@ -96,6 +96,6 @@ MonoBehaviour:
   dizzyScale: 1
   dirtColor: {r: 0.42, g: 0.27, b: 0.13, a: 1}
   dirtCount: 10
-  dirtSize: 0.3
+  dirtSize: 1.4
   dirtLifetime: 0.3
   dirtKick: 0.6

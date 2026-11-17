@@ -11,7 +11,13 @@ namespace FMOD
 {
     public partial class VERSION
     {
+#if UNITY_EDITOR_WIN
+        // Bind the editor to the bundled desktop library. The integration also ships
+        // UWP and 32-bit libraries with the same filename.
+        public const string dll = "Assets/Plugins/FMOD/platforms/win/lib/x86_64/fmodstudioL.dll";
+#else
         public const string dll = "fmodstudioL";
+#endif
     }
 }
 
@@ -19,7 +25,7 @@ namespace FMOD.Studio
 {
     public partial class STUDIO_VERSION
     {
-        public const string dll = "fmodstudioL";
+        public const string dll = FMOD.VERSION.dll;
     }
 }
 #endif

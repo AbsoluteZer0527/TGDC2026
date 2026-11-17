@@ -10,7 +10,8 @@ public sealed class PauseMenu : MonoBehaviour
 {
     [SerializeField] GameObject pausePanel;
     [SerializeField] Button resumeButton;
-    [SerializeField, Tooltip("Optional.")] Button pauseQuitButton;
+    [UnityEngine.Serialization.FormerlySerializedAs("pauseQuitButton")]
+    [SerializeField, Tooltip("Optional.")] Button backButton;
 
     public static bool IsOpen { get; private set; }
 
@@ -29,7 +30,7 @@ public sealed class PauseMenu : MonoBehaviour
         if (!IsMain) return;
         curtain = GetComponent<CurtainTransition>();
         resumeButton.onClick.AddListener(Resume);
-        if (pauseQuitButton) pauseQuitButton.onClick.AddListener(StartScreen.Quit);
+        if (backButton) backButton.onClick.AddListener(BackToMainMenu);
         pausePanel.SetActive(false);
     }
 
@@ -57,6 +58,14 @@ public sealed class PauseMenu : MonoBehaviour
     void Resume()
     {
         if (!busy && IsOpen) StartCoroutine(Unpause());
+    }
+
+    void BackToMainMenu()
+    {
+        if (busy || !IsOpen) return;
+        busy = true;
+        IsOpen = false;
+        GameManager.I.Restart();
     }
 
     IEnumerator Unpause()

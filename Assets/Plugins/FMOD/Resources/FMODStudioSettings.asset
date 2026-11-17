@@ -313,12 +313,12 @@ MonoBehaviour:
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
   AutomaticEventLoading: 1
-  BankLoadType: 0
+  BankLoadType: 1
   AutomaticSampleLoading: 0
   EncryptionKey: 
   ImportType: 0
   TargetAssetPath: FMODBanks
-  TargetBankFolder: 
+  TargetBankFolder: FMODBanks/Desktop
   EventLinkage: 0
   SerializeGUIDsOnly: 0
   LoggingLevel: 2
@@ -330,11 +330,12 @@ MonoBehaviour:
   VirtualChannelSettings: []
   RealChannelSettings: []
   Plugins: []
-  MasterBanks:
+  MasterBanks: []
+  Banks: []
+  BanksToLoad:
+  - Master.strings
   - Master
-  Banks:
   - Master.assets
-  BanksToLoad: []
   LiveUpdatePort: 9264
   EnableMemoryTracking: 0
   AndroidUseOBB: 0
