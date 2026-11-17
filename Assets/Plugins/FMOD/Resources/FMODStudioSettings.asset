@@ -330,10 +330,8 @@ MonoBehaviour:
   VirtualChannelSettings: []
   RealChannelSettings: []
   Plugins: []
-  MasterBanks:
-  - Master
-  Banks:
-  - Master.assets
+  MasterBanks: []
+  Banks: []
   BanksToLoad:
   - Master.strings
   - Master
