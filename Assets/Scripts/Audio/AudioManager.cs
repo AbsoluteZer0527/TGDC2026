@@ -240,6 +240,18 @@ public class AudioManager : MonoBehaviour
     #endregion
 
     #region Music
+    void Update() => RestartFinishedMusic();
+
+    void RestartFinishedMusic()
+    {
+        if (!currentMusic.isValid() ||
+            currentMusic.getPlaybackState(out var state) != FMOD.RESULT.OK ||
+            state != PLAYBACK_STATE.STOPPED) return;
+
+        currentMusic.setTimelinePosition(0);
+        currentMusic.start();
+    }
+
     /// <summary>
     /// Plays a music track (only one at a time). If resumeFromLast is true, the track starts from
     /// where it last stopped; otherwise it starts from the beginning. The current track's position is
@@ -256,7 +268,10 @@ public class AudioManager : MonoBehaviour
 
         // Already playing this track: nothing to do (unless restarting from the top is wanted).
         if (currentMusic.isValid() && currentMusicId == id && resumeFromLast)
+        {
+            RestartFinishedMusic();
             return currentMusic;
+        }
 
         StopMusic();
 
@@ -278,7 +293,8 @@ public class AudioManager : MonoBehaviour
         if (!currentMusic.isValid()) return;
 
         if (currentMusic.getTimelinePosition(out int pos) == FMOD.RESULT.OK && currentMusicId != null)
-            musicPositions[currentMusicId] = pos;
+            musicPositions[currentMusicId] =
+                currentMusic.getPlaybackState(out var state) == FMOD.RESULT.OK && state == PLAYBACK_STATE.STOPPED ? 0 : pos;
 
         currentMusic.stop(fadeOut ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
         currentMusic.release();
