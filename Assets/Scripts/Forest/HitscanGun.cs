@@ -30,6 +30,9 @@ public class HitscanGun : MonoBehaviour
 
     readonly List<Image> flyingArrows = new();
 
+    // Lowered off the bottom of the screen (e.g. while the bounty letter is up). Aiming brings it straight back.
+    public bool Holstered { get; set; }
+
     Vector2 gunRestPos;
     Image gunImage;
     float reloadStarted;
@@ -67,9 +70,6 @@ public class HitscanGun : MonoBehaviour
 
     void Update()
     {
-        if (gunSprite)
-            gunSprite.anchoredPosition = Vector2.Lerp(gunSprite.anchoredPosition, gunRestPos, 15f * Time.deltaTime);
-
         var m = Mouse.current;
         bool canAct = player.CanAct && m != null && Application.isFocused;
         if (!canAct || Keyboard.current?.escapeKey.wasPressedThisFrame == true)
@@ -82,6 +82,13 @@ public class HitscanGun : MonoBehaviour
                 aiming = false;
                 Fire();
             }
+        }
+
+        if (aiming) Holstered = false;
+        if (gunSprite)
+        {
+            Vector2 target = Holstered ? gunRestPos + Vector2.down * gunSprite.rect.height : gunRestPos;
+            gunSprite.anchoredPosition = Vector2.Lerp(gunSprite.anchoredPosition, target, 15f * Time.deltaTime);
         }
 
         player.MoveSpeedMultiplier = aiming ? aimMoveMultiplier : 1f;
