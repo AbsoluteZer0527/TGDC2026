@@ -16,7 +16,38 @@ public sealed class CurtainTransition : MonoBehaviour
 
     // Domain reload is off, so clear this between Play sessions (stopping mid-transition would leave it stuck).
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetStatics() => active = null;
+    static void ResetStatics()
+    {
+        active = null;
+        coveredDestination = null;
+        SceneManager.sceneLoaded -= OnCoveredSceneLoaded;
+    }
+
+    // The title owns its closing curtain. The gameplay overlay takes over before the first render.
+    static string coveredDestination;
+
+    public static void LoadCoveredScene(string sceneName)
+    {
+        coveredDestination = sceneName;
+        SceneManager.sceneLoaded += OnCoveredSceneLoaded;
+        SceneManager.LoadSceneAsync(sceneName);
+    }
+
+    static void OnCoveredSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name != coveredDestination) return;
+        SceneManager.sceneLoaded -= OnCoveredSceneLoaded;
+        coveredDestination = null;
+        var transition = GameManager.I.GetComponent<CurtainTransition>();
+        transition.StartCoroutine(transition.RevealScene());
+    }
+
+    IEnumerator RevealScene()
+    {
+        yield return Shut(false);
+        yield return null;
+        yield return Open();
+    }
 
     // startClosed: skip the closing animation and begin fully shut (e.g. coming from the black night screen).
     public static void TransitionTo(string sceneName, bool startClosed = false)
