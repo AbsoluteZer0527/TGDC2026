@@ -166,14 +166,14 @@ MonoBehaviour:
         Data3: -1812030070
         Data4: 72263214
       Path: event:/sfx/scene/waterSplash
-  - id: splash
+  - id: pickup
     eventRef:
       Guid:
-        Data1: -826764823
-        Data2: 1325116502
-        Data3: -1812030070
-        Data4: 72263214
-      Path: event:/sfx/scene/waterSplash
+        Data1: -1798673662
+        Data2: 1174414116
+        Data3: -206215772
+        Data4: 491351003
+      Path: event:/sfx/scene/pickup
   loopingSfx:
   - id: timerRinging
     eventRef:
@@ -199,4 +199,12 @@ MonoBehaviour:
         Data3: 381700494
         Data4: -131444083
       Path: event:/sfx/scene/boiling
+  - id: running
+    eventRef:
+      Guid:
+        Data1: -1511943157
+        Data2: 1140862774
+        Data3: 821773726
+        Data4: -666394485
+      Path: event:/sfx/scene/running
   cutscenes: []

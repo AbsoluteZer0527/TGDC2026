@@ -20,12 +20,14 @@ public static class AudioIDs
         public const string reload = "reload";
         public const string hedgehog = "hedgehog";
         public const string splash = "splash";
+        public const string pickup = "pickup";
     }
     public static class LoopingSFX
     {
         public const string timerRinging = "timerRinging";
         public const string clockTicking = "clockTicking";
         public const string boiling = "boiling";
+        public const string running = "running";
     }
     public static class Cutscene
     {
