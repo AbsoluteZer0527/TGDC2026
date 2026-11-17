@@ -22,11 +22,8 @@ public sealed class PigeonDelivery : MonoBehaviour
     [SerializeField] GameObject bountyScroll;
 
     Sprite letterBack;
-    Vector2 raisedPosition;
-    Quaternion raisedRotation;
+    HandRaiseAnimation hand;
     bool letterRaised;
-    float raiseProgress;
-    const float RaiseSeconds = 0.32f;
     bool showingBack;
 
     Vector3 flightStart;
@@ -41,8 +38,7 @@ public sealed class PigeonDelivery : MonoBehaviour
     {
         letterBack = openLetterView.sprite;
         ShowLetterFace(GM.LetterBackRevealed);
-        raisedPosition = openLetterView.rectTransform.anchoredPosition;
-        raisedRotation = openLetterView.rectTransform.localRotation;
+        hand = new HandRaiseAnimation(openLetterView.rectTransform);
         resumeDialogue = resume;
         kitchenCamera = camera;
         authoredPerch = perchedPigeon.position;
@@ -107,22 +103,12 @@ public sealed class PigeonDelivery : MonoBehaviour
     void AnimateLetter()
     {
         bool changingFace = GM.LetterBackRevealed && !showingBack;
-        if (changingFace && raiseProgress == 0f)
+        if (changingFace && hand.IsLowered)
         {
             ShowLetterFace(true);
             changingFace = false;
         }
-        if (!letterRaised && raiseProgress == 0f) return;
-        RectTransform rect = openLetterView.rectTransform;
-        var parent = (RectTransform)rect.parent;
-        float anchorY = Mathf.Lerp(parent.rect.yMin, parent.rect.yMax, rect.anchorMin.y);
-        float hiddenY = parent.rect.yMin - anchorY - rect.rect.yMax - 8f;
-        bool raising = letterRaised && !changingFace;
-        raiseProgress = Mathf.MoveTowards(raiseProgress, raising ? 1f : 0f, Time.unscaledDeltaTime / RaiseSeconds);
-        float t = Mathf.SmoothStep(0f, 1f, raiseProgress);
-        rect.anchoredPosition = new Vector2(raisedPosition.x, Mathf.Lerp(hiddenY, raisedPosition.y, t));
-        rect.localRotation = raisedRotation * Quaternion.Euler(-30f * (1f - t), 0f, 0f);
-        openLetterView.gameObject.SetActive(raiseProgress > 0f);
+        hand.Animate(letterRaised && !changingFace);
     }
 
     void PoseFlight(float progress)

@@ -177,6 +177,25 @@ public class GameManager : MonoBehaviour
     public HashSet<int> KilledCreatures { get; } = new();
     public bool[] VisitedForestTiles { get; set; }   // centers of the minimap reveal circles
 
+    enum BountyReminder { BeforeFirstPayout, Pending, Shown }
+    BountyReminder forestBountyReminder;
+    bool forestStewReminderShown;
+
+    public bool TryTakeForestBountyReminder()
+    {
+        if (forestBountyReminder != BountyReminder.Pending) return false;
+        forestBountyReminder = BountyReminder.Shown;
+        return true;
+    }
+
+    public bool TryTakeForestStewReminder()
+    {
+        if (forestStewReminderShown || Soup != SoupState.Ready || SoupTimeLeft <= 0f || SoupTimeLeft > 15f)
+            return false;
+        forestStewReminderShown = true;
+        return true;
+    }
+
     void Awake()
     {
         if (I != null)
@@ -296,7 +315,12 @@ public class GameManager : MonoBehaviour
     }
 
     //TODO: (coins clinking when a hunt pays out)
-    public void AddDirtyMoney(int amount) => DirtyMoney += amount;
+    public void AddDirtyMoney(int amount)
+    {
+        DirtyMoney += amount;
+        if (amount > 0 && forestBountyReminder == BountyReminder.BeforeFirstPayout)
+            forestBountyReminder = BountyReminder.Pending;
+    }
 
     public string Message { get; private set; } = "";
     public float MessageUntil { get; private set; }

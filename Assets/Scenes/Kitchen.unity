@@ -1601,20 +1601,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &434741363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 434741358}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c5df8e85ae4407482da53d14ad4e7a3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KitchenCameraLook
-  maxTurnDegrees: {x: 2, y: 1.2}
-  maxShift: {x: 0.06, y: 0.03}
 --- !u!4 &434741361
 Transform:
   m_ObjectHideFlags: 0
@@ -1676,6 +1662,20 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &434741363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434741358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c5df8e85ae4407482da53d14ad4e7a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KitchenCameraLook
+  maxTurnDegrees: {x: 2, y: 1.2}
+  maxShift: {x: 0.06, y: 0.03}
 --- !u!1 &556535785
 GameObject:
   m_ObjectHideFlags: 0
@@ -4178,8 +4178,8 @@ Transform:
   m_GameObject: {fileID: 1251742430}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.08, y: 1.14, z: 0.75}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
+  m_LocalPosition: {x: -0.08, y: 1.0518, z: 0.75}
+  m_LocalScale: {x: 0.4, y: 0.43432003, z: 0.4}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1961370748}
@@ -4440,7 +4440,7 @@ Transform:
   m_GameObject: {fileID: 1279140870}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.21, z: -0.089999914}
+  m_LocalPosition: {x: 0, y: 0.93, z: -0.089999914}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7068,7 +7068,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 1d4d02e37036ccc4b86c560ab70866f2, type: 3}
+  m_Sprite: {fileID: 6595376019635178780, guid: 1d4d02e37036ccc4b86c560ab70866f2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -7088,8 +7088,8 @@ Transform:
   m_GameObject: {fileID: 2040721121}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.27, y: 2.55, z: 4.16}
-  m_LocalScale: {x: 0.6002, y: 0.6826, z: 1}
+  m_LocalPosition: {x: -0.27, y: 2.0571, z: 4.16}
+  m_LocalScale: {x: 0.6002, y: 0.5913125, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1961370748}
