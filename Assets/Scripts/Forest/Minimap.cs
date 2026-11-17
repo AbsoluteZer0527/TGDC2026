@@ -15,6 +15,18 @@ public class Minimap : MonoBehaviour
     [Min(1)] public int viewTiles = 10;
     [Min(0)] public int revealRadius = 2;
 
+    [Header("Enlarge (M key)")]
+    [SerializeField, Min(1f), Tooltip("How big the map gets in the middle of the screen.")] float enlargedScale = 2.5f;
+    [SerializeField, Min(0.01f)] float enlargeSeconds = 0.2f;
+    [SerializeField, Min(1), Tooltip("Tiles across when enlarged (zoomed out). The whole forest is about 41.")]
+    int enlargedViewTiles = 30;
+
+    RectTransform frame;
+    Vector2 homePosition;
+    int homeSibling;
+    bool enlarged;
+    float enlargeAmount;   // 0 = corner, 1 = middle
+
     RectTransform markers;
     RawImage fogMask;
     Texture2D fog;
@@ -23,6 +35,39 @@ public class Minimap : MonoBehaviour
     bool[] visited;
     bool[] explored;
     Vector2Int lastTile = new Vector2Int(int.MinValue, int.MinValue);
+
+    void Awake()
+    {
+        frame = (RectTransform)transform;
+        homePosition = frame.anchoredPosition;
+        homeSibling = frame.GetSiblingIndex();
+    }
+
+    void Update()
+    {
+        var keyboard = UnityEngine.InputSystem.Keyboard.current;
+        bool frozen = PauseMenu.IsOpen || (GameManager.I != null && GameManager.I.DayOver);
+        if (!frozen && keyboard != null && keyboard.mKey.wasPressedThisFrame)
+        {
+            //TODO: (map paper rustle)
+            enlarged = !enlarged;
+            if (enlarged) frame.SetAsLastSibling();   // over the hearts and timer
+        }
+
+        float before = enlargeAmount;
+        enlargeAmount = Mathf.MoveTowards(enlargeAmount, enlarged ? 1f : 0f, Time.deltaTime / enlargeSeconds);
+        if (enlargeAmount == before) return;
+        if (enlargeAmount == 0f) frame.SetSiblingIndex(homeSibling);
+
+        // Where the anchored position puts the scaled map's centre on the middle of its parent.
+        var parent = (RectTransform)frame.parent;
+        Vector2 size = frame.rect.size * enlargedScale;
+        Vector2 middle = Vector2.Scale(parent.rect.size, Vector2.one * 0.5f - frame.anchorMin)
+                         - Vector2.Scale(size, Vector2.one * 0.5f - frame.pivot);
+        float e = Mathf.SmoothStep(0f, 1f, enlargeAmount);
+        frame.anchoredPosition = Vector2.Lerp(homePosition, middle, e);
+        frame.localScale = Vector3.one * Mathf.Lerp(1f, enlargedScale, e);
+    }
 
     void LateUpdate()
     {
@@ -46,10 +91,15 @@ public class Minimap : MonoBehaviour
             }
         }
 
-        float step = viewport.rect.width / Mathf.Max(1, viewTiles);
-        if (step <= 0f) return;
+        // Zooming out shrinks the whole marker layer, so trees and the home icon shrink with the tiles.
+        float baseStep = viewport.rect.width / Mathf.Max(1, viewTiles);
+        if (baseStep <= 0f) return;
+        float tiles = Mathf.Lerp(viewTiles, Mathf.Max(viewTiles, enlargedViewTiles), Mathf.SmoothStep(0f, 1f, enlargeAmount));
+        float zoom = viewTiles / tiles;
+        float step = baseStep * zoom;
         Vector2 center = position + Vector2.one * 0.5f;
-        markers.sizeDelta = new Vector2(generator.Width, generator.Height) * step;
+        markers.sizeDelta = new Vector2(generator.Width, generator.Height) * baseStep;
+        markers.localScale = Vector3.one * zoom;
         markers.anchoredPosition = -center * step;
         Vector2 span = viewport.rect.size / step;
         Vector2 from = (center - span * 0.5f) * PixelsPerTile + Vector2.one * fogPadding;

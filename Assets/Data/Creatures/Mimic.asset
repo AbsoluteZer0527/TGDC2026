@@ -16,7 +16,7 @@ MonoBehaviour:
   worldSprite: {fileID: 2733741852203317717, guid: 64a2533710323f3458b43fa351203fc2, type: 3}
   attackSprite: {fileID: -3200779584694267956, guid: 48e1c3686fc01e14ca9f622ca1c6b98f, type: 3}
   groundOffset: 0
-  minSpawnDistance: 10
+  minSpawnDistance: 5
   worldScale: 2.5
   itemIcon: {fileID: -477599212, guid: e9a1ca766fa321244830cd1f93c92053, type: 3}
   maxHealth: 2

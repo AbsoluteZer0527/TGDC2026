@@ -15,9 +15,10 @@ MonoBehaviour:
   displayName: Goose
   worldSprite: {fileID: -199876445757598851, guid: bec13f447c667af498f880e036819577, type: 3}
   attackSprite: {fileID: 1499067527547856346, guid: 08ddc685d59bff94b99e84f6a1f5241e, type: 3}
+  groundOffset: 0
   minSpawnDistance: 10
   worldScale: 2.5
   itemIcon: {fileID: 5965089219692405641, guid: cd30efd7c0cda2341beb9e9dc8274e49, type: 3}
-  maxHealth: 2
+  maxHealth: 1
   bountyPrice: 35
   behaviorPrefab: {fileID: -6702282105671830952, guid: 2f4a946d2e651446181b2b1e975b7c13, type: 3}

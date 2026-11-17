@@ -20,5 +20,5 @@ MonoBehaviour:
   worldScale: 2.5
   itemIcon: {fileID: 922585306, guid: e9a1ca766fa321244830cd1f93c92053, type: 3}
   maxHealth: 3
-  bountyPrice: 10
+  bountyPrice: 75
   behaviorPrefab: {fileID: 5291673172744020724, guid: 706e823690b2f4c1f8180fe1d375a3ad, type: 3}
