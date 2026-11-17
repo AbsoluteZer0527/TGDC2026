@@ -423,12 +423,22 @@ public class GameManager : MonoBehaviour
 
     // Loss screen button: back to the title. This whole run (Systems, HUD, money, day) is thrown away;
     // pressing Play builds a fresh one from the Kitchen's Systems.
+    // Stays alive until the title has loaded, because the kitchen still runs one more frame before it unloads.
     public void Restart()
     {
-        if (I != this) return;
-        I = null;
+        if (leavingToTitle) return;
+        leavingToTitle = true;
         Time.timeScale = 1f;
-        Destroy(gameObject);
+        SceneManager.sceneLoaded += OnTitleLoaded;
         SceneManager.LoadScene("Start");
+    }
+
+    bool leavingToTitle;
+
+    void OnTitleLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnTitleLoaded;
+        if (I == this) I = null;
+        Destroy(gameObject);   // gone before the title's first frame is drawn
     }
 }
