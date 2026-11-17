@@ -46,7 +46,9 @@ public class ForestGenerator : MonoBehaviour
 
     [Header("Creatures")]
     [SerializeField] ForestRoster roster;
-    public int creatureCount = 40;
+    [Tooltip("Creatures on day 1. Each later day adds Creatures Per Day (no cap).")]
+    public int baseCreatureCount = 250;
+    public int creaturesPerDay = 25;
     public float creatureSpacing = 4f;
 
     // Read by the minimap
@@ -254,6 +256,8 @@ public class ForestGenerator : MonoBehaviour
         if (!roster) return;
         float jitter = tileSize / 2f - 1f;
         var today = roster.Today(gm != null ? gm.ForestSeed : 12345);   // today's species (see roster's Daily Selection)
+        int day = gm != null ? gm.Day : 1;
+        int creatureCount = baseCreatureCount + creaturesPerDay * Mathf.Max(0, day - 1);
         for (int i = 0; i < creatureCount; i++)
         {
             var species = roster.Pick(rng, today);

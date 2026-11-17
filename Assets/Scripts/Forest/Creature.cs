@@ -6,9 +6,9 @@ public sealed class Creature : MonoBehaviour
     [SerializeField] SpriteRenderer visual;
     [SerializeField, Min(0.01f)] float fallDuration = 0.35f;
     [SerializeField, Min(0f)] float walkBounceHeight = 0.075f;
-    [SerializeField, Range(0.5f, 1f), Tooltip("Hitbox size relative to the sprite. A bit under 1 feels fair " +
-                                               "(transparent corners of the art don't count as hits).")]
-    float hitboxScale = 0.9f;
+    [SerializeField, Range(0.5f, 1.5f), Tooltip("Hitbox size relative to the sprite. Above 1 is forgiving: " +
+                                                 "near misses just outside the art still count.")]
+    float hitboxScale = 1.15f;
 
     public CreatureData Data { get; private set; }
     public int SpawnId { get; private set; }
@@ -49,7 +49,7 @@ public sealed class Creature : MonoBehaviour
 
         Bounds art = sprite.bounds;
         Vector3 size = art.size * hitboxScale;
-        size.z = Mathf.Min(art.size.x, art.size.y) * 0.5f;   // some depth so grazing shots still count
+        size.z = Mathf.Min(art.size.x, art.size.y) * 0.75f;   // some depth so grazing shots still count
         hitbox.center = art.center;
         hitbox.size = size;
     }

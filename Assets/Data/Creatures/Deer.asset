@@ -19,6 +19,6 @@ MonoBehaviour:
   minSpawnDistance: 2
   worldScale: 2.5
   itemIcon: {fileID: 1458194088, guid: cd30efd7c0cda2341beb9e9dc8274e49, type: 3}
-  maxHealth: 3
+  maxHealth: 2
   bountyPrice: 50
   behaviorPrefab: {fileID: 6369103377733669113, guid: 3275c5914cb814788a2a33cbaffa84db, type: 3}
