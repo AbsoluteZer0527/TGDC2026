@@ -26,6 +26,7 @@ public class KitchenController : MonoBehaviour
     };
 
     [Header("UI")]
+    [SerializeField] bool showPlaytestButtons;
     public Button ingredientButtonPrefab;
     public Transform ingredientButtonParent;
     public Button cookButton, serveButton, discardButton;
@@ -164,7 +165,7 @@ public class KitchenController : MonoBehaviour
 
     void OnGUI()
     {
-        if (!GM || GM.DayOver || CurtainTransition.IsPlaying) return;
+        if (!showPlaytestButtons || !GM || GM.DayOver || CurtainTransition.IsPlaying) return;
         if (GUI.Button(new Rect(Screen.width - 174f, 8f, 166f, 30f), "End day (playtest)"))
             GM.EndDay();
         if (!GM.DayOver && GUI.Button(new Rect(Screen.width - 174f, 42f, 166f, 30f), "Skip NPC (playtest)"))
