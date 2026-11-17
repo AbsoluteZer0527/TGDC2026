@@ -19,17 +19,30 @@ public class PlayerController : MonoBehaviour
 
     void Awake()     => cc = GetComponent<CharacterController>();
     void OnEnable()  => SetCursorLocked(true);
-    void OnDisable() => SetCursorLocked(false);   // frees the mouse when you go back to the kitchen
+    void OnDisable()
+    {
+        SetCursorLocked(false);   // frees the mouse when you go back to the kitchen
+        SetRunning(false);
+    }
+
+    bool running;
+    void SetRunning(bool on)
+    {
+        if (on == running) return;
+        running = on;
+        if (on) AudioManager.Instance?.PlayLoopingSFX("running");
+        else AudioManager.Instance?.StopLoopingSFX("running");
+    }
 
     void Update()
     {
         var k = Keyboard.current; var m = Mouse.current;
         if (k == null || m == null) return;
 
-        if (PauseMenu.IsOpen || (GameManager.I != null && GameManager.I.DayOver)) { SetCursorLocked(false); return; }
+        if (PauseMenu.IsOpen || (GameManager.I != null && GameManager.I.DayOver)) { SetCursorLocked(false); SetRunning(false); return; }
         if (k.escapeKey.wasPressedThisFrame) SetCursorLocked(false);
         if (m.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked) SetCursorLocked(true);
-        if (!CanAct) return;
+        if (!CanAct) { SetRunning(false); return; }
 
         // Look
         Vector2 look = m.delta.ReadValue() * mouseSensitivity;
@@ -44,7 +57,7 @@ public class PlayerController : MonoBehaviour
         vy = cc.isGrounded ? -2f : vy + Physics.gravity.y * Time.deltaTime;
         move.y = vy;
         cc.Move(move * Time.deltaTime);
-        //TODO: (forest footsteps with each stride while moving along the ground)
+        SetRunning(cc.isGrounded && (x != 0f || z != 0f));
     }
 
     static void SetCursorLocked(bool locked)

@@ -158,7 +158,7 @@ public class IngredientRunner : MonoBehaviour
                 pos = Vector3.Lerp(throwStart, pot, timer) + Vector3.up * Mathf.Sin(Mathf.Clamp01(timer) * Mathf.PI) * table.throwArc;
                 if (timer >= 1f)
                 {
-                    //TODO: (water pop as the ingredient lands in the pot)
+                    AudioManager.Instance?.PlaySFX("splash");
                     if (landing) landing.enabled = true;
                     landing = null;
                     if (table.ShouldShow && GameManager.I.ingredientRefresh) Drop(); else Hide();

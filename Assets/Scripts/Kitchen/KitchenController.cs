@@ -79,8 +79,7 @@ public class KitchenController : MonoBehaviour
             b.onClick.AddListener(() => TryAddIngredient(ing));
             buttons[ing] = b;
         }
-        //TODO: (optional click when the Cook button is pressed)
-        cookButton.onClick.AddListener(() => { GM.StartCooking(); Deselect(); });
+        cookButton.onClick.AddListener(() => { AudioManager.Instance?.PlaySFX("drop"); GM.StartCooking(); Deselect(); });
         serveButton.onClick.AddListener(Serve);
         discardButton.onClick.AddListener(Discard);
 
@@ -107,7 +106,7 @@ public class KitchenController : MonoBehaviour
             return false;
         }
 
-        //TODO: (ingredient catch sound on selection, maybe a different "AHHH!" for each ingredient)
+        AudioManager.Instance?.PlaySFX("pickup");
         if (IngredientAdded != null) IngredientAdded(ing);
         else StartCoroutine(ThrowVisual(ing.color)); // fallback sphere when no runners exist
         return true;
@@ -115,7 +114,7 @@ public class KitchenController : MonoBehaviour
 
     void Discard()
     {
-        //TODO: (optional click when the Discard button is pressed)
+        AudioManager.Instance?.PlaySFX("drop");
         PotDiscarded?.Invoke();
         GM.DiscardSoup();
         Deselect();
@@ -128,7 +127,7 @@ public class KitchenController : MonoBehaviour
         var soup = GM.TakeSoup();
         if (soup == null) return;
 
-        //TODO: (optional click when the Serve button serves a bowl)
+        AudioManager.Instance?.PlaySFX("drop");
         // Exact match: same ingredients, same number of each. Extra or missing copies make it wrong.
         bool correct = soup.Count == GM.CurrentOrder.Count &&
                        GM.CurrentOrder.GroupBy(i => i).All(g => soup.Count(s => s == g.Key) == g.Count());
@@ -340,7 +339,7 @@ public class KitchenController : MonoBehaviour
             ball.transform.position = Vector3.Lerp(a, b, t) + Vector3.up * Mathf.Sin(t * Mathf.PI) * 1.5f;
             yield return null;
         }
-        //TODO: (water pop as the ingredient lands in the pot)
+        AudioManager.Instance?.PlaySFX("splash");
         Destroy(ball);
     }
 

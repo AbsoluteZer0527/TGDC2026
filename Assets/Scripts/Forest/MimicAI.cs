@@ -5,6 +5,7 @@ using UnityEngine;
 // Disguise: a copy of Bush Prefab if set (identical to the real bushes), otherwise its own World Sprite.
 public sealed class MimicAI : GooseAI
 {
+    protected override string AmbientSfxId => null; // no goose honk; it's pretending to be a bush
     [Header("Disguise")]
     [SerializeField, Tooltip("Optional. The forest's Bush prefab, so the disguise matches the real bushes exactly.")]
     Vegetation bushPrefab;

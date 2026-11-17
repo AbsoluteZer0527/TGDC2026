@@ -4,6 +4,7 @@ using UnityEngine;
 // Running into a wall or tree stuns it for a few seconds: your chance to shoot it.
 public sealed class BoarAI : CreatureAI
 {
+    protected override string AmbientSfxId => "boar";
     enum State { Wander, WindUp, Charge, Stunned, Rest }
 
     [Header("Detection")]

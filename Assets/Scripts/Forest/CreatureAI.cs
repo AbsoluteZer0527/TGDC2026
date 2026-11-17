@@ -12,6 +12,16 @@ public abstract class CreatureAI : MonoBehaviour
     protected Transform player, playerEyes;
     protected PlayerHealth playerHealth;
 
+    [Header("Ambient sound")]
+    [SerializeField, Min(0), Tooltip("Plays this creature's sound when the player is within this distance.")]
+    float soundRadius = 8f;
+    [SerializeField, Tooltip("Random seconds between sounds (min, max).")]
+    Vector2 soundInterval = new Vector2(4f, 8f);
+    float nextSoundTime;
+
+    // AudioManager sfx ID for this species; null = silent.
+    protected virtual string AmbientSfxId => null;
+
     bool waitingToWander;
     float nextWanderTime, alertUntil;
     static int sightMask;
@@ -30,6 +40,7 @@ public abstract class CreatureAI : MonoBehaviour
         player = pc.transform;
         playerEyes = pc.cameraPivot ? pc.cameraPivot : pc.transform;
         playerHealth = pc.GetComponent<PlayerHealth>();
+        nextSoundTime = Time.time + Random.Range(0f, soundInterval.y); // stagger so a group doesn't sound at once
     }
 
     // Where it looks and shoots from: the middle of its sprite, so short creatures see and shoot from low down.
@@ -57,7 +68,16 @@ public abstract class CreatureAI : MonoBehaviour
     {
         if (!player || !agent.isOnNavMesh) return;
         if (GameManager.I != null && GameManager.I.DayOver) { agent.isStopped = true; return; }
+        TickAmbientSound();
         Tick();
+    }
+
+    void TickAmbientSound()
+    {
+        if (AmbientSfxId == null || Time.time < nextSoundTime) return;
+        if ((player.position - transform.position).sqrMagnitude > soundRadius * soundRadius) return;
+        AudioManager.Instance?.PlaySFX(AmbientSfxId, transform.position);
+        nextSoundTime = Time.time + Random.Range(soundInterval.x, soundInterval.y);
     }
 
     protected abstract void Tick();

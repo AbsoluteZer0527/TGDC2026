@@ -110,6 +110,70 @@ MonoBehaviour:
         Data3: -1356863052
         Data4: -1635387920
       Path: event:/sfx/global/reject
+  - id: boar
+    eventRef:
+      Guid:
+        Data1: 805778164
+        Data2: 1307671787
+        Data3: -1592332107
+        Data4: -1297248891
+      Path: event:/sfx/scene/boar
+  - id: drop
+    eventRef:
+      Guid:
+        Data1: -430036457
+        Data2: 1165006520
+        Data3: 1838257538
+        Data4: 1613128031
+      Path: event:/sfx/scene/drop
+  - id: goose
+    eventRef:
+      Guid:
+        Data1: 306747303
+        Data2: 1238192368
+        Data3: 1060092084
+        Data4: 1369062420
+      Path: event:/sfx/scene/goose
+  - id: money
+    eventRef:
+      Guid:
+        Data1: 431529736
+        Data2: 1236530494
+        Data3: -661330004
+        Data4: 999434332
+      Path: event:/sfx/scene/money
+  - id: reload
+    eventRef:
+      Guid:
+        Data1: -68459738
+        Data2: 1293037866
+        Data3: -748520795
+        Data4: -374942966
+      Path: event:/sfx/scene/reload
+  - id: hedgehog
+    eventRef:
+      Guid:
+        Data1: 379918492
+        Data2: 1275957976
+        Data3: -313391432
+        Data4: -683644859
+      Path: event:/sfx/scene/hedgehog
+  - id: splash
+    eventRef:
+      Guid:
+        Data1: -826764823
+        Data2: 1325116502
+        Data3: -1812030070
+        Data4: 72263214
+      Path: event:/sfx/scene/waterSplash
+  - id: splash
+    eventRef:
+      Guid:
+        Data1: -826764823
+        Data2: 1325116502
+        Data3: -1812030070
+        Data4: 72263214
+      Path: event:/sfx/scene/waterSplash
   loopingSfx:
   - id: timerRinging
     eventRef:
@@ -127,4 +191,12 @@ MonoBehaviour:
         Data3: 2096668319
         Data4: 526787131
       Path: event:/sfx/scene/clockTicking
+  - id: boiling
+    eventRef:
+      Guid:
+        Data1: -1769253172
+        Data2: 1325527248
+        Data3: 381700494
+        Data4: -131444083
+      Path: event:/sfx/scene/boiling
   cutscenes: []

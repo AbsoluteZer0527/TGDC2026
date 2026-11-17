@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 // Once it has spotted you it keeps chasing (trees blocking its view don't stop it) until you get far away.
 public class GooseAI : CreatureAI
 {
+    protected override string AmbientSfxId => "goose";
     enum State { Wander, Chase, WindUp, Circle }
 
     [Header("Detection")]

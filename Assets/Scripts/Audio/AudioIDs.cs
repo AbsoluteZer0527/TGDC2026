@@ -13,11 +13,19 @@ public static class AudioIDs
         public const string bellChime = "bellChime";
         public const string timerExplode = "timerExplode";
         public const string reject = "reject";
+        public const string boar = "boar";
+        public const string drop = "drop";
+        public const string goose = "goose";
+        public const string money = "money";
+        public const string reload = "reload";
+        public const string hedgehog = "hedgehog";
+        public const string splash = "splash";
     }
     public static class LoopingSFX
     {
         public const string timerRinging = "timerRinging";
         public const string clockTicking = "clockTicking";
+        public const string boiling = "boiling";
     }
     public static class Cutscene
     {

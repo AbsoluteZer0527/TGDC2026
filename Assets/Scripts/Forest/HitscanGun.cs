@@ -36,6 +36,7 @@ public class HitscanGun : MonoBehaviour
     bool aiming;
     float normalFov;
     float nextFire;
+    bool wasCycling;
 
     void Awake()
     {
@@ -51,6 +52,7 @@ public class HitscanGun : MonoBehaviour
     {
         aiming = false;
         nextFire = 0f;
+        wasCycling = false;
         if (player) player.MoveSpeedMultiplier = 1f;
         if (cam) cam.fieldOfView = normalFov;
         if (muzzleFlash) muzzleFlash.enabled = false;
@@ -89,7 +91,8 @@ public class HitscanGun : MonoBehaviour
         cam.fieldOfView = Mathf.MoveTowards(cam.fieldOfView, targetFov, 180f * Time.deltaTime);
 
         bool cycling = Time.time < nextFire;
-        //TODO: (gun closing once when the reload cycle finishes)
+        if (wasCycling && !cycling) AudioManager.Instance?.PlaySFX("reload");
+        wasCycling = cycling;
         bool flashing = cycling && Time.time < reloadStarted;
         if (muzzleFlash)
         {

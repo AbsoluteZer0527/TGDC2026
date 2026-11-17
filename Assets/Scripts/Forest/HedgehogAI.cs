@@ -3,6 +3,7 @@ using UnityEngine;
 // Moves exactly like the unicorn (wander, flee, dodge), and shoots at you when it can see you.
 public sealed class HedgehogAI : UnicornAI
 {
+    protected override string AmbientSfxId => "hedgehog";
     [Header("Shooting")]
     [SerializeField, Min(0)] float detectRadius = 16f, memorySeconds = 3f;
     [SerializeField, Min(0.1f)] float fireCooldown = 2.5f;

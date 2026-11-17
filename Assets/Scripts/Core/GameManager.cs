@@ -257,6 +257,7 @@ public class GameManager : MonoBehaviour
         {
             Soup = SoupState.Ready;
             AudioManager.Instance?.StopLoopingSFX("clockTicking", fadeOut: false);
+            AudioManager.Instance?.StopLoopingSFX("boiling");
             AudioManager.Instance?.PlayLoopingSFX("timerRinging");
             SoupTimeLeft += servingWindowSeconds * Difficulty.ServingWindow;
         }
@@ -286,7 +287,7 @@ public class GameManager : MonoBehaviour
         if (Soup != SoupState.Filling) return false;
         explosionEndsAt = 0f;
         SoupTimeLeft = TotalCookTime;
-        //TODO: (loop pot bubbling while the soup is cooking and the day is active)
+        AudioManager.Instance?.PlayLoopingSFX("boiling");
         Soup = SoupState.Cooking;
         if (CustomersArrived >= 3 && Phase == CustomerPhase.AtCounter && !ForestUnlocked)
             ForestDialoguePending = true;
@@ -304,6 +305,7 @@ public class GameManager : MonoBehaviour
     public void DiscardSoup()
     {
         AudioManager.Instance?.StopLoopingSFX("clockTicking");
+        AudioManager.Instance?.StopLoopingSFX("boiling");
         AudioManager.Instance?.StopLoopingSFX("timerRinging"); // covers serving, discarding and day end
         PotContents.Clear();
         SoupTimeLeft = 0f;
@@ -313,14 +315,14 @@ public class GameManager : MonoBehaviour
     // ---------- Money ----------
     public void SellSoup(int price)
     {
-        //TODO: (coins clinking when the customer pays for soup)
+        AudioManager.Instance?.PlaySFX("money");
         CleanMoney += price;
         LaunderCapacity += (long)System.Math.Round(price * (double)launderRatio);
     }
 
-    //TODO: (coins clinking when a hunt pays out)
     public void AddDirtyMoney(int amount)
     {
+        if (amount > 0) AudioManager.Instance?.PlaySFX("money");
         DirtyMoney += amount;
         if (amount > 0 && forestBountyReminder == BountyReminder.BeforeFirstPayout)
             forestBountyReminder = BountyReminder.Pending;
