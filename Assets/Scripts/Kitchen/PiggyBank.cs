@@ -2,14 +2,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// The savings amount is visible during the IRS visit or while hovering.
+// The displayed balance includes today's payouts and settled rent.
 // Works on either:
 //  - a 2D sprite (SpriteRenderer) + BoxCollider2D: hover comes from the camera's Physics 2D Raycaster
 //    (PigeonDelivery adds one to the main camera at startup), or
 //  - a UI Image with Raycast Target on.
 public class PiggyBank : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [Tooltip("Savings text shown on hover and during the IRS visit.")]
+    [Tooltip("Live piggy bank balance.")]
     [SerializeField] TMP_Text amountText;
     [SerializeField] Color positive = new(1f, 0.83f, 0.3f);   // yellow
     [SerializeField] Color negative = new(1f, 0.3f, 0.3f);    // red
@@ -51,7 +51,7 @@ public class PiggyBank : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
         var gm = GameManager.I;
         if (!amountText) return;
-        bool show = gm && (hovered || gm.AuditorPresent);
+        bool show = gm != null;
         if (amountText.gameObject.activeSelf != show) amountText.gameObject.SetActive(show);
         if (!show) return;
         long s = gm.Savings;

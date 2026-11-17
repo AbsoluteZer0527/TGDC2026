@@ -3,12 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Night screen between days (after a passed audit), drawn on the closed curtain:
-//   1. day counter rolls slot-machine style (old number slides down, new one drops in from above)
-//   2. equation appears line by line:   + income (stew + hunt)  /  - rent  /  ----  /  +- total
-//   3. piggy bank counts from the old savings to the new savings
-// then tells GameManager to continue (next day, or eviction).
-// Lives in the Systems prefab's HUDCanvas. Everything visual is placeholder: swap sprites/fonts freely.
+// Rolls the day forward, then replays the deposits and nightly rent on one balance counter.
 public class NightScreen : MonoBehaviour
 {
     [Tooltip("Full-screen panel (child of this object) showing the closed curtain. Hidden during the day.")]
@@ -19,7 +14,7 @@ public class NightScreen : MonoBehaviour
     [SerializeField] TMP_Text newDayText;
     [SerializeField] string dayFormat = "Day {0}";
 
-    [Header("Equation")]
+    [Header("Summary")]
     [SerializeField] TMP_Text incomeText;
     [SerializeField] TMP_Text rentText;
     [SerializeField] GameObject divider;
@@ -38,11 +33,16 @@ public class NightScreen : MonoBehaviour
     [Header("Colors")]
     [SerializeField] Color positive = new(1f, 0.83f, 0.3f);   // yellow
     [SerializeField] Color negative = new(1f, 0.3f, 0.3f);    // red
-    [SerializeField] Color gain = new(0.49f, 0.84f, 0.49f);   // green
 
     bool playing;
 
-    void Awake() => panel.SetActive(false);
+    Vector2 dayHome;
+
+    void Awake()
+    {
+        dayHome = oldDayText.rectTransform.anchoredPosition;
+        panel.SetActive(false);
+    }
 
     void Update()
     {
@@ -63,7 +63,8 @@ public class NightScreen : MonoBehaviour
         playing = true;
         panel.SetActive(true);
         incomeText.gameObject.SetActive(false);
-        rentText.gameObject.SetActive(false);
+        rentText.text = "Opening balance";
+        rentText.gameObject.SetActive(true);
         if (divider) divider.SetActive(false);
         totalText.gameObject.SetActive(false);
         SetPiggy(r.savingsBefore);
@@ -72,7 +73,7 @@ public class NightScreen : MonoBehaviour
         oldDayText.text = string.Format(dayFormat, r.day);
         newDayText.text = string.Format(dayFormat, r.day + 1);
         float h = oldDayText.rectTransform.rect.height;
-        Vector2 home = oldDayText.rectTransform.anchoredPosition;
+        Vector2 home = dayHome;
         oldDayText.rectTransform.anchoredPosition = home;
         newDayText.rectTransform.anchoredPosition = home + Vector2.up * h;
         while (CurtainTransition.IsPlaying) yield return null;
@@ -89,35 +90,44 @@ public class NightScreen : MonoBehaviour
         newDayText.rectTransform.anchoredPosition = home;
         yield return new WaitForSeconds(lineDelay);
 
-        // 2. Equation.
-        incomeText.text = $"+ ${HUD.FormatMoney(r.Income)}  <size=60%>(stew + hunt)</size>";
-        incomeText.color = gain;
-        incomeText.gameObject.SetActive(true);
+        long beforeRent = r.savingsBefore + r.Income;
+        rentText.text = "Today's earnings";
+        yield return RollBalance(r.savingsBefore, beforeRent);
         yield return new WaitForSeconds(lineDelay);
 
-        rentText.text = $"- ${HUD.FormatMoney(r.rent)}  <size=60%>(rent)</size>";
-        rentText.color = negative;
-        rentText.gameObject.SetActive(true);
+        rentText.text = $"Rent  ${HUD.FormatMoney(r.rent)}";
+        yield return RollBalance(beforeRent, r.savingsAfter);
         yield return new WaitForSeconds(lineDelay);
-
-        if (divider) divider.SetActive(true);
-        totalText.text = (r.Change >= 0 ? "+ $" : "- $") + HUD.FormatMoney(System.Math.Abs(r.Change));
-        totalText.color = r.Change >= 0 ? gain : negative;
-        totalText.gameObject.SetActive(true);
-        yield return new WaitForSeconds(lineDelay);
-
-        // 3. Piggy bank counts to the new total.
-        //TODO: (coin counting sound, up or down)
-        for (float t = 0f; t < countSeconds; t += Time.deltaTime)
-        {
-            float e = Mathf.SmoothStep(0f, 1f, t / countSeconds);
-            SetPiggy((long)System.Math.Round(Mathf.Lerp(r.savingsBefore, r.savingsAfter, e)));
-            yield return null;
-        }
-        SetPiggy(r.savingsAfter);
+        rentText.text = "Final balance";
         yield return new WaitForSeconds(holdSeconds);
 
         GameManager.I.FinishNightSummary(); // next day (or eviction); Update hides the panel
+    }
+
+    IEnumerator RollBalance(long from, long to)
+    {
+        if (from == to) yield break;
+        var rect = piggyText.rectTransform;
+        Vector2 home = rect.anchoredPosition;
+        Vector3 scale = rect.localScale;
+        float direction = to > from ? 1f : -1f;
+        int steps = (int)System.Math.Min(6m, System.Math.Abs((decimal)to - from));
+        for (float elapsed = 0f; elapsed < countSeconds; elapsed += Time.deltaTime)
+        {
+            float progress = elapsed / countSeconds * steps;
+            int step = Mathf.FloorToInt(progress);
+            float phase = progress - step;
+            bool incoming = phase >= 0.5f;
+            float offset = incoming ? phase - 1f : phase;
+            rect.anchoredPosition = home + Vector2.up * (direction * offset * piggyText.fontSize * 0.65f);
+            rect.localScale = new Vector3(scale.x, scale.y * Mathf.Abs(Mathf.Cos(phase * Mathf.PI)), scale.z);
+            decimal fraction = (decimal)(step + (incoming ? 1 : 0)) / steps;
+            SetPiggy((long)System.Math.Round(from + ((decimal)to - from) * fraction));
+            yield return null;
+        }
+        rect.anchoredPosition = home;
+        rect.localScale = scale;
+        SetPiggy(to);
     }
 
     void SetPiggy(long amount)

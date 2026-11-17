@@ -817,20 +817,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   dayLength: 300
-  rentPerDay: 200
   startDay: 1
   tutorialClockCaps:
   - 0.25
   - 0.5
   tutorialCookSeconds:
-  - 10
+  - 5
   - 10
   - 60
   cookSecondsPerIngredient: 8
   ingredientRefresh: 1
   servingWindowSeconds: 15
   explosionDisplaySeconds: 4
-  launderRatio: 3
+  launderRatio: 15
   startingHearts: 3
   debugSeed: 0
 --- !u!114 &7839172100051000010

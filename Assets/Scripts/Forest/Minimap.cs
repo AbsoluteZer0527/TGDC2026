@@ -27,7 +27,7 @@ public class Minimap : MonoBehaviour
     bool enlarged;
     float enlargeAmount;   // 0 = corner, 1 = middle
 
-    RectTransform markers;
+    RectTransform mapContent, markers;
     RawImage fogMask;
     Texture2D fog;
     const int PixelsPerTile = 16;
@@ -97,35 +97,46 @@ public class Minimap : MonoBehaviour
         float tiles = Mathf.Lerp(viewTiles, Mathf.Max(viewTiles, enlargedViewTiles), Mathf.SmoothStep(0f, 1f, enlargeAmount));
         float zoom = viewTiles / tiles;
         float step = baseStep * zoom;
+        Vector3 forward = player.forward;
+        float heading = Mathf.Atan2(forward.x, forward.z) * Mathf.Rad2Deg;
+        Quaternion mapRotation = Quaternion.Euler(0f, 0f, heading);
+        if (mapContent.localRotation != mapRotation)
+        {
+            mapContent.localRotation = mapRotation;
+            Quaternion upright = Quaternion.Inverse(mapRotation);
+            for (int i = 0; i < markers.childCount; i++)
+                markers.GetChild(i).localRotation = upright;
+        }
+        // A rotating square this wide covers all four corners of the fixed paper viewport.
+        mapContent.sizeDelta = Vector2.one * viewport.rect.size.magnitude;
         Vector2 center = position + Vector2.one * 0.5f;
         markers.sizeDelta = new Vector2(generator.Width, generator.Height) * baseStep;
         markers.localScale = Vector3.one * zoom;
         markers.anchoredPosition = -center * step;
-        Vector2 span = viewport.rect.size / step;
+        Vector2 span = mapContent.rect.size / step;
         Vector2 from = (center - span * 0.5f) * PixelsPerTile + Vector2.one * fogPadding;
         span *= PixelsPerTile;
         fogMask.uvRect = new Rect(from.x / fog.width, from.y / fog.height, span.x / fog.width, span.y / fog.height);
 
-        Vector3 forward = player.forward;
-        playerArrow.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(forward.z, forward.x) * Mathf.Rad2Deg);
-        // Rotation already points the nose left. Flip across that axis to keep the sprite upright.
-        Vector3 scale = playerArrow.localScale;
-        if (Mathf.Abs(forward.x) > 0.001f)
-            playerArrow.localScale = new Vector3(scale.x, forward.x < 0 ? -Mathf.Abs(scale.y) : Mathf.Abs(scale.y), scale.z);
     }
 
     void Init()
     {
         int width = generator.Width, height = generator.Height;
+        mapContent = new GameObject("Rotating map", typeof(RectTransform)).GetComponent<RectTransform>();
+        mapContent.SetParent(viewport, false);
+        mapContent.anchorMin = mapContent.anchorMax = Vector2.one * 0.5f;
+        mapContent.SetAsFirstSibling();
+        playerArrow.localRotation = Quaternion.Euler(0f, 0f, 90f); // The artwork points right.
         markers = new GameObject("Discovered landmarks", typeof(RectTransform)).GetComponent<RectTransform>();
-        markers.SetParent(viewport, false);
+        markers.SetParent(mapContent, false);
         markers.anchorMin = markers.anchorMax = Vector2.one * 0.5f;
         markers.pivot = Vector2.zero;
         markers.SetAsFirstSibling();
 
         // The stencil draws the paper hatching only over unknown cells.
         fogMask = new GameObject("Unexplored cells", typeof(RectTransform), typeof(RawImage), typeof(Mask)).GetComponent<RawImage>();
-        fogMask.transform.SetParent(viewport, false);
+        fogMask.transform.SetParent(mapContent, false);
         Stretch(fogMask.rectTransform);
         fogMask.raycastTarget = false;
         fogMask.GetComponent<Mask>().showMaskGraphic = false;
@@ -199,6 +210,7 @@ public class Minimap : MonoBehaviour
         icon.preserveAspect = true;
         icon.raycastTarget = false;
         var rect = icon.rectTransform;
+        rect.localRotation = Quaternion.Inverse(mapContent.localRotation);
         rect.anchorMin = rect.anchorMax = new Vector2((x + 0.5f) / generator.Width, (y + 0.5f) / generator.Height);
         rect.anchoredPosition = Vector2.zero;
         rect.sizeDelta = Vector2.one * (home ? homeSize : treeSize);

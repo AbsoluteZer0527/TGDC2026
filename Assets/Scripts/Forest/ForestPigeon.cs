@@ -6,7 +6,7 @@ public sealed class ForestPigeon : MonoBehaviour
 {
     [SerializeField] RectTransform pigeon;
     [SerializeField] TMP_Text dialogue;
-    [SerializeField, TextArea] string bountyLine = "remember, the money in the piggy bank can't exceed the max threshold, else the profit you are making is too suspicious...";
+    [SerializeField, TextArea] string bountyLine = "remember, the auditor checks today’s stew + today’s hunting. keep that total at or below the daily max...";
     [SerializeField, TextArea] string stewLine = "make sure to find the way back before the stew is overcooked...";
     [SerializeField, Min(1f)] float bountyReadSeconds = 8f, stewReadSeconds = 5f;
 

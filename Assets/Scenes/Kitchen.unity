@@ -4061,6 +4061,7 @@ MonoBehaviour:
   minOrderSize: 2
   maxCopiesPerIngredient: 2
   soupPrice: 10
+  showPlaytestButtons: 0
   ingredientButtonPrefab: {fileID: 2355970609247980472, guid: 7ae55c278ab4f40c3820c20360066be7, type: 3}
   ingredientButtonParent: {fileID: 0}
   cookButton: {fileID: 1269309905}

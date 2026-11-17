@@ -16,8 +16,10 @@ public class GameManager : MonoBehaviour
 
     [Header("Day")]
     public float dayLength = 300f;
-    [Tooltip("Rent charged at the end of each day = this × the day number.")]
-    public int rentPerDay = 200;
+    [Tooltip("Rent charged on the first night.")]
+    [Min(0)] public int rentPerDay = 80;
+    [Tooltip("Added to rent each difficulty level, up to day 10.")]
+    [Min(0)] public int rentIncreasePerLevel = 20;
     [Min(1), Tooltip("Playtest: start the game on this day (difficulty and rent follow it). Keep at 1 for release.")]
     public int startDay = 1;
     public float TimeLeft { get; private set; }
@@ -28,7 +30,7 @@ public class GameManager : MonoBehaviour
     public bool AuditInProgress => Night == NightPhase.Audit;
     public bool AuditorPresent { get; private set; }
     public int Day { get; private set; } = 1;
-    public long RentDue => (long)rentPerDay * Day;
+    public long RentDue => rentPerDay + (long)rentIncreasePerLevel * (Difficulty.Level - 1);
 
     [Header("Tutorial (the first customers of the game)")]
     [Tooltip("While customer 1, 2, ... is the latest arrival, the day clock stops at this fraction of the day. " +
@@ -36,11 +38,11 @@ public class GameManager : MonoBehaviour
     public float[] tutorialClockCaps = { 0.25f, 0.5f };
     [Tooltip("Fixed cook seconds for customer 1, 2, 3... (customer 3 is long so the player can explore the forest). " +
              "Customers past the end of the list use the normal cook time.")]
-    public float[] tutorialCookSeconds = { 10f, 10f, 60f };
+    public float[] tutorialCookSeconds = { 5f, 10f, 60f };
 
     [Header("Soup")]
     [Tooltip("Cook time = ingredients in the pot × this")]
-    public float cookSecondsPerIngredient = 8f;
+    public float cookSecondsPerIngredient = 5f;
     [Tooltip("On: thrown ingredients fall back onto the board and can be added again (duplicates allowed).\n" +
              "Off: each ingredient goes in once and stays in the soup until Discard.")]
     public bool ingredientRefresh = true;
@@ -152,7 +154,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Money")]
     [Tooltip("$ of dirty money you can launder per $1 of soup sold")]
-    public float launderRatio = 3f;
+    public float launderRatio = 15f;
     // Today's numbers (reset every morning). HUD shows them as Stew / Hunt / Max.
     public long CleanMoney { get; private set; }       // Stew: kitchen profit today
     public long DirtyMoney { get; private set; }       // Hunt: illegal money today
@@ -161,6 +163,7 @@ public class GameManager : MonoBehaviour
     public bool AuditPassed => CleanMoney + DirtyMoney <= MaxToday; // i.e. Hunt <= stew × ratio
     // Piggy bank: running total across days. Rent comes out of this; negative = in the red.
     public long Savings { get; private set; }
+    long OpeningBalance => Savings - CleanMoney - DirtyMoney;
     public long Score => Savings;
     public NightReport LastNight { get; private set; }
     const string HighScoreKey = "HighScore64";
@@ -317,6 +320,7 @@ public class GameManager : MonoBehaviour
     {
         AudioManager.Instance?.PlaySFX("money");
         CleanMoney += price;
+        Savings += price;
         LaunderCapacity += (long)System.Math.Round(price * (double)launderRatio);
     }
 
@@ -324,6 +328,7 @@ public class GameManager : MonoBehaviour
     {
         if (amount > 0) AudioManager.Instance?.PlaySFX("money");
         DirtyMoney += amount;
+        Savings += amount;
         if (amount > 0 && forestBountyReminder == BountyReminder.BeforeFirstPayout)
             forestBountyReminder = BountyReminder.Pending;
     }
@@ -355,7 +360,7 @@ public class GameManager : MonoBehaviour
     {
         if (DayOver) return;
         AuditOutcome = !AuditPassed ? LossReason.Jail :
-            Savings < 0 && Savings + CleanMoney + DirtyMoney - RentDue < 0 ? LossReason.Evicted : LossReason.None;
+            OpeningBalance < 0 && Savings - RentDue < 0 ? LossReason.Evicted : LossReason.None;
         Night = NightPhase.Audit;
         TimeLeft = 0f;
         DiscardSoup();
@@ -383,8 +388,8 @@ public class GameManager : MonoBehaviour
         AuditorPresent = false;
         if (AuditOutcome == LossReason.Jail) { Lose(LossReason.Jail); return; }
 
-        var r = new NightReport { day = Day, stew = CleanMoney, hunt = DirtyMoney, rent = RentDue, savingsBefore = Savings };
-        Savings += r.Income - r.rent;
+        var r = new NightReport { day = Day, stew = CleanMoney, hunt = DirtyMoney, rent = RentDue, savingsBefore = OpeningBalance };
+        Savings -= r.rent;
         r.savingsAfter = Savings;
         LastNight = r;
         if (Score > HighScore) PlayerPrefs.SetString(HighScoreKey, Score.ToString(CultureInfo.InvariantCulture));

@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 0
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -118,10 +118,10 @@ TextureImporter:
       name: Npc1_0
       rect:
         serializedVersion: 2
-        x: 196
-        y: 99
-        width: 660
-        height: 749
+        x: 915
+        y: 162
+        width: 599
+        height: 687
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -140,7 +140,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 1e28d163eb2ef44479c49433fe7ac7fe
     internalID: 0
     vertices: []
     indices: 
