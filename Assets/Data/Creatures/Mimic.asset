@@ -15,9 +15,10 @@ MonoBehaviour:
   displayName: Mimic
   worldSprite: {fileID: 2733741852203317717, guid: 64a2533710323f3458b43fa351203fc2, type: 3}
   attackSprite: {fileID: -3200779584694267956, guid: 48e1c3686fc01e14ca9f622ca1c6b98f, type: 3}
+  groundOffset: 0
   minSpawnDistance: 10
   worldScale: 2.5
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: -477599212, guid: e9a1ca766fa321244830cd1f93c92053, type: 3}
   maxHealth: 2
   bountyPrice: 40
   behaviorPrefab: {fileID: -3860719553805369665, guid: 750fa57815d17420d940c7de8dc409d2, type: 3}

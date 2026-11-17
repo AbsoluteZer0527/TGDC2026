@@ -13,7 +13,6 @@ public enum LossReason { None, Jail, Evicted }
 public class GameManager : MonoBehaviour
 {
     public static GameManager I { get; private set; }
-    bool restarting;
 
     [Header("Day")]
     public float dayLength = 300f;
@@ -198,11 +197,7 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (I != null)
-        {
-            if (!I.restarting) { Destroy(gameObject); return; }
-            Destroy(I.gameObject);
-        }
+        if (I != null) { Destroy(gameObject); return; }   // the scene's spare copy; the running one carries over
         I = this;
         DontDestroyOnLoad(gameObject);
         TimeLeft = dayLength;
@@ -426,12 +421,14 @@ public class GameManager : MonoBehaviour
         CurtainTransition.TransitionTo("Kitchen", startClosed: true);  // curtain opens on the new morning
     }
 
+    // Loss screen button: back to the title. This whole run (Systems, HUD, money, day) is thrown away;
+    // pressing Play builds a fresh one from the Kitchen's Systems.
     public void Restart()
     {
-        if (restarting) return;
-        // LoadScene completes next frame. Keep serving the outgoing kitchen until
-        // the replacement Systems object takes ownership in Awake.
-        restarting = true;
-        SceneManager.LoadScene("Kitchen");
+        if (I != this) return;
+        I = null;
+        Time.timeScale = 1f;
+        Destroy(gameObject);
+        SceneManager.LoadScene("Start");
     }
 }
