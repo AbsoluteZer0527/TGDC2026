@@ -100,6 +100,15 @@ public sealed class KitchenDialogue : MonoBehaviour
         return sprite;
     }
 
+    // Complains, then (once the line is clicked through) the order bubble shows the same order again.
+    public void BeginWrongOrder()
+    {
+        var choices = (dialogueFile.wrongOrderLines ?? Array.Empty<string>())
+            .Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
+        string line = choices.Length > 0 ? choices[Random.Range(0, choices.Length)] : "I'm sorry, but this seems wrong...";
+        GM.BeginCustomerDialogue(CustomerPhase.AtCounter, new[] { new DialogueLine { text = line } });
+    }
+
     public void BeginFarewell() =>
         GM.BeginCustomerDialogue(CustomerPhase.Farewell, PickConversation(dialogueFile.customerEndings));
 

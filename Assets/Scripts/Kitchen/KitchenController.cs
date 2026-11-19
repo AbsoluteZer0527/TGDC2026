@@ -132,9 +132,17 @@ public class KitchenController : MonoBehaviour
         // Exact match: same ingredients, same number of each. Extra or missing copies make it wrong.
         bool correct = soup.Count == GM.CurrentOrder.Count &&
                        GM.CurrentOrder.GroupBy(i => i).All(g => soup.Count(s => s == g.Key) == g.Count());
-        if (correct) GM.SellSoup(soupPrice);
-        GM.CurrentOrder.Clear();
-        dialogue.BeginFarewell();
+        if (correct)
+        {
+            GM.SellSoup(soupPrice);
+            GM.CurrentOrder.Clear();
+            dialogue.BeginFarewell();
+        }
+        else
+        {
+            //TODO: (customer unimpressed grumble when the stew is wrong)
+            dialogue.BeginWrongOrder();   // keeps the same order; they wait until it's right
+        }
         ResumeConversation();
     }
 

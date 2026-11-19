@@ -10,6 +10,14 @@ public sealed class KitchenDialogueData : ScriptableObject
     [Tooltip("For each NPC, matching greetings play in list order on successive visits. Later visits repeat the last greeting.")]
     public CustomerConversation[] keyGreetings = Array.Empty<CustomerConversation>();
 
+    [Header("Wrong order")]
+    [Tooltip("One is picked at random when a served stew doesn't match the order. The customer then repeats the order and waits.")]
+    [TextArea(1, 4)] public string[] wrongOrderLines =
+    {
+        "Hey, I don't think this is what I ordered. Could you please remake it?",
+        "I'm sorry, but this seems wrong...",
+    };
+
     [Header("Farewells and personal dialogue")]
     [Tooltip("Key NPC farewells follow visit order like greetings. Random customers pick a matching farewell at random. No match skips the farewell.")]
     public CustomerConversation[] customerEndings = Array.Empty<CustomerConversation>();
